@@ -51,12 +51,13 @@ namespace Kotwica.UI
 
             if (ship != null && ship.IsPiloted)
             {
-                if (ship.IsDocked) prompt = "[Spacja] Odcumuj     [F] Wyjdź ze statku";
+                if (ship.IsAutoDocking) prompt = "Komputer dokujący prowadzi statek...";
+                else if (ship.IsDocked) prompt = "[Spacja] Odcumuj     [F] Wyjdź ze statku";
                 else if (ship.PortInRange != null)
                 {
-                    prompt = ship.CanDock
-                        ? $"[F] Dokuj: {ship.PortInRange.Ring.DisplayName}"
-                        : $"Zbyt szybko do dokowania (max {ship.MaxDockingSpeed:0} m/s), hamuj X";
+                    prompt = ship.CanAutoDock
+                        ? $"[F] Automatyczne dokowanie: {ship.PortInRange.Ring.DisplayName}"
+                        : $"Zbyt szybko do dokowania (max {ship.AutoDockMaxSpeed:0} m/s), puść W lub przytrzymaj X";
                 }
             }
             else if (interactor != null && interactor.isActiveAndEnabled && interactor.Current != null)
@@ -72,19 +73,22 @@ namespace Kotwica.UI
 
         private void DrawFlightPanel()
         {
-            // Same reference the brake uses: port in range, else the job destination
-            DockingPort target = ship.BrakeReference();
+            // Reference = nearest ring (what the flight assist holds us against)
+            DockingPort reference = ship.ReferencePort;
+            string referenceName = reference != null ? reference.Ring.DisplayName : "-";
+            float relativeSpeed = ship.VelocityRelativeTo(reference).magnitude;
 
-            float speed = ship.VelocityRelativeTo(target).magnitude;
-            string targetName = target != null ? target.Ring.DisplayName : "stacja";
-            string distance = target != null
-                ? $"{Vector3.Distance(ship.transform.position, target.transform.position):0} m"
-                : "-";
+            CourierJob job = GameState.ActiveJob;
+            DockingPort target = job != null && job.Destination != null ? job.Destination.Port : null;
+            string targetText = target != null
+                ? $"{target.Ring.DisplayName}, {Vector3.Distance(ship.transform.position, target.transform.position):0} m"
+                : "brak";
 
-            GUI.Box(new Rect(Screen.width - 316, 16, 300, 96), GUIContent.none, panelStyle);
-            GUI.Label(new Rect(Screen.width - 304, 24, 280, 24), $"Cel: {targetName}", textStyle);
-            GUI.Label(new Rect(Screen.width - 304, 50, 280, 24), $"Odległość: {distance}", textStyle);
-            GUI.Label(new Rect(Screen.width - 304, 76, 280, 24), $"Prędkość wzgl. celu: {speed:0.0} m/s", textStyle);
+            GUI.Box(new Rect(Screen.width - 336, 16, 320, 122), GUIContent.none, panelStyle);
+            GUI.Label(new Rect(Screen.width - 324, 24, 300, 24), $"Asystent lotu [Z]: {(ship.FlightAssist ? "WŁ" : "WYŁ")}", textStyle);
+            GUI.Label(new Rect(Screen.width - 324, 50, 300, 24), $"Odniesienie: {referenceName}", textStyle);
+            GUI.Label(new Rect(Screen.width - 324, 76, 300, 24), $"Prędkość wzgl.: {relativeSpeed:0.0} m/s", textStyle);
+            GUI.Label(new Rect(Screen.width - 324, 102, 300, 24), $"Cel: {targetText}", textStyle);
         }
 
         private void DrawTargetMarker()
@@ -111,7 +115,7 @@ namespace Kotwica.UI
         private void DrawHelp()
         {
             string help = ship != null && ship.IsPiloted
-                ? "W/S ciąg · A/D na boki · Spacja/Ctrl góra/dół · mysz obrót · Q/E przechył · X dopasuj prędkość do celu · F dokowanie"
+                ? "W/S naprzód/wstecz · A/D na boki · Spacja/Ctrl góra/dół · mysz obrót · Q/E przechył · X stop · Z asystent · F dokowanie"
                 : "WASD ruch · Shift bieg · Spacja skok · F interakcja · Esc kursor";
             GUI.Label(new Rect(16, Screen.height - 32, Screen.width - 32, 24), help, smallStyle);
         }

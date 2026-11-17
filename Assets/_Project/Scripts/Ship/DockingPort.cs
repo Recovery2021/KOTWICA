@@ -12,13 +12,23 @@ namespace Kotwica.Ship
     {
         [SerializeField] private OrbitalRing ring;
         [SerializeField] private Transform dockPoint;
+        [Tooltip("Size of the approach zone above the pad where auto-docking can start (m).")]
+        [SerializeField] private Vector3 approachZoneSize = new Vector3(40f, 30f, 40f);
 
         public OrbitalRing Ring => ring;
         public Transform DockPoint => dockPoint != null ? dockPoint : transform;
 
         private void Awake()
         {
-            GetComponent<Collider>().isTrigger = true;
+            var zone = GetComponent<Collider>();
+            zone.isTrigger = true;
+
+            // Approach zone sits on the deck and reaches upwards
+            if (zone is BoxCollider box)
+            {
+                box.size = approachZoneSize;
+                box.center = new Vector3(0f, approachZoneSize.y * 0.5f, 0f);
+            }
             if (ring == null) ring = GetComponentInParent<OrbitalRing>();
         }
 

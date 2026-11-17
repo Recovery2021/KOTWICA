@@ -12,8 +12,8 @@ namespace Kotwica.Core
     /// </summary>
     public static class GameInput
     {
-        // Scales raw mouse delta (pixels) to roughly the legacy "Mouse X/Y" axis range
-        private const float MouseDeltaScale = 0.1f;
+        // Scales raw mouse delta (pixels); lowered after playtest 1 (mouse felt too fast)
+        private const float MouseDeltaScale = 0.06f;
 
 #if ENABLE_INPUT_SYSTEM
         private static Keyboard Kb => Keyboard.current;
@@ -27,7 +27,7 @@ namespace Kotwica.Core
         private static bool Held(KeyCode key) => Input.GetKey(key);
         private static bool Down(KeyCode key) => Input.GetKeyDown(key);
 
-        private static Vector2 RawLook() => new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+        private static Vector2 RawLook() => new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 0.6f;
 #endif
 
         /// <summary>WASD as a vector (x = strafe, y = forward), length max 1.</summary>
@@ -52,6 +52,8 @@ namespace Kotwica.Core
         public static bool SprintHeld() => Held(Key.LeftShift);
         public static bool BrakeHeld() => Held(Key.X);
         public static bool CursorTogglePressed() => Down(Key.Escape);
+        /// <summary>Ship: flight assist on/off.</summary>
+        public static bool FlightAssistTogglePressed() => Down(Key.Z);
         /// <summary>Ship vertical thrust: Space = up, Ctrl = down.</summary>
         public static float Vertical() => (Held(Key.Space) ? 1f : 0f) - (Held(Key.LeftCtrl) ? 1f : 0f);
         /// <summary>Ship roll: E = right, Q = left.</summary>
@@ -62,6 +64,7 @@ namespace Kotwica.Core
         public static bool SprintHeld() => Held(KeyCode.LeftShift);
         public static bool BrakeHeld() => Held(KeyCode.X);
         public static bool CursorTogglePressed() => Down(KeyCode.Escape);
+        public static bool FlightAssistTogglePressed() => Down(KeyCode.Z);
         public static float Vertical() => (Held(KeyCode.Space) ? 1f : 0f) - (Held(KeyCode.LeftControl) ? 1f : 0f);
         public static float Roll() => (Held(KeyCode.E) ? 1f : 0f) - (Held(KeyCode.Q) ? 1f : 0f);
 #endif

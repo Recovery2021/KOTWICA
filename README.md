@@ -6,7 +6,7 @@ Jesteś kurierem i „załatwiaczem” na umierającej stacji z krążących pie
 Dokument wizji: [docs/vision.md](docs/vision.md)
 
 ## Technologia
-- Unity **6000.3.1f1** (Unity 6), URP
+- Unity **6000.3.17f1** (Unity 6), URP
 - C#, krótkie komentarze w kodzie wyjaśniające cel
 - Modele 3D: Blender (pliki źródłowe w `Blender/`, eksport FBX do `Assets/_Project/Art/Models/`)
 - Darmowe assety tam, gdzie się da (np. tekstury CC0), zawsze dopasowane do klimatu gry
@@ -29,7 +29,7 @@ docs/           dokumentacja projektu
 ```
 
 ## Prototyp 01: „Jedno zlecenie” (graybox)
-1. Otwórz projekt w Unity 6000.3.1f1.
+1. Otwórz projekt w Unity 6000.3.17f1.
 2. Menu **Kotwica → Zbuduj scenę Prototyp 01**. Scena zapisze się w `Assets/_Project/Scenes/Prototype01.unity`.
 3. Play.
 
@@ -43,4 +43,4 @@ Jak to działa: pierścień, na którym ostatnio zadokowałeś, stoi w miejscu w
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.
 2. Sklonuj `Recovery2021/KOTWICA`.
-3. W Unity Hub: **Add → Add project from disk** i wskaż sklonowany folder (Unity 6000.3.1f1).
+3. W Unity Hub: **Add → Add project from disk** i wskaż sklonowany folder (Unity 6000.3.17f1).
