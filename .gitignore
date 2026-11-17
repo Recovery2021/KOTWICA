@@ -51,3 +51,28 @@ crashlytics-buildid.txt
 # OS junk
 .DS_Store
 Thumbs.db
+
+# --- Extra rules from the Unity Hub template + new VS solution format ---
+*.slnx
+*.DotSettings.user
+*.blend1.meta
+*.log
+*.unitypackage.meta
+.consulo/
+.gradle/
+.utmp/
+/ServerData
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+/[Aa]ssets/AddressableAssetsData/link.xml*
+/[Aa]ssets/Addressables_Temp*
+/[Aa]ssets/Plugins/Editor/JetBrains*
+/[Aa]ssets/StreamingAssets/aa*
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers.meta
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
+/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db.meta
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+ExportedObj/
+InitTestScene*.unity*
+crashlytics-build.properties
+mono_crash.*
