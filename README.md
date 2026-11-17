@@ -14,31 +14,33 @@ Dokument wizji: [docs/vision.md](docs/vision.md)
 
 ## Struktura
 ```
-Assets/_Project/        wszystko, co nasze (oddzielone od paczek z Asset Store)
-  Scripts/Orbits/       ruch orbitalny pierścieni (OrbitalClock, OrbitalRing)
+Assets/_Project/
+  Scripts/
+    Core/       wejście (klawiatura/mysz), interfejs interakcji
+    Orbits/     czas orbitalny, pierścienie, ruchomy układ odniesienia stacji
+    Player/     postać TPP, interakcje, kamera
+    Ship/       lot statkiem, dokowanie, wsiadanie
+    Gameplay/   zlecenia kurierskie, stan gry
+    UI/         prototypowy HUD
+    Editor/     generator sceny prototypu
   Scenes/  Prefabs/  Art/  Audio/  Settings/
-Blender/                pliki .blend
-docs/                   dokumentacja projektu
+Blender/        pliki .blend
+docs/           dokumentacja projektu
 ```
 
-## Pierwsze uruchomienie na komputerze z Unity (Windows)
-1. Zainstaluj [Git](https://git-scm.com/download/win) (zawiera Git LFS), potem w terminalu: `git lfs install`
-2. W Unity Hub utwórz nowy projekt **Universal 3D (URP)** (Unity 6000.3.1f1) w folderze `E:\Unity\Kotwica`. Zamknij Unity.
-3. W terminalu:
-   ```
-   cd E:\Unity\Kotwica
-   git init -b main
-   git remote add origin https://github.com/<TWOJ_LOGIN>/Kotwica.git
-   git fetch origin
-   git checkout -t origin/main
-   git add .
-   git commit -m "Unity URP project files"
-   git push
-   ```
-4. Otwórz projekt w Unity Hub. Skrypty pojawią się w `Assets/_Project/Scripts`.
+## Prototyp 01: „Jedno zlecenie” (graybox)
+1. Otwórz projekt w Unity 6000.3.1f1.
+2. Menu **Kotwica → Zbuduj scenę Prototyp 01**. Scena zapisze się w `Assets/_Project/Scenes/Prototype01.unity`.
+3. Play.
 
-## Szybki test orbit
-1. Pusty obiekt `OrbitalClock` + komponent `OrbitalClock` (Time Scale np. 20).
-2. Kula = planeta w (0,0,0).
-3. Dwa torusy/cylindry z komponentem `OrbitalRing`, różny `Orbit Radius` (np. 2000 i 2300) i `Orbital Period` (600 i 750).
-4. Play: pierścienie zmieniają położenie względem siebie.
+Pętla do sprawdzenia: tablica zleceń (F) → wejście do statku (F) → Spacja odcumowuje → lot do drugiego pierścienia za znacznikiem → X dopasowuje prędkość do celu → F dokuje (poniżej 4 m/s) → F wyjście → terminal dostaw (F) → wypłata.
+
+Sterowanie pieszo: WASD, Shift bieg, Spacja skok, F interakcja, Esc zwalnia kursor.
+Sterowanie statkiem: W/S ciąg, A/D na boki, Spacja/Ctrl góra/dół, mysz obrót, Q/E przechył, X dopasowanie prędkości.
+
+Jak to działa: pierścień, na którym ostatnio zadokowałeś, stoi w miejscu w środku sceny, a reszta stacji i planeta poruszają się względem niego (`StationFrame`). Dzięki temu chodzenie po pokładzie to zwykła fizyka, a współrzędne są małe.
+
+## Pierwsze uruchomienie na nowym komputerze
+1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.
+2. Sklonuj `Recovery2021/KOTWICA`.
+3. W Unity Hub: **Add → Add project from disk** i wskaż sklonowany folder (Unity 6000.3.1f1).
