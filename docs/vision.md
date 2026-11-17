@@ -11,7 +11,7 @@ Kurier i „załatwiacz” na umierającej stacji Halden: kilka pierścieni habi
 - Postać tworzona przez gracza z puli gotowych wzorów.
 - Ton: złowieszczy, cel: ratunek stacji.
 - Gra jednoosobowa z fabułą; architektura gotowa na co-op 2–4 w przyszłości; bez MMORPG.
-- Styl półrealistyczny: URP, modułowy kitbash z Blendera, wspólna paleta materiałów.
+- Unity 6000.3.1f1. Styl półrealistyczny: URP, modułowy kitbash z Blendera, wspólna paleta materiałów.
 - Walka (rekomendacja do zatwierdzenia): TPP strzelanie z osłonami, rzadkie i zabójcze + skradanie, rozmowa, hakowanie; otoczenie jako zagrożenie; bez walki statków w prototypie.
 
 ## Filary
@@ -27,4 +27,4 @@ Dwa pierścienie krążące z różną prędkością; postać TPP w hangarze; zl
 Prototyp #2: jedno starcie z 2–3 przeciwnikami w korytarzu ze śluzą.
 
 ## Otwarte
-Zatwierdzenie walki; numer wersji Unity; tytuł.
+Zatwierdzenie walki; tytuł.

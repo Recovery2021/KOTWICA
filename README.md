@@ -6,7 +6,7 @@ Jesteś kurierem i „załatwiaczem” na umierającej stacji z krążących pie
 Dokument wizji: [docs/vision.md](docs/vision.md)
 
 ## Technologia
-- Unity (URP), ta sama wersja co w projekcie „gra kosmiczna Unity C#”
+- Unity **6000.3.1f1** (Unity 6), URP
 - C#, krótkie komentarze w kodzie wyjaśniające cel
 - Modele 3D: Blender (pliki źródłowe w `Blender/`, eksport FBX do `Assets/_Project/Art/Models/`)
 - Darmowe assety tam, gdzie się da (np. tekstury CC0), zawsze dopasowane do klimatu gry
@@ -23,7 +23,7 @@ docs/                   dokumentacja projektu
 
 ## Pierwsze uruchomienie na komputerze z Unity (Windows)
 1. Zainstaluj [Git](https://git-scm.com/download/win) (zawiera Git LFS), potem w terminalu: `git lfs install`
-2. W Unity Hub utwórz nowy projekt **Universal 3D (URP)** w folderze `E:\Unity\Kotwica`. Zamknij Unity.
+2. W Unity Hub utwórz nowy projekt **Universal 3D (URP)** (Unity 6000.3.1f1) w folderze `E:\Unity\Kotwica`. Zamknij Unity.
 3. W terminalu:
    ```
    cd E:\Unity\Kotwica
