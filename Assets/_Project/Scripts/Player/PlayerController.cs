@@ -38,8 +38,11 @@ namespace Kotwica.Player
         private float pullUntil;
         private Vector3 visualBaseScale = Vector3.one;
         private Vector3 visualBasePosition;
+        private Transform anchor;
 
         public bool IsCrouched { get; private set; }
+        /// <summary>Holding a safety handle: cannot move, cannot be pulled, can still aim and shoot.</summary>
+        public bool IsAnchored => anchor != null;
         /// <summary>Set by the weapon each frame while the aim button is held.</summary>
         public bool IsAiming { get; set; }
         public bool IsMoving { get; private set; }
@@ -67,7 +70,7 @@ namespace Kotwica.Player
             if (alive && GameInput.CrouchTogglePressed()) SetCrouched(!IsCrouched);
 
             // Movement direction on the floor plane, relative to where the camera looks
-            Vector2 input = alive ? GameInput.Move() : Vector2.zero;
+            Vector2 input = alive && !IsAnchored ? GameInput.Move() : Vector2.zero;
             Vector3 forward = cameraTransform != null
                 ? Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized
                 : transform.forward;
@@ -88,12 +91,13 @@ namespace Kotwica.Player
             if (controller.isGrounded)
             {
                 if (verticalVelocity < 0f) verticalVelocity = -2f; // keeps us glued to the floor
-                if (alive && !IsCrouched && GameInput.JumpPressed()) verticalVelocity = Mathf.Sqrt(2f * jumpHeight * -gravity);
+                if (alive && !IsCrouched && !IsAnchored && GameInput.JumpPressed()) verticalVelocity = Mathf.Sqrt(2f * jumpHeight * -gravity);
             }
             verticalVelocity += gravity * Time.deltaTime;
 
-            // Pulls fade out quickly when nobody keeps applying them
-            if (Time.time > pullUntil) pullVelocity = Vector3.MoveTowards(pullVelocity, Vector3.zero, 20f * Time.deltaTime);
+            // Pulls fade out quickly when nobody keeps applying them; a held handle cancels them
+            if (Time.time > pullUntil || IsAnchored) pullVelocity = Vector3.MoveTowards(pullVelocity, Vector3.zero, 20f * Time.deltaTime);
+            if (IsAnchored) pullVelocity = Vector3.zero;
 
             controller.Move((move * speed + Vector3.up * verticalVelocity + pullVelocity) * Time.deltaTime);
         }
@@ -127,6 +131,17 @@ namespace Kotwica.Player
             pullVelocity = velocity;
             pullUntil = Time.time + 0.1f;
         }
+
+        /// <summary>Grab a handle: snap to its hold point and stay there until released.</summary>
+        public void Grab(Transform holdPoint)
+        {
+            anchor = holdPoint;
+            TeleportTo(holdPoint.position, holdPoint.rotation);
+        }
+
+        public void Release() => anchor = null;
+
+        public bool IsHolding(Transform holdPoint) => anchor == holdPoint;
 
         /// <summary>Moves the player instantly (leaving the ship, loading a save).</summary>
         public void TeleportTo(Vector3 position, Quaternion rotation)

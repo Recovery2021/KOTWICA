@@ -18,6 +18,7 @@ namespace Kotwica.UI
         [SerializeField] private PlayerShooter shooter;
         [SerializeField] private PlayerController playerController;
         [SerializeField] private PlayerInteractor interactor;
+        [SerializeField] private AirlockController airlock;
 
         private GUIStyle textStyle, bigStyle, smallStyle, centerStyle;
         private Texture2D white;
@@ -47,6 +48,7 @@ namespace Kotwica.UI
             DrawSuspicion(w);
             DrawPrompt(w, h);
             DrawMessage(w, h);
+            DrawAirlock(w, h);
             DrawEndScreen(w, h);
 
             GUI.Label(new Rect(16, h - 30, w - 32, 22),
@@ -83,7 +85,9 @@ namespace Kotwica.UI
             Fill(new Rect(back.x + 2, back.y + 2, (back.width - 4) * k, back.height - 4),
                 Color.Lerp(new Color(0.85f, 0.15f, 0.1f), new Color(0.75f, 0.85f, 0.9f), k));
             GUI.Label(new Rect(20, h - 96, 260, 24), $"Zdrowie {Mathf.CeilToInt(playerHealth.Current)}", textStyle);
-            if (playerController != null && playerController.IsCrouched)
+            if (playerController != null && playerController.IsAnchored)
+                GUI.Label(new Rect(170, h - 96, 160, 24), "[trzymasz uchwyt]", smallStyle);
+            else if (playerController != null && playerController.IsCrouched)
                 GUI.Label(new Rect(170, h - 96, 120, 24), "[kucasz]", smallStyle);
         }
 
@@ -128,6 +132,24 @@ namespace Kotwica.UI
         {
             if (string.IsNullOrEmpty(GameState.LastMessage) || Time.time - GameState.LastMessageTime > 3.5f) return;
             GUI.Label(new Rect(0, h * 0.2f, w, 36), GameState.LastMessage, bigStyle);
+        }
+
+        private void DrawAirlock(float w, float h)
+        {
+            if (airlock == null || Defeat) return;
+            bool safe = playerController != null && playerController.IsAnchored;
+
+            if (airlock.CountdownRemaining > 0f)
+            {
+                string line = safe ? "Trzymasz się. Śluza otwiera się za" : "ZŁAP UCHWYT [F]! Śluza otwiera się za";
+                GUI.Label(new Rect(0, h * 0.28f, w, 40), $"{line} {Mathf.CeilToInt(airlock.CountdownRemaining)}",
+                    new GUIStyle(bigStyle) { normal = { textColor = new Color(1f, 0.35f, 0.25f) } });
+            }
+            else if (airlock.Venting)
+            {
+                GUI.Label(new Rect(0, h * 0.28f, w, 40), safe ? "DEKOMPRESJA. Trzymaj się!" : "DEKOMPRESJA! CIĄGNIE CIĘ!",
+                    new GUIStyle(bigStyle) { normal = { textColor = new Color(1f, 0.35f, 0.25f) } });
+            }
         }
 
         private void DrawEndScreen(float w, float h)

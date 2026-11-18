@@ -49,7 +49,7 @@ Jak to działa: pierścień, na którym ostatnio zadokowałeś, stoi w miejscu w
 ## Prototyp 02: walka w korytarzu
 1. Unity: **Kotwica → Zbuduj scenę Prototyp 02 (walka)** (wymaga modeli z testu klimatu).
 2. Play. Trzech strażników patroluje korytarz; kucnij (C), żeby podchodzić niezauważony i chować się za skrzyniami.
-3. Konsola na prawej ścianie (F) otwiera zewnętrzną śluzę: dekompresja wciąga wszystkich w stronę drzwi; kucając, utrzymasz się.
+3. Konsola na prawej ścianie (F) uruchamia 3-sekundowe odliczanie śluzy: złap żółty uchwyt na ścianie (F), bo dekompresja wyssie każdego, kto się nie trzyma. Na uchwycie możesz celować i strzelać.
 
 Sterowanie: WASD, Shift bieg, C kucanie, PPM celowanie zza ramienia, LPM strzał, R przeładowanie / restart po walce, F interakcja.
 

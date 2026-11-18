@@ -66,6 +66,11 @@ namespace Kotwica.Combat
         private float phaseEndTime;
         private int burstLeft;
         private float nextShotTime;
+        private Vector3 peekPosition;
+        private bool sawDuringBurst;
+        private int blindBursts;
+        private CoverPoint excludedCover;
+        private float excludedUntil;
 
         private Vector3 desiredVelocity;
         private Vector3 lookTarget;
@@ -240,33 +245,32 @@ namespace Kotwica.Combat
                 nextCoverSearch = Time.time + 1.5f;
             }
 
-            // Run to cover first
-            if (cover != null && FlatDistance(transform.position, cover.transform.position) > 0.35f)
+            // Where to stand: the cover spot while hiding, the peek spot (over or beside cover) while shooting
+            if (cover != null)
             {
-                crouched = false;
-                shootingPhase = false;
-                RunTowards(cover.transform.position);
-                return;
+                Vector3 spot = shootingPhase ? peekPosition : cover.transform.position;
+                if (FlatDistance(transform.position, spot) > 0.25f)
+                {
+                    crouched = false;
+                    if (shootingPhase) WalkTowards(spot, walkSpeed * 1.5f); // short step out to lean
+                    else RunTowards(spot);
+                    lookTarget = shootingPhase ? lastKnownPlayerPosition : spot;
+                    return;
+                }
             }
-
-            // No cover and no sight: push towards where the player was last seen
-            if (cover == null && !sees && FlatDistance(transform.position, lastKnownPlayerPosition) > preferredMinDistance)
+            else if (!sees && FlatDistance(transform.position, lastKnownPlayerPosition) > preferredMinDistance)
             {
+                // No cover and no sight: push towards where the player was last seen
                 crouched = false;
                 RunTowards(lastKnownPlayerPosition);
                 return;
             }
 
-            // In position: hide, pop up, fire a burst, hide again
+            // In position: hide, pop up (or lean out), fire a burst, hide again
             if (!shootingPhase)
             {
                 crouched = cover != null;
-                if (Time.time >= phaseEndTime)
-                {
-                    shootingPhase = true;
-                    burstLeft = Random.Range(burstMin, burstMax + 1);
-                    nextShotTime = Time.time + 0.3f; // time to stand up and aim
-                }
+                if (Time.time >= phaseEndTime) BeginBurst(threat);
             }
             else
             {
@@ -275,17 +279,51 @@ namespace Kotwica.Combat
                 {
                     if (burstLeft > 0)
                     {
-                        if (CanSeePlayer(false)) Shoot();
+                        if (CanSeePlayer(false))
+                        {
+                            Shoot();
+                            sawDuringBurst = true;
+                        }
                         burstLeft--;
                         nextShotTime = Time.time + burstInterval;
                     }
-                    else
-                    {
-                        shootingPhase = false;
-                        phaseEndTime = Time.time + Random.Range(coverTimeMin, coverTimeMax);
-                    }
+                    else EndBurst();
                 }
             }
+        }
+
+        private void BeginBurst(Vector3 threat)
+        {
+            peekPosition = transform.position;
+            if (cover != null && !cover.TryGetPeekPosition(threat, out peekPosition))
+            {
+                // Cannot shoot from here at all: find somewhere better
+                ExcludeCurrentCover();
+                return;
+            }
+            shootingPhase = true;
+            sawDuringBurst = false;
+            burstLeft = Random.Range(burstMin, burstMax + 1);
+            nextShotTime = Time.time + 0.3f; // time to stand up and aim
+        }
+
+        private void EndBurst()
+        {
+            shootingPhase = false;
+            phaseEndTime = Time.time + Random.Range(coverTimeMin, coverTimeMax);
+
+            // Two bursts in a row without seeing the player: this cover is useless, move
+            blindBursts = sawDuringBurst ? 0 : blindBursts + 1;
+            if (blindBursts >= 2) ExcludeCurrentCover();
+        }
+
+        private void ExcludeCurrentCover()
+        {
+            excludedCover = cover;
+            excludedUntil = Time.time + 6f;
+            blindBursts = 0;
+            ReleaseCover();
+            nextCoverSearch = 0f;
         }
 
         private void FindCover(Vector3 threat)
@@ -296,10 +334,12 @@ namespace Kotwica.Combat
             foreach (CoverPoint point in CoverPoint.All)
             {
                 if (point.Occupant != null && point.Occupant != this) continue;
+                if (point == excludedCover && Time.time < excludedUntil) continue;
 
                 float toThreat = FlatDistance(point.transform.position, threat);
                 if (toThreat < preferredMinDistance || toThreat > preferredMaxDistance) continue;
                 if (!point.ProtectsFrom(threat)) continue;
+                if (!point.TryGetPeekPosition(threat, out _)) continue; // must be able to shoot back from it
 
                 // Prefer close cover at a comfortable fighting distance
                 float score = FlatDistance(transform.position, point.transform.position) + Mathf.Abs(toThreat - 10f) * 0.3f;
@@ -321,6 +361,7 @@ namespace Kotwica.Combat
         {
             if (cover != null && cover.Occupant == this) cover.Occupant = null;
             cover = null;
+            shootingPhase = false;
         }
 
         private void Shoot()

@@ -6,9 +6,9 @@ using UnityEngine;
 namespace Kotwica.Combat
 {
     /// <summary>
-    /// Emergency airlock: opens the outer door for a few seconds. Air rushes out and drags
-    /// everyone towards the opening; whoever gets too close is blown into space.
-    /// Crouching (holding on to the floor) cuts the pull to a quarter. One use per scene.
+    /// Emergency airlock: after a short countdown it opens the outer door for a few seconds.
+    /// Air rushes out and drags everyone towards the opening; whoever gets too close is blown into space.
+    /// The player survives by holding a safety handle (SafetyHandle). One use per scene.
     /// </summary>
     public class AirlockController : MonoBehaviour
     {
@@ -17,11 +17,13 @@ namespace Kotwica.Combat
         [SerializeField] private Transform suctionPoint;
         [SerializeField] private Light alarmLight;
 
+        [Tooltip("Seconds between pressing the console and the door opening: time to grab a handle.")]
+        [SerializeField] private float armDelay = 3f;
         [SerializeField] private float openHeight = 2.4f;
         [SerializeField] private float openTime = 0.5f;
         [SerializeField] private float ventDuration = 6f;
         [Tooltip("Pull speed right at the door, m/s; fades to zero at Reach.")]
-        [SerializeField] private float maxPull = 9f;
+        [SerializeField] private float maxPull = 14f;
         [SerializeField] private float reach = 18f;
         [Tooltip("Closer than this to the doorway = blown out into space.")]
         [SerializeField] private float killRadius = 2.2f;
@@ -30,6 +32,8 @@ namespace Kotwica.Combat
 
         public bool Used { get; private set; }
         public bool Venting { get; private set; }
+        /// <summary>Seconds until the door opens; 0 when not counting down.</summary>
+        public float CountdownRemaining { get; private set; }
 
         private void Awake()
         {
@@ -46,9 +50,20 @@ namespace Kotwica.Combat
 
         private IEnumerator Vent()
         {
-            Venting = true;
+            // Countdown: alarm on, time to grab a handle
             if (alarmLight != null) alarmLight.enabled = true;
-            GameState.Notify("DEKOMPRESJA! Kucnij (C), żeby się utrzymać");
+            GameState.Notify("Alarm śluzy! Złap uchwyt bezpieczeństwa (F)");
+            float open = Time.time + armDelay;
+            while (Time.time < open)
+            {
+                CountdownRemaining = open - Time.time;
+                if (alarmLight != null) alarmLight.intensity = Mathf.Repeat(Time.time * 2f, 1f) < 0.5f ? 5f : 0.5f;
+                yield return null;
+            }
+            CountdownRemaining = 0f;
+
+            Venting = true;
+            GameState.Notify("DEKOMPRESJA!");
 
             yield return MoveDoor(doorClosedPosition + Vector3.up * openHeight);
 
@@ -89,6 +104,9 @@ namespace Kotwica.Combat
             {
                 if (h.IsDead) continue;
 
+                var holder = h.GetComponent<PlayerController>();
+                if (holder != null && holder.IsAnchored) continue; // safe on the handle
+
                 Vector3 toHole = hole - h.transform.position;
                 toHole.y = 0f;
                 float distance = toHole.magnitude;
@@ -103,7 +121,9 @@ namespace Kotwica.Combat
                 Vector3 pull = toHole.normalized * strength * (1f - distance / reach);
 
                 var playerController = h.GetComponent<PlayerController>();
-                if (playerController != null) playerController.ApplyPull(playerController.IsCrouched ? pull * 0.25f : pull);
+                // Only a held handle saves the player; crouching barely helps
+                if (playerController != null && !playerController.IsAnchored)
+                    playerController.ApplyPull(playerController.IsCrouched ? pull * 0.75f : pull);
 
                 var enemy = h.GetComponent<EnemyAI>();
                 if (enemy != null) enemy.ApplyPull(enemy.IsCrouched ? pull * 0.6f : pull);

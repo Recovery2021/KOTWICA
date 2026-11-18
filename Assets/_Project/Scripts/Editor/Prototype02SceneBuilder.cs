@@ -48,6 +48,7 @@ namespace Kotwica.EditorTools
             Set(hud, "shooter", player.GetComponent<PlayerShooter>());
             Set(hud, "playerController", player.GetComponent<PlayerController>());
             Set(hud, "interactor", player.GetComponent<PlayerInteractor>());
+            Set(hud, "airlock", airlock);
 
             ArtTestSceneBuilder.SaveScene(scene, ScenePath);
             Debug.Log($"[Kotwica] Zbudowano {ScenePath}. Naciśnij Play. Walka: PPM celowanie, LPM strzał, C kucanie.");
@@ -139,6 +140,10 @@ namespace Kotwica.EditorTools
             Set(airlock, "suctionPoint", suction);
             Set(airlock, "alarmLight", alarm);
 
+            // Grab bars: one next to the console (move there within the countdown), one near the start
+            BuildHandle(root, "Uchwyt_Konsola", new Vector3(1.38f, 0f, 6.6f), new Vector3(0.9f, 0.05f, 6.6f));
+            BuildHandle(root, "Uchwyt_Start", new Vector3(-1.38f, 0f, 2.6f), new Vector3(-0.9f, 0.05f, 2.6f));
+
             if (console != null)
             {
                 var airlockConsole = console.gameObject.AddComponent<AirlockConsole>();
@@ -147,6 +152,43 @@ namespace Kotwica.EditorTools
             else Debug.LogWarning("[Kotwica] Nie znaleziono konsoli dla śluzy.");
 
             return airlock;
+        }
+
+        /// <summary>Yellow vertical grab bar on the wall plus the spot where the player stands holding it.</summary>
+        private static void BuildHandle(Transform root, string handleName, Vector3 wallPosition, Vector3 standPosition)
+        {
+            var palette = ArtTestSceneBuilder.Palette;
+            float side = Mathf.Sign(wallPosition.x); // +1 right wall, -1 left wall
+
+            var handle = new GameObject(handleName);
+            handle.transform.SetParent(root, false);
+            handle.transform.localPosition = wallPosition;
+
+            var bar = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bar.name = "Drążek";
+            bar.transform.SetParent(handle.transform, false);
+            bar.transform.localPosition = new Vector3(-side * 0.08f, 1.3f, 0f);
+            bar.transform.localScale = new Vector3(0.05f, 0.9f, 0.05f);
+            bar.GetComponent<Renderer>().sharedMaterial = palette["M_Warning"];
+
+            foreach (float y in new[] { 0.88f, 1.72f })
+            {
+                var bracket = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                bracket.name = "Mocowanie";
+                Object.DestroyImmediate(bracket.GetComponent<Collider>());
+                bracket.transform.SetParent(handle.transform, false);
+                bracket.transform.localPosition = new Vector3(-side * 0.04f, y, 0f);
+                bracket.transform.localScale = new Vector3(0.1f, 0.04f, 0.04f);
+                bracket.GetComponent<Renderer>().sharedMaterial = palette["M_BareMetal"];
+            }
+
+            var hold = new GameObject("PunktTrzymania").transform;
+            hold.SetParent(root, false);
+            hold.localPosition = standPosition;
+            hold.localRotation = Quaternion.identity; // facing down the corridor, towards the enemies
+
+            var safety = handle.AddComponent<SafetyHandle>();
+            Set(safety, "holdPoint", hold);
         }
 
         private static void BuildEnemy(string enemyName, Vector3 position, Vector3 patrolA, Vector3 patrolB)
