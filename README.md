@@ -21,6 +21,8 @@ Assets/_Project/
     Player/     postać TPP, interakcje, kamera
     Ship/       lot statkiem, dokowanie, wsiadanie
     Gameplay/   zlecenia kurierskie, stan gry
+    Combat/     zdrowie, broń gracza, AI wrogów, osłony, śluza
+    Environment/ efekty otoczenia (pulsujące światła)
     UI/         prototypowy HUD
     Editor/     generator sceny prototypu
   Scenes/  Prefabs/  Art/  Audio/  Settings/
@@ -39,6 +41,17 @@ Sterowanie pieszo: WASD, Shift bieg, Spacja skok, F interakcja, Esc zwalnia kurs
 Sterowanie statkiem: W/S ciąg, A/D na boki, Spacja/Ctrl góra/dół, mysz obrót, Q/E przechył, X dopasowanie prędkości.
 
 Jak to działa: pierścień, na którym ostatnio zadokowałeś, stoi w miejscu w środku sceny, a reszta stacji i planeta poruszają się względem niego (`StationFrame`). Dzięki temu chodzenie po pokładzie to zwykła fizyka, a współrzędne są małe.
+
+## Test klimatu: korytarz z Blendera
+1. Blender: Scripting → Open → `Blender/Scripts/kotwica_kit_corridor.py` → Run Script (eksportuje 13 modułów do `Assets/_Project/Art/Models/Kit_Corridor`).
+2. Unity: **Kotwica → Zbuduj scenę testu klimatu**.
+
+## Prototyp 02: walka w korytarzu
+1. Unity: **Kotwica → Zbuduj scenę Prototyp 02 (walka)** (wymaga modeli z testu klimatu).
+2. Play. Trzech strażników patroluje korytarz; kucnij (C), żeby podchodzić niezauważony i chować się za skrzyniami.
+3. Konsola na prawej ścianie (F) otwiera zewnętrzną śluzę: dekompresja wciąga wszystkich w stronę drzwi; kucając, utrzymasz się.
+
+Sterowanie: WASD, Shift bieg, C kucanie, PPM celowanie zza ramienia, LPM strzał, R przeładowanie / restart po walce, F interakcja.
 
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.

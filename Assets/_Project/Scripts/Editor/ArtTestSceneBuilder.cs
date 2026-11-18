@@ -6,6 +6,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 
 namespace Kotwica.EditorTools
 {
@@ -32,10 +33,24 @@ namespace Kotwica.EditorTools
         [MenuItem("Kotwica/Zbuduj scenę testu klimatu")]
         public static void Build()
         {
-            if (!LoadKit()) return;
-            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            if (!BuildBase(out Scene scene, out _, out _)) return;
+            SaveScene(scene, ScenePath);
+            Debug.Log($"[Kotwica] Zbudowano {ScenePath}. Naciśnij Play i przejdź się korytarzem.");
+        }
 
-            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        /// <summary>
+        /// Builds the lit corridor with a walkable player and camera into a new scene.
+        /// Used by this test and by the combat prototype, which adds its own layer on top.
+        /// </summary>
+        internal static bool BuildBase(out Scene scene, out GameObject player, out Camera camera)
+        {
+            scene = default;
+            player = null;
+            camera = null;
+            if (!LoadKit()) return false;
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return false;
+
+            scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             palette = ArtPalette.LoadOrCreate();
             DetectAxisAndScale();
 
@@ -43,13 +58,27 @@ namespace Kotwica.EditorTools
             BuildCorridor();
             BuildLights();
             BuildAtmosphere();
-            Camera camera = BuildPlayerAndCamera();
+            camera = BuildPlayerAndCamera(out player);
             BuildPostProcessing(camera);
-
-            ArtPalette.EnsureFolder("Assets/_Project/Scenes");
-            EditorSceneManager.SaveScene(scene, ScenePath);
-            Debug.Log($"[Kotwica] Zbudowano {ScenePath}. Naciśnij Play i przejdź się korytarzem.");
+            return true;
         }
+
+        internal static void SaveScene(Scene scene, string path)
+        {
+            ArtPalette.EnsureFolder("Assets/_Project/Scenes");
+            EditorSceneManager.SaveScene(scene, path);
+
+            var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
+            if (!scenes.Exists(s => s.path == path))
+            {
+                scenes.Add(new EditorBuildSettingsScene(path, true));
+                EditorBuildSettings.scenes = scenes.ToArray();
+            }
+        }
+
+        /// <summary>Corridor root and palette, for builders that extend the base scene.</summary>
+        internal static Transform Root => root;
+        internal static Dictionary<string, Material> Palette => palette;
 
         // --- Kit loading ---------------------------------------------------------
 
@@ -103,7 +132,7 @@ namespace Kotwica.EditorTools
         }
 
         /// <summary>Places one kit piece. Position and yaw are in corridor space (Unity metres).</summary>
-        private static GameObject Place(string piece, Vector3 position, float yaw = 0f)
+        internal static GameObject Place(string piece, Vector3 position, float yaw = 0f)
         {
             if (!kit.TryGetValue(piece, out GameObject model))
             {
@@ -255,9 +284,9 @@ namespace Kotwica.EditorTools
 
         // --- Player, camera, post-processing -------------------------------------------
 
-        private static Camera BuildPlayerAndCamera()
+        private static Camera BuildPlayerAndCamera(out GameObject player)
         {
-            var player = new GameObject("Gracz");
+            player = new GameObject("Gracz");
             var controller = player.AddComponent<CharacterController>();
             controller.center = new Vector3(0f, 0.9f, 0f);
             controller.height = 1.8f;
@@ -293,6 +322,7 @@ namespace Kotwica.EditorTools
 
             var playerSo = new SerializedObject(playerController);
             playerSo.FindProperty("cameraTransform").objectReferenceValue = camera.transform;
+            playerSo.FindProperty("visual").objectReferenceValue = body.transform;
             playerSo.ApplyModifiedPropertiesWithoutUndo();
 
             return camera;

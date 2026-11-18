@@ -43,8 +43,10 @@ namespace Kotwica.Core
             return Vector2.ClampMagnitude(new Vector2(x, y), 1f);
         }
 
+        private static bool Locked => Cursor.lockState == CursorLockMode.Locked;
+
         /// <summary>Mouse movement this frame; zero while the cursor is free (menus, Esc).</summary>
-        public static Vector2 Look() => Cursor.lockState == CursorLockMode.Locked ? RawLook() : Vector2.zero;
+        public static Vector2 Look() => Locked ? RawLook() : Vector2.zero;
 
 #if ENABLE_INPUT_SYSTEM
         public static bool InteractPressed() => Down(Key.F);
@@ -54,6 +56,13 @@ namespace Kotwica.Core
         public static bool CursorTogglePressed() => Down(Key.Escape);
         /// <summary>Ship: flight assist on/off.</summary>
         public static bool FlightAssistTogglePressed() => Down(Key.Z);
+        public static bool CrouchTogglePressed() => Down(Key.C);
+        public static bool ReloadPressed() => Down(Key.R);
+        /// <summary>Right mouse button: aim over the shoulder.</summary>
+        public static bool AimHeld() => Locked && Ms != null && Ms.rightButton.isPressed;
+        /// <summary>Left mouse button: fire (ignored while the cursor is free).</summary>
+        public static bool FireHeld() => Locked && Ms != null && Ms.leftButton.isPressed;
+        public static bool AnyClickPressed() => Ms != null && Ms.leftButton.wasPressedThisFrame;
         /// <summary>Ship vertical thrust: Space = up, Ctrl = down.</summary>
         public static float Vertical() => (Held(Key.Space) ? 1f : 0f) - (Held(Key.LeftCtrl) ? 1f : 0f);
         /// <summary>Ship roll: E = right, Q = left.</summary>
@@ -65,6 +74,11 @@ namespace Kotwica.Core
         public static bool BrakeHeld() => Held(KeyCode.X);
         public static bool CursorTogglePressed() => Down(KeyCode.Escape);
         public static bool FlightAssistTogglePressed() => Down(KeyCode.Z);
+        public static bool CrouchTogglePressed() => Down(KeyCode.C);
+        public static bool ReloadPressed() => Down(KeyCode.R);
+        public static bool AimHeld() => Locked && Input.GetMouseButton(1);
+        public static bool FireHeld() => Locked && Input.GetMouseButton(0);
+        public static bool AnyClickPressed() => Input.GetMouseButtonDown(0);
         public static float Vertical() => (Held(KeyCode.Space) ? 1f : 0f) - (Held(KeyCode.LeftControl) ? 1f : 0f);
         public static float Roll() => (Held(KeyCode.E) ? 1f : 0f) - (Held(KeyCode.Q) ? 1f : 0f);
 #endif
