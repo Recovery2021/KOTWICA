@@ -1,3 +1,4 @@
+using Kotwica.Characters;
 using Kotwica.Combat;
 using Kotwica.Player;
 using Kotwica.UI;
@@ -71,6 +72,11 @@ namespace Kotwica.EditorTools
             Set(shooter, "muzzle", muzzle);
 
             player.AddComponent<PlayerInteractor>();
+
+            // Real animated model from the character creator (falls back to the capsule if not set up)
+            var avatar = player.AddComponent<CharacterAvatar>();
+            Transform body = player.transform.Find("Ciało (placeholder)");
+            if (body != null) Set(avatar, "placeholder", body.gameObject);
         }
 
         private static void BuildCoverPoints(Transform root)
@@ -234,6 +240,13 @@ namespace Kotwica.EditorTools
             var health = root.AddComponent<Health>();
             SetEnum(health, "team", (int)Team.Enemy);
             SetFloat(health, "maxHealth", 100f);
+
+            // Real animated enemy model when the enemy preset exists (capsule otherwise)
+            var avatar = root.AddComponent<CharacterAvatar>();
+            Set(avatar, "placeholder", visual.gameObject);
+            var avatarSo = new SerializedObject(avatar);
+            avatarSo.FindProperty("isPlayer").boolValue = false;
+            avatarSo.ApplyModifiedPropertiesWithoutUndo();
 
             var ai = root.AddComponent<EnemyAI>();
             Set(ai, "visual", visual);

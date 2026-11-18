@@ -10,7 +10,7 @@ namespace Kotwica.Player
     /// External pulls (decompression) are added on top of the player's own movement.
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : MonoBehaviour, ICharacterPose
     {
         [Header("Speeds (m/s)")]
         [SerializeField] private float walkSpeed = 3.5f;

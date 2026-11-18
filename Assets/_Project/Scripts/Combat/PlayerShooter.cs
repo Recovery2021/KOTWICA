@@ -1,4 +1,5 @@
 using System;
+using Kotwica.Characters;
 using Kotwica.Core;
 using Kotwica.Player;
 using UnityEngine;
@@ -58,6 +59,10 @@ namespace Kotwica.Combat
         {
             if (cameraRig == null && Camera.main != null) cameraRig = Camera.main.GetComponent<CameraRig>();
             viewCamera = cameraRig != null ? cameraRig.GetComponent<Camera>() : Camera.main;
+
+            // Real model present: tracers start at its rifle
+            var avatar = GetComponent<CharacterAvatar>();
+            if (avatar != null && avatar.WeaponMuzzle != null) muzzle = avatar.WeaponMuzzle;
         }
 
         private void Update()

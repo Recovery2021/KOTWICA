@@ -22,6 +22,7 @@ Assets/_Project/
     Ship/       lot statkiem, dokowanie, wsiadanie
     Gameplay/   zlecenia kurierskie, stan gry
     Combat/     zdrowie, broń gracza, AI wrogów, osłony, śluza
+    Characters/ wzory postaci, model + animator w miejsce kapsuł
     Environment/ efekty otoczenia (pulsujące światła)
     UI/         prototypowy HUD
     Editor/     generator sceny prototypu
@@ -52,6 +53,10 @@ Jak to działa: pierścień, na którym ostatnio zadokowałeś, stoi w miejscu w
 3. Konsola na prawej ścianie (F) uruchamia 3-sekundowe odliczanie śluzy: złap żółty uchwyt na ścianie (F), bo dekompresja wyssie każdego, kto się nie trzyma. Na uchwycie możesz celować i strzelać.
 
 Sterowanie: WASD, Shift bieg, C kucanie, PPM celowanie zza ramienia, LPM strzał, R przeładowanie / restart po walce, F interakcja.
+
+## Postacie i kreator (krok 3)
+Instrukcja pobrania postaci i animacji z Mixamo: [docs/characters.md](docs/characters.md).
+Potem: **Kotwica → Postacie: przygotuj wzory i animacje**, **Kotwica → Zbuduj scenę kreatora postaci**, **Kotwica → Zbuduj scenę Prototyp 02 (walka)**, Play w `CharacterCreator`.
 
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.

@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Kotwica.Characters;
+using Kotwica.Core;
 using Kotwica.Gameplay;
 using Kotwica.Player;
 using UnityEngine;
@@ -14,7 +16,7 @@ namespace Kotwica.Combat
     /// Shots are real raycasts, so crates and pillars genuinely protect the player too.
     /// </summary>
     [RequireComponent(typeof(CharacterController), typeof(Health))]
-    public class EnemyAI : MonoBehaviour
+    public class EnemyAI : MonoBehaviour, ICharacterPose
     {
         private enum State { Patrol, Combat, Dead }
 
@@ -83,6 +85,8 @@ namespace Kotwica.Combat
 
         public bool IsInCombat => state == State.Combat;
         public bool IsCrouched => crouched;
+        /// <summary>Standing up to shoot (animation uses the aim pose).</summary>
+        public bool IsAiming => state == State.Combat && shootingPhase;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => All.Clear();
@@ -114,6 +118,14 @@ namespace Kotwica.Combat
 
         private void Start()
         {
+            // Real model present: shoot from its rifle and let the animator handle death
+            var avatar = GetComponent<CharacterAvatar>();
+            if (avatar != null && avatar.Animator != null)
+            {
+                if (avatar.WeaponMuzzle != null) muzzle = avatar.WeaponMuzzle;
+                visual = null;
+            }
+
             player = Health.FindFirst(Team.Player);
             if (player != null) playerController = player.GetComponent<PlayerController>();
             lookTarget = transform.position + transform.forward;
