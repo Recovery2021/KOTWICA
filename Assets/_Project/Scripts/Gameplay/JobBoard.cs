@@ -20,6 +20,12 @@ namespace Kotwica.Gameplay
         [SerializeField] private bool lift;
         [SerializeField] private bool missionBoard;
 
+        private void Start()
+        {
+            if (missionBoard && home != null && destination != null)
+                VaroClinic.Install(destination.Port.Ring.transform);
+        }
+
         public string Prompt
         {
             get

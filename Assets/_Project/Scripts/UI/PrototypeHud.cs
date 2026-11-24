@@ -43,6 +43,14 @@ namespace Kotwica.UI
             {
                 var t = Kotwica.Orbits.OrbitalClock.Now;
                 jobText += $"\nDeklaracja: {job.DeclaredCargo} · powrót za {job.ReturnBy - t:0} s";
+                if (GameState.AtClinic)
+                {
+                    jobText += GameState.Mission == GameState.Stage.Waiting
+                        ? $"\nOdbiór przy bramce za {GameState.ApprovalRemaining:0} s"
+                        : "\nKlinika: interkom przy bramce lub przejście techniczne [C].";
+                    float homeFlight = Vector3.Distance(job.Home.Port.PositionAt(t), job.Destination.Port.PositionAt(t)) / ship.CruiseSpeed;
+                    jobText += $"\nLot na Kesh ~{homeFlight:0} s. Możesz wrócić bez leku.";
+                }
                 var origin = ship.DockedAt;
                 var target = job.Destination.Port;
                 if (origin != null && origin != target)

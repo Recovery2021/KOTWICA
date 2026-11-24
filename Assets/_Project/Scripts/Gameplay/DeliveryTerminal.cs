@@ -17,19 +17,11 @@ namespace Kotwica.Gameplay
 
         private bool HasDeliveryHere => GameState.ActiveJob != null && GameState.ActiveJob.Destination == this;
 
-        public string Prompt => HasDeliveryHere && GameState.Mission == GameState.Stage.Decide ? "Lek dla córki: F wróć bez leku · 2 złóż wniosek · 3 zabierz bez zgody" :
-            HasDeliveryHere && GameState.Mission == GameState.Stage.Waiting ? $"Odbierz lek ze zgodą ({GameState.ApprovalRemaining:0} s)" :
-            HasDeliveryHere
-            ? $"Oddaj ładunek ({GameState.ActiveJob.Reward} kr)"
-            : "Terminal dostaw: brak przesyłki dla tego pierścienia";
+        public string Prompt => HasDeliveryHere && GameState.AtClinic ? "Zrezygnuj z leku i wróć na Kesh" :
+            HasDeliveryHere ? $"Oddaj ładunek ({GameState.ActiveJob.Reward} kr)" :
+            "Terminal dostaw: brak przesyłki dla tego pierścienia";
 
-        public bool CanInteract => HasDeliveryHere && (GameState.Mission != GameState.Stage.Waiting || GameState.ApprovalRemaining <= 0);
-
-        public void ChooseMedicine(int option)
-        {
-            if (!HasDeliveryHere || GameState.Mission != GameState.Stage.Decide) return;
-            GameState.ChooseMedicine(option == 2 ? GameState.Medicine.Approved : GameState.Medicine.Undeclared);
-        }
+        public bool CanInteract => HasDeliveryHere;
 
         public void Interact()
         {
@@ -37,8 +29,8 @@ namespace Kotwica.Gameplay
             switch (GameState.Mission)
             {
                 case GameState.Stage.Outbound: GameState.DeliverModule(); return;
-                case GameState.Stage.Decide: GameState.ChooseMedicine(GameState.Medicine.None); return;
-                case GameState.Stage.Waiting: GameState.BeginReturn(); return;
+                case GameState.Stage.Decide:
+                case GameState.Stage.Waiting: GameState.ReturnWithoutMedicine(); return;
                 case GameState.Stage.Return: GameState.FinishReturn(); return;
             }
             int reward = GameState.ActiveJob.Reward;

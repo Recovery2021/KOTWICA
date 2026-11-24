@@ -6,6 +6,8 @@ Przed startem HUD pokazuje dozwolony port, deklarację ładunku, czas do terminu
 
 Wejdź do statku klawiszem **F**, odcumuj spacją i leć do Varo. Przy podejściu wyrównaj prędkość klawiszem **X**. Naciśnij **F** w strefie dokowania, a po zaparkowaniu ponownie **F**, żeby zejść na pokład.
 
-Oddaj moduł przy terminalu Varo. Następnie przy tym samym terminalu wybierz **F**, żeby wrócić bez leku, **2**, żeby wystąpić o zgodę, albo **3**, żeby zabrać lek poza deklaracją. Po złożeniu wniosku odbierz lek klawiszem **F**, gdy licznik osiągnie zero.
+Oddaj moduł przy terminalu Varo i przejdź z magazynu do bramki kliniki. Przez okno widać medyczkę. Interkom (**F**) pozwala poprosić ją o dostawę ze zgodą. HUD pokazuje czas oczekiwania, termin powrotu i szacowany czas lotu na Kesh. Po 25 sekundach odbierz lek od medyczki po publicznej stronie bramki.
+
+Wejście techniczne na zachodzie prowadzi za kontrolę. Obserwuj patrol, kucaj (**C**) i korzystaj z osłon. Jeśli strażnik cię zauważy, odprowadzi cię do magazynu. Przy medyczce możesz odebrać lek bez wpisywania go do deklaracji. Zanim odbierzesz lek, możesz także odlecieć z samym modułem, również po zamówieniu dostawy przez interkom.
 
 Na Kesh oddaj przesyłkę przy terminalu. HUD pokaże los córki dokerki i korektę wynagrodzenia za kolejne zlecenie. Spóźnienie dodatkowo obniża tę stawkę. Stan misji obowiązuje w bieżącej sesji gry.

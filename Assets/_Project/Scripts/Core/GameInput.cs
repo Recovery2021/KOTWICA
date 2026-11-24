@@ -49,7 +49,6 @@ namespace Kotwica.Core
         public static Vector2 Look() => Locked ? RawLook() : Vector2.zero;
 
 #if ENABLE_INPUT_SYSTEM
-        public static int MedicineOption() => Down(Key.Digit2) ? 2 : Down(Key.Digit3) ? 3 : 0;
         public static bool InteractPressed() => Down(Key.F);
         public static bool JumpPressed() => Down(Key.Space);
         public static bool SprintHeld() => Held(Key.LeftShift);
@@ -69,7 +68,6 @@ namespace Kotwica.Core
         /// <summary>Ship roll: E = right, Q = left.</summary>
         public static float Roll() => (Held(Key.E) ? 1f : 0f) - (Held(Key.Q) ? 1f : 0f);
 #else
-        public static int MedicineOption() => Down(KeyCode.Alpha2) ? 2 : Down(KeyCode.Alpha3) ? 3 : 0;
         public static bool InteractPressed() => Down(KeyCode.F);
         public static bool JumpPressed() => Down(KeyCode.Space);
         public static bool SprintHeld() => Held(KeyCode.LeftShift);

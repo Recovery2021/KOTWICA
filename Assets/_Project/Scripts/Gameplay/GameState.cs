@@ -47,7 +47,7 @@ namespace Kotwica.Gameplay
         {
             if (Mission != Stage.Outbound) return;
             Mission = Stage.Decide;
-            Notify("Serwis przyjął moduł. Wybierz sposób powrotu przy terminalu.");
+            Notify("Serwis przyjął moduł. Medyczka jest za oknem magazynu. Podejdź do bramki kliniki.");
         }
 
         public static void ChooseMedicine(Medicine choice)
@@ -62,6 +62,16 @@ namespace Kotwica.Gameplay
             else BeginReturn();
         }
 
+        public static bool AtClinic => Mission == Stage.Decide || Mission == Stage.Waiting;
+
+        public static void ReturnWithoutMedicine()
+        {
+            if (!AtClinic) return;
+            Package = Medicine.None;
+            Mission = Stage.Decide;
+            BeginReturn();
+        }
+
         public static void BeginReturn()
         {
             if (Mission == Stage.Waiting && ApprovalRemaining > 0) return;
@@ -70,6 +80,13 @@ namespace Kotwica.Gameplay
             job.DeclaredCargo = Package == Medicine.Approved ? "Moduł i lek" : "Moduł";
             job.Cargo = Package == Medicine.None ? "Moduł po naprawie" : "Moduł po naprawie i lek";
             Mission = Stage.Return;
+        }
+
+        public static void ConfiscateMedicine()
+        {
+            if (Mission != Stage.Return || Package != Medicine.Undeclared) return;
+            Package = Medicine.None;
+            ActiveJob.Cargo = "Moduł po naprawie";
         }
 
         public static void FinishReturn()

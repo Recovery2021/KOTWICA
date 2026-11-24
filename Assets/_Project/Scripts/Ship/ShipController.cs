@@ -315,6 +315,8 @@ namespace Kotwica.Ship
 
         private void Undock()
         {
+            if (GameState.AtClinic && GameState.ActiveJob?.Destination?.Port == dockedAt)
+                GameState.ReturnWithoutMedicine();
             if (requiresPermit && (GameState.ActiveJob == null || GameState.ActiveJob.Destination.Port == dockedAt))
             {
                 GameState.Notify("Odbierz zlecenie lub zakończ sprawy w porcie przed startem.");
