@@ -78,7 +78,12 @@ namespace Kotwica.Ship
         /// <summary>Nearest ring's port: the frame the flight assist and the brake work against.</summary>
         public DockingPort ReferencePort { get; private set; }
 
-        public bool CanAutoDock => !IsDocked && !IsAutoDocking && portInRange != null
+        public bool PortAllowed => !requiresPermit || (portInRange != null && GameState.ActiveJob?.Destination?.Port == portInRange);
+        [SerializeField] private bool requiresPermit;
+        public bool RequiresPermit => requiresPermit;
+        public float CruiseSpeed => assistMaxForwardSpeed;
+
+        public bool CanAutoDock => PortAllowed && !IsDocked && !IsAutoDocking && portInRange != null
                                    && VelocityRelativeTo(portInRange).magnitude <= autoDockMaxSpeed;
 
         private void Awake()
@@ -106,7 +111,7 @@ namespace Kotwica.Ship
         }
 
         private static Vector3 RingVelocity(DockingPort port) =>
-            port != null && port.Ring != null ? port.Ring.FrameVelocity : Vector3.zero;
+            port != null && port.Ring != null ? port.Velocity : Vector3.zero;
 
         private void Update()
         {
@@ -124,6 +129,7 @@ namespace Kotwica.Ship
             if (GameInput.InteractPressed() && !IsAutoDocking)
             {
                 if (IsDocked) ExitShip();
+                else if (portInRange != null && !PortAllowed) GameState.Notify("Przepustka nie obejmuje tego portu.");
                 else if (CanAutoDock) BeginAutoDock(portInRange);
                 else if (portInRange != null) GameState.Notify($"Za szybko do dokowania! Zwolnij poniżej {autoDockMaxSpeed:0} m/s.");
             }
@@ -259,8 +265,8 @@ namespace Kotwica.Ship
 
             autoDockTarget = port;
             autoDockProgress = 0f;
-            autoDockStartOffset = body.position - port.Ring.ScenePosition;
-            autoDockStartRotation = body.rotation;
+            autoDockStartOffset = port.DockPoint.InverseTransformPoint(body.position);
+            autoDockStartRotation = Quaternion.Inverse(port.DockPoint.rotation) * body.rotation;
             GameState.Notify($"Komputer dokujący przejmuje stery: {port.Ring.DisplayName}");
         }
 
@@ -271,10 +277,8 @@ namespace Kotwica.Ship
             float s = Mathf.SmoothStep(0f, 1f, autoDockProgress);
 
             // Interpolate in the ring's frame, so the ring's own motion is followed exactly
-            Vector3 ringPosition = port.Ring.ScenePosition;
-            Vector3 targetOffset = port.DockPoint.position - port.Ring.transform.position;
-            body.MovePosition(ringPosition + Vector3.Lerp(autoDockStartOffset, targetOffset, s));
-            body.MoveRotation(Quaternion.Slerp(autoDockStartRotation, port.DockPoint.rotation, s));
+            body.MovePosition(port.DockPoint.TransformPoint(Vector3.Lerp(autoDockStartOffset, Vector3.zero, s)));
+            body.MoveRotation(port.DockPoint.rotation * Quaternion.Slerp(autoDockStartRotation, Quaternion.identity, s));
 
             if (autoDockProgress >= 1f)
             {
@@ -311,6 +315,11 @@ namespace Kotwica.Ship
 
         private void Undock()
         {
+            if (requiresPermit && (GameState.ActiveJob == null || GameState.ActiveJob.Destination.Port == dockedAt))
+            {
+                GameState.Notify("Odbierz zlecenie lub zakończ sprawy w porcie przed startem.");
+                return;
+            }
             dockedAt = null;
             body.isKinematic = false;
             body.linearVelocity = transform.up * undockPushSpeed; // gentle lift off the pad

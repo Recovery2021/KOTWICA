@@ -18,6 +18,23 @@ namespace Kotwica.Ship
         public OrbitalRing Ring => ring;
         public Transform DockPoint => dockPoint != null ? dockPoint : transform;
 
+        private Vector3 localDockPoint;
+        public Vector3 PositionAt(double time) =>
+            ring.GetOrbitalPosition(time) + ring.Orientation(time) * localDockPoint;
+
+        public Vector3 Velocity
+        {
+            get
+            {
+                var frame = StationFrame.Instance;
+                if (frame == null || ring == null) return Vector3.zero;
+                double t = OrbitalClock.Now;
+                float dt = Time.fixedDeltaTime;
+                return (frame.PointPosition(ring, localDockPoint, t) -
+                        frame.PointPosition(ring, localDockPoint, t - dt * OrbitalClock.Rate)) / dt;
+            }
+        }
+
         private void Awake()
         {
             var zone = GetComponent<Collider>();
@@ -30,6 +47,7 @@ namespace Kotwica.Ship
                 box.center = new Vector3(0f, approachZoneSize.y * 0.5f, 0f);
             }
             if (ring == null) ring = GetComponentInParent<OrbitalRing>();
+            if (ring != null) localDockPoint = ring.transform.InverseTransformPoint(DockPoint.position);
         }
 
         private void OnTriggerEnter(Collider other)

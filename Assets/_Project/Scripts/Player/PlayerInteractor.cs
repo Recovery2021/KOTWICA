@@ -29,6 +29,9 @@ namespace Kotwica.Player
         private void Update()
         {
             Current = FindNearest();
+            int option = GameInput.MedicineOption();
+            if (option != 0 && Current is Kotwica.Gameplay.DeliveryTerminal terminal)
+                terminal.ChooseMedicine(option);
 
             if (Current != null && Current.CanInteract && Time.frameCount != enabledFrame && GameInput.InteractPressed())
             {

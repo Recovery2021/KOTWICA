@@ -16,20 +16,20 @@ namespace Kotwica.Orbits
 
         /// <param name="shift">Position offset of the new frame.</param>
         /// <param name="frameVelocity">Velocity of the new anchor in the old frame (subtracted from bodies).</param>
-        public void ShiftBy(Vector3 shift, Vector3 frameVelocity)
+        public void ChangeFrame(Vector3 origin, Quaternion rotation)
         {
             // CharacterController overrides transform changes while enabled
             var controller = GetComponent<CharacterController>();
             bool controllerWasOn = controller != null && controller.enabled;
             if (controllerWasOn) controller.enabled = false;
 
-            transform.position += shift;
+            transform.SetPositionAndRotation(rotation * (transform.position - origin), rotation * transform.rotation);
 
             var body = GetComponent<Rigidbody>();
             if (body != null)
             {
                 body.position = transform.position;
-                if (!body.isKinematic) body.linearVelocity -= frameVelocity;
+                body.rotation = transform.rotation;
             }
 
             if (controllerWasOn) controller.enabled = true;

@@ -8,6 +8,9 @@ namespace Kotwica.Gameplay
         public string Cargo;
         public DeliveryTerminal Destination;
         public int Reward;
+        public double ReturnBy;
+        public string DeclaredCargo;
+        public DeliveryTerminal Home;
     }
 
     /// <summary>
@@ -16,6 +19,72 @@ namespace Kotwica.Gameplay
     /// </summary>
     public static class GameState
     {
+        public enum Stage { Repair, Ready, Outbound, Decide, Waiting, Return, Complete }
+        public enum Medicine { None, Approved, Undeclared }
+        public static Stage Mission { get; private set; }
+        public static Medicine Package { get; private set; }
+        public static string Outcome { get; private set; }
+        public static int NextRewardAdjustment { get; private set; }
+        private static double approvalAt;
+        public static double ApprovalRemaining => System.Math.Max(0, approvalAt - Kotwica.Orbits.OrbitalClock.Now);
+
+        public static void RepairLift()
+        {
+            if (Mission != Stage.Repair) return;
+            Mission = Stage.Ready;
+            Notify("Podnośnik działa. Dokerka prosi o przewóz modułu i lek dla córki.");
+        }
+
+        public static void StartReturnCourse(CourierJob job)
+        {
+            if (Mission != Stage.Ready || !TryAcceptJob(job)) return;
+            Mission = Stage.Outbound;
+            job.ReturnBy = Kotwica.Orbits.OrbitalClock.Now + 240;
+            job.DeclaredCargo = job.Cargo;
+        }
+
+        public static void DeliverModule()
+        {
+            if (Mission != Stage.Outbound) return;
+            Mission = Stage.Decide;
+            Notify("Serwis przyjął moduł. Wybierz sposób powrotu przy terminalu.");
+        }
+
+        public static void ChooseMedicine(Medicine choice)
+        {
+            if (Mission != Stage.Decide) return;
+            Package = choice;
+            if (choice == Medicine.Approved)
+            {
+                approvalAt = Kotwica.Orbits.OrbitalClock.Now + 25;
+                Mission = Stage.Waiting;
+            }
+            else BeginReturn();
+        }
+
+        public static void BeginReturn()
+        {
+            if (Mission == Stage.Waiting && ApprovalRemaining > 0) return;
+            var job = ActiveJob;
+            job.Destination = job.Home;
+            job.DeclaredCargo = Package == Medicine.Approved ? "Moduł i lek" : "Moduł";
+            job.Cargo = Package == Medicine.None ? "Moduł po naprawie" : "Moduł po naprawie i lek";
+            Mission = Stage.Return;
+        }
+
+        public static void FinishReturn()
+        {
+            bool late = Kotwica.Orbits.OrbitalClock.Now > ActiveJob.ReturnBy;
+            NextRewardAdjustment = Package == Medicine.Undeclared ? -40 : Package == Medicine.Approved ? 30 : 0;
+            if (late) NextRewardAdjustment -= 20;
+            string family = Package == Medicine.None ? "Córka dokerki nadal czeka na lek." : "Dokerka podała córce lek.";
+            Outcome = $"{family} " + (Package == Medicine.Undeclared ? "Kontrola wykryła niezgłoszony ładunek. " : "")
+                + (late ? "Spóźniony powrót. " : "") + $"Korekta kolejnej stawki: {NextRewardAdjustment:+0;-0;0} kr.";
+            CompleteActiveJob();
+            Mission = Stage.Complete;
+            Notify(Outcome);
+        }
+
         public static int Credits { get; private set; }
         public static CourierJob ActiveJob { get; private set; }
         public static string LastMessage { get; private set; }
@@ -25,6 +94,10 @@ namespace Kotwica.Gameplay
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetState()
         {
+            Mission = Stage.Repair;
+            Package = Medicine.None;
+            Outcome = null;
+            NextRewardAdjustment = 0;
             Credits = 0;
             ActiveJob = null;
             LastMessage = null;
@@ -43,6 +116,7 @@ namespace Kotwica.Gameplay
         {
             if (ActiveJob != null || job == null) return false;
             ActiveJob = job;
+            NextRewardAdjustment = 0;
             return true;
         }
 

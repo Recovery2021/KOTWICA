@@ -34,9 +34,26 @@ namespace Kotwica.UI
             CourierJob job = GameState.ActiveJob;
             string jobText = job != null ? $"{job.Cargo}\n→ {job.Destination.LocationName} ({job.Reward} kr)" : "brak (tablica zleceń na pokładzie)";
 
-            GUI.Box(new Rect(16, 16, 380, 96), GUIContent.none, panelStyle);
+            if (job?.Home != null)
+            {
+                var t = Kotwica.Orbits.OrbitalClock.Now;
+                jobText += $"\nDeklaracja: {job.DeclaredCargo} · powrót za {job.ReturnBy - t:0} s";
+                var origin = ship.DockedAt;
+                var target = job.Destination.Port;
+                if (origin != null && origin != target)
+                {
+                    float now = Vector3.Distance(origin.PositionAt(t), target.PositionAt(t)) / ship.CruiseSpeed;
+                    float later = Vector3.Distance(origin.PositionAt(t + 30), target.PositionAt(t + 30)) / ship.CruiseSpeed;
+                    jobText += $"\nLot teraz ~{now:0} s · po 30 s oczekiwania ~{later:0} s";
+                }
+            }
+            else if (GameState.Mission == GameState.Stage.Repair && ship != null && ship.RequiresPermit)
+                jobText = "Napraw podnośnik przy zielonej tablicy na Kesh.";
+            else if (job == null && GameState.Outcome != null) jobText = GameState.Outcome;
+
+            GUI.Box(new Rect(16, 16, 395, 168), GUIContent.none, panelStyle);
             GUI.Label(new Rect(28, 24, 360, 24), $"Kredyty: {GameState.Credits} kr", textStyle);
-            GUI.Label(new Rect(28, 50, 360, 56), $"Zlecenie: {jobText}", textStyle);
+            GUI.Label(new Rect(28, 50, 373, 126), $"Zlecenie: {jobText}", textStyle);
         }
 
         private void DrawMessage()
@@ -55,7 +72,7 @@ namespace Kotwica.UI
                 else if (ship.IsDocked) prompt = "[Spacja] Odcumuj     [F] Wyjdź ze statku";
                 else if (ship.PortInRange != null)
                 {
-                    prompt = ship.CanAutoDock
+                    prompt = !ship.PortAllowed ? "Brak zgody na dokowanie w tym porcie" : ship.CanAutoDock
                         ? $"[F] Automatyczne dokowanie: {ship.PortInRange.Ring.DisplayName}"
                         : $"Zbyt szybko do dokowania (max {ship.AutoDockMaxSpeed:0} m/s), puść W lub przytrzymaj X";
                 }
