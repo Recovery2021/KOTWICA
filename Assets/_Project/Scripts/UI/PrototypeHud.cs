@@ -15,18 +15,23 @@ namespace Kotwica.UI
         [SerializeField] private ShipController ship;
         [SerializeField] private Camera viewCamera;
 
-        private GUIStyle panelStyle, textStyle, bigStyle, smallStyle, markerStyle;
+        private float panelBottom;
+        private GUIStyle textStyle, bigStyle, smallStyle, markerStyle;
 
         private void OnGUI()
         {
+            var previous = GUI.matrix;
+            GUI.matrix = previous * Matrix4x4.Scale(Vector3.one * HudLayout.Scale);
             EnsureStyles();
 
             DrawStatusPanel();
-            DrawMessage();
+
             DrawPrompt();
             if (ship != null && ship.IsPiloted) DrawFlightPanel();
+            DrawMessage();
             DrawTargetMarker();
             DrawHelp();
+            GUI.matrix = previous;
         }
 
         private void DrawStatusPanel()
@@ -51,15 +56,15 @@ namespace Kotwica.UI
                 jobText = "Napraw podnośnik przy zielonej tablicy na Kesh.";
             else if (job == null && GameState.Outcome != null) jobText = GameState.Outcome;
 
-            GUI.Box(new Rect(16, 16, 395, 168), GUIContent.none, panelStyle);
-            GUI.Label(new Rect(28, 24, 360, 24), $"Kredyty: {GameState.Credits} kr", textStyle);
-            GUI.Label(new Rect(28, 50, 373, 126), $"Zlecenie: {jobText}", textStyle);
+            float width = Mathf.Min(500, HudLayout.Width * 0.51f - 20);
+            panelBottom = HudLayout.Panel(12, 12, width, $"Kredyty: {GameState.Credits} kr\nZlecenie: {jobText}", textStyle);
+
         }
 
         private void DrawMessage()
         {
             if (string.IsNullOrEmpty(GameState.LastMessage) || Time.time - GameState.LastMessageTime > 4f) return;
-            GUI.Label(new Rect(0, Screen.height * 0.16f, Screen.width, 36), GameState.LastMessage, bigStyle);
+            HudLayout.Caption(HudLayout.Width / 2, panelBottom + 6, GameState.LastMessage, bigStyle);
         }
 
         private void DrawPrompt()
@@ -84,7 +89,7 @@ namespace Kotwica.UI
 
             if (!string.IsNullOrEmpty(prompt))
             {
-                GUI.Label(new Rect(0, Screen.height - 130, Screen.width, 36), prompt, bigStyle);
+                GUI.Label(new Rect(0, HudLayout.Height - 130, HudLayout.Width, 36), prompt, bigStyle);
             }
         }
 
@@ -101,11 +106,10 @@ namespace Kotwica.UI
                 ? $"{target.Ring.DisplayName}, {Vector3.Distance(ship.transform.position, target.transform.position):0} m"
                 : "brak";
 
-            GUI.Box(new Rect(Screen.width - 336, 16, 320, 122), GUIContent.none, panelStyle);
-            GUI.Label(new Rect(Screen.width - 324, 24, 300, 24), $"Asystent lotu [Z]: {(ship.FlightAssist ? "WŁ" : "WYŁ")}", textStyle);
-            GUI.Label(new Rect(Screen.width - 324, 50, 300, 24), $"Odniesienie: {referenceName}", textStyle);
-            GUI.Label(new Rect(Screen.width - 324, 76, 300, 24), $"Prędkość wzgl.: {relativeSpeed:0.0} m/s", textStyle);
-            GUI.Label(new Rect(Screen.width - 324, 102, 300, 24), $"Cel: {targetText}", textStyle);
+            float width = Mathf.Min(425, HudLayout.Width * 0.49f - 20);
+            string data = $"Asystent lotu [Z]: {(ship.FlightAssist ? "WŁ" : "WYŁ")}\nOdniesienie: {referenceName}\nPrędkość wzgl.: {relativeSpeed:0.0} m/s\nCel: {targetText}";
+            panelBottom = Mathf.Max(panelBottom, HudLayout.Panel(HudLayout.Width - width - 12, 12, width, data, textStyle));
+
         }
 
         private void DrawTargetMarker()
@@ -121,11 +125,11 @@ namespace Kotwica.UI
             if (screen.z > 0f)
             {
                 // IMGUI y axis goes down, screen y goes up
-                GUI.Label(new Rect(screen.x - 120, Screen.height - screen.y - 14, 240, 28), text, markerStyle);
+                HudLayout.Caption(screen.x / HudLayout.Scale, HudLayout.Height - screen.y / HudLayout.Scale, text, markerStyle);
             }
             else
             {
-                GUI.Label(new Rect(0, Screen.height - 170, Screen.width, 28), $"Cel za tobą: {text}", markerStyle);
+                HudLayout.Caption(HudLayout.Width / 2, HudLayout.Height - 175, $"Cel za tobą: {text}", markerStyle);
             }
         }
 
@@ -134,22 +138,41 @@ namespace Kotwica.UI
             string help = ship != null && ship.IsPiloted
                 ? "W/S naprzód/wstecz · A/D na boki · Spacja/Ctrl góra/dół · mysz obrót · Q/E przechył · X stop · Z asystent · F dokowanie"
                 : "WASD ruch · Shift bieg · Spacja skok · F interakcja · Esc kursor";
-            GUI.Label(new Rect(16, Screen.height - 32, Screen.width - 32, 24), help, smallStyle);
+            GUI.Label(new Rect(16, HudLayout.Height - 32, HudLayout.Width - 32, 24), help, smallStyle);
         }
 
         private void EnsureStyles()
         {
-            if (panelStyle != null) return;
-
-            var dark = new Texture2D(1, 1);
-            dark.SetPixel(0, 0, new Color(0f, 0f, 0f, 0.55f));
-            dark.Apply();
-
-            panelStyle = new GUIStyle(GUI.skin.box) { normal = { background = dark } };
-            textStyle = new GUIStyle(GUI.skin.label) { fontSize = 16, normal = { textColor = new Color(0.85f, 0.9f, 0.95f) } };
+            if (textStyle != null) return;
+            textStyle = new GUIStyle(GUI.skin.label) { fontSize = 20, wordWrap = true, normal = { textColor = Color.white } };
             bigStyle = new GUIStyle(textStyle) { fontSize = 22, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
-            smallStyle = new GUIStyle(textStyle) { fontSize = 13, normal = { textColor = new Color(0.7f, 0.75f, 0.8f) } };
-            markerStyle = new GUIStyle(textStyle) { fontSize = 15, alignment = TextAnchor.MiddleCenter, normal = { textColor = new Color(1f, 0.75f, 0.3f) } };
+            smallStyle = new GUIStyle(textStyle) { fontSize = 15, normal = { textColor = new Color(0.7f, 0.75f, 0.8f) } };
+            markerStyle = new GUIStyle(textStyle) { fontSize = 19, alignment = TextAnchor.MiddleCenter, normal = { textColor = new Color(1f, 0.75f, 0.3f) } };
+        }
+    }
+
+    internal static class HudLayout
+    {
+        public static float Scale => Mathf.Max(0.75f, Mathf.Min(Screen.width / 1100f, Screen.height / 720f));
+        public static float Width => Screen.width / Scale;
+        public static float Height => Screen.height / Scale;
+
+        public static float Panel(float x, float y, float width, string text, GUIStyle style)
+        {
+            float inner = width - 20;
+            float height = Mathf.Ceil(style.CalcHeight(new GUIContent(text), inner));
+            var old = GUI.color;
+            GUI.color = new Color(0.025f, 0.035f, 0.05f, 0.94f);
+            GUI.DrawTexture(new Rect(x, y, width, height + 12), Texture2D.whiteTexture);
+            GUI.color = old;
+            GUI.Label(new Rect(x + 10, y + 6, inner, height), text, style);
+            return y + height + 12;
+        }
+
+        public static void Caption(float center, float top, string text, GUIStyle style)
+        {
+            float width = Mathf.Min(Width - 24, Mathf.Ceil(style.CalcSize(new GUIContent(text)).x) + 20);
+            Panel(Mathf.Clamp(center - width / 2, 12, Width - width - 12), top, width, text, style);
         }
     }
 }
