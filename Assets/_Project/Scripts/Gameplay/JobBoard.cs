@@ -55,6 +55,7 @@ namespace Kotwica.Gameplay
                 if (lift) return GameState.Mission == GameState.Stage.Repair ? "Pomóż dokerce naprawić podnośnik" : "Podnośnik działa";
                 if (home != null && GameState.Mission == GameState.Stage.Repair) return "Najpierw napraw podnośnik obok tablicy";
                 if (home != null && GameState.Mission == GameState.Stage.Ready) return "Kurs powrotny: przewieź moduł do Varo";
+                if (home != null && GameState.NeedsMedicineRun && GameState.ActiveJob == null) return "Kolejny kurs po lek: zawieź moduł serwisowy na Varo";
                 if (destination == null) return "Tablica zleceń jest pusta";
                 if (GameState.ActiveJob != null) return "Masz już aktywne zlecenie";
                 return (GameState.InspectionDue ? "Licencja: kontrola przed startem. " : "") + $"Weź zlecenie: dostawa do {destination.LocationName} ({reward + GameState.NextRewardAdjustment} kr)";
@@ -69,9 +70,9 @@ namespace Kotwica.Gameplay
         {
             if (!CanInteract) return;
             if (lift) { GameState.RepairLift(); return; }
-            if (home != null && GameState.Mission == GameState.Stage.Ready)
+            if (home != null && (GameState.Mission == GameState.Stage.Ready || GameState.NeedsMedicineRun))
             {
-                GameState.StartReturnCourse(new CourierJob { Cargo = "Uszkodzony moduł", Home = home, Destination = destination, Reward = reward });
+                GameState.StartReturnCourse(new CourierJob { Cargo = GameState.NeedsMedicineRun ? "Moduł serwisowy" : "Uszkodzony moduł", Home = home, Destination = destination, Reward = reward + GameState.NextRewardAdjustment });
                 return;
             }
             var job = new CourierJob

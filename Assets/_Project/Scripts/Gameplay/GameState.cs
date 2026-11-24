@@ -35,9 +35,13 @@ namespace Kotwica.Gameplay
             Notify("Podnośnik działa. Dokerka prosi o przewóz modułu i lek dla córki.");
         }
 
+        public static bool NeedsMedicineRun => Mission == Stage.Complete && !HasMedicine;
+
         public static void StartReturnCourse(CourierJob job)
         {
-            if (Mission != Stage.Ready || !TryAcceptJob(job)) return;
+            if ((Mission != Stage.Ready && !NeedsMedicineRun) || !TryAcceptJob(job)) return;
+            Cleared = false;
+            Outcome = null;
             Mission = Stage.Outbound;
             job.ReturnBy = Kotwica.Orbits.OrbitalClock.Now + 240;
             job.DeclaredCargo = job.Cargo;
@@ -118,7 +122,7 @@ namespace Kotwica.Gameplay
             bool late = Kotwica.Orbits.OrbitalClock.Now > ActiveJob.ReturnBy;
             NextRewardAdjustment = Package == Medicine.Approved ? 30 : 0;
             if (late) NextRewardAdjustment -= 20;
-            string family = Package == Medicine.None ? "Córka dokerki nadal czeka na lek." : "Dokerka podała córce lek.";
+            string family = Package == Medicine.None ? "Córka dokerki czeka. Na tablicy Kesh odbierz kolejny kurs po lek." : "Dokerka podała córce lek.";
             Outcome = $"{family} " + (InspectionDue ? "Następny kurs wymaga kontroli przed startem. " : "")
                 + (late ? "Spóźniony powrót. " : "") + $"Korekta kolejnej stawki: {NextRewardAdjustment:+0;-0;0} kr.";
             CompleteActiveJob();

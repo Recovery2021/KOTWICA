@@ -96,6 +96,7 @@ namespace Kotwica.Gameplay
 
         private void Update()
         {
+            if (GameState.Mission == GameState.Stage.Outbound) medic.localPosition = ClinicDesk;
             if (GameState.Mission == GameState.Stage.Waiting)
             {
                 // Staff use the same opening west of the inspection window.
@@ -123,8 +124,12 @@ namespace Kotwica.Gameplay
             bool visible = ray.sqrMagnitude < 110 && Vector3.Dot(guard.forward, ray.normalized) > 0.25f &&
                 Physics.Raycast(eye, ray.normalized, out var hit, ray.magnitude + 0.4f, ~0, QueryTriggerInteraction.Ignore) &&
                 hit.collider.GetComponentInParent<PlayerController>() == player;
+            // Footsteps in the restricted corridor carry around a guard facing away.
+            Vector3 speed = player.GetComponent<CharacterController>().velocity;
+            bool running = !player.IsCrouched && Vector3.ProjectOnPlane(speed, transform.up).sqrMagnitude > 16f;
+            bool audible = running && ray.sqrMagnitude < 196f;
             float before = suspicion;
-            suspicion = Mathf.Clamp01(suspicion + Time.deltaTime * (visible ? (player.IsCrouched ? 0.45f : 1.3f) : -1));
+            suspicion = audible ? 1f : Mathf.Clamp01(suspicion + Time.deltaTime * (visible ? (player.IsCrouched ? 0.45f : 3f) : -1));
             if (before < 0.25f && suspicion >= 0.25f) GameState.Notify("Patrol cię obserwuje. Schowaj się za osłoną.");
             if (suspicion < 1) return;
             bool confiscated = GameState.Mission == GameState.Stage.Return;
