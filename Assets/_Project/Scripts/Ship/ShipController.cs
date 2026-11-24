@@ -315,6 +315,7 @@ namespace Kotwica.Ship
 
         private void Undock()
         {
+            if (GameState.InspectionDue && requiresPermit) { GameState.Notify("Przed startem okaż ładunek w odprawie na Kesh."); return; }
             if (GameState.AtClinic && GameState.ActiveJob?.Destination?.Port == dockedAt)
                 GameState.ReturnWithoutMedicine();
             if (requiresPermit && (GameState.ActiveJob == null || GameState.ActiveJob.Destination.Port == dockedAt))

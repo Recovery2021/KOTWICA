@@ -89,13 +89,37 @@ namespace Kotwica.Gameplay
             ActiveJob.Cargo = "Moduł po naprawie";
         }
 
+        public static bool Cleared { get; private set; }
+        public static bool InspectionDue { get; private set; }
+        public static bool HasMedicine => Package != Medicine.None;
+
+        public static void Inspect()
+        {
+            if (Mission == Stage.Complete && InspectionDue && ActiveJob != null)
+            {
+                InspectionDue = false;
+                Notify("Ładunek sprawdzony. Port zezwala na start.");
+                return;
+            }
+            if (Mission != Stage.Return || Cleared) return;
+            Cleared = true;
+            if (Package == Medicine.Undeclared)
+            {
+                ActiveJob.Reward -= 30;
+                ActiveJob.DeclaredCargo = "Moduł i lek";
+            }
+            Notify("Odprawa zakończona. Podejdź do dokerki przy podnośniku.");
+        }
+
         public static void FinishReturn()
         {
+            if (Mission != Stage.Return || (!Cleared && Package != Medicine.Undeclared)) return;
+            InspectionDue = !Cleared;
             bool late = Kotwica.Orbits.OrbitalClock.Now > ActiveJob.ReturnBy;
-            NextRewardAdjustment = Package == Medicine.Undeclared ? -40 : Package == Medicine.Approved ? 30 : 0;
+            NextRewardAdjustment = Package == Medicine.Approved ? 30 : 0;
             if (late) NextRewardAdjustment -= 20;
             string family = Package == Medicine.None ? "Córka dokerki nadal czeka na lek." : "Dokerka podała córce lek.";
-            Outcome = $"{family} " + (Package == Medicine.Undeclared ? "Kontrola wykryła niezgłoszony ładunek. " : "")
+            Outcome = $"{family} " + (InspectionDue ? "Następny kurs wymaga kontroli przed startem. " : "")
                 + (late ? "Spóźniony powrót. " : "") + $"Korekta kolejnej stawki: {NextRewardAdjustment:+0;-0;0} kr.";
             CompleteActiveJob();
             Mission = Stage.Complete;
@@ -115,6 +139,7 @@ namespace Kotwica.Gameplay
             Package = Medicine.None;
             Outcome = null;
             NextRewardAdjustment = 0;
+            Cleared = InspectionDue = false;
             Credits = 0;
             ActiveJob = null;
             LastMessage = null;

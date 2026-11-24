@@ -39,7 +39,7 @@ namespace Kotwica.UI
             CourierJob job = GameState.ActiveJob;
             string jobText = job != null ? $"{job.Cargo}\n→ {job.Destination.LocationName} ({job.Reward} kr)" : "brak (tablica zleceń na pokładzie)";
 
-            if (job?.Home != null)
+            if (job?.Home != null && GameState.Mission != GameState.Stage.Complete)
             {
                 var t = Kotwica.Orbits.OrbitalClock.Now;
                 jobText += $"\nDeklaracja: {job.DeclaredCargo} · powrót za {job.ReturnBy - t:0} s";
@@ -51,6 +51,10 @@ namespace Kotwica.UI
                     float homeFlight = Vector3.Distance(job.Home.Port.PositionAt(t), job.Destination.Port.PositionAt(t)) / ship.CruiseSpeed;
                     jobText += $"\nLot na Kesh ~{homeFlight:0} s. Możesz wrócić bez leku.";
                 }
+                if (GameState.Mission == GameState.Stage.Return)
+                    jobText += GameState.Cleared ? "\nZanieś przesyłkę dokerce." :
+                        "\nRadio Kesh: po dokowaniu zgłoś ładunek do odprawy." +
+                        (GameState.Package == GameState.Medicine.Undeclared ? "\nZgłoszenie: −30 kr. Dokerka najpierw: kontrola następnego kursu." : "");
                 var origin = ship.DockedAt;
                 var target = job.Destination.Port;
                 if (origin != null && origin != target)

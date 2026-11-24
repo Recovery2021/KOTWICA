@@ -23,7 +23,29 @@ namespace Kotwica.Gameplay
         private void Start()
         {
             if (missionBoard && home != null && destination != null)
+            {
                 VaroClinic.Install(destination.Port.Ring.transform);
+                var npc = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                npc.name = "Dokerka";
+                npc.transform.SetParent(home.Port.Ring.transform, false);
+                npc.transform.localPosition = new Vector3(-5, 14, -12);
+                npc.AddComponent<Dockworker>();
+                Label(npc.transform, "DOKERKA", 1.6f);
+                Label(home.transform, "ODPRAWA", 1.5f);
+            }
+        }
+
+        private static void Label(Transform parent, string text, float height)
+        {
+            var sign = new GameObject(text);
+            sign.transform.SetParent(parent, false);
+            sign.transform.localPosition = Vector3.up * height;
+            sign.transform.localRotation = Quaternion.Euler(0,180,0);
+            var label = sign.AddComponent<TextMesh>();
+            label.text = text;
+            label.anchor = TextAnchor.MiddleCenter;
+            label.characterSize = 0.06f;
+            label.fontSize = 48;
         }
 
         public string Prompt
@@ -35,7 +57,7 @@ namespace Kotwica.Gameplay
                 if (home != null && GameState.Mission == GameState.Stage.Ready) return "Kurs powrotny: przewieź moduł do Varo";
                 if (destination == null) return "Tablica zleceń jest pusta";
                 if (GameState.ActiveJob != null) return "Masz już aktywne zlecenie";
-                return $"Weź zlecenie: dostawa do {destination.LocationName} ({reward + GameState.NextRewardAdjustment} kr)";
+                return (GameState.InspectionDue ? "Licencja: kontrola przed startem. " : "") + $"Weź zlecenie: dostawa do {destination.LocationName} ({reward + GameState.NextRewardAdjustment} kr)";
             }
         }
 
@@ -55,6 +77,7 @@ namespace Kotwica.Gameplay
             var job = new CourierJob
             {
                 Cargo = cargoNames.Length > 0 ? cargoNames[Random.Range(0, cargoNames.Length)] : "Paczka",
+                Home = home,
                 Destination = destination,
                 Reward = reward + GameState.NextRewardAdjustment
             };

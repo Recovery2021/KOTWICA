@@ -10,4 +10,4 @@ Oddaj moduł przy terminalu Varo i przejdź z magazynu do bramki kliniki. Przez 
 
 Wejście techniczne na zachodzie prowadzi za kontrolę. Obserwuj patrol, kucaj (**C**) i korzystaj z osłon. Jeśli strażnik cię zauważy, odprowadzi cię do magazynu. Przy medyczce możesz odebrać lek bez wpisywania go do deklaracji. Zanim odbierzesz lek, możesz także odlecieć z samym modułem, również po zamówieniu dostawy przez interkom.
 
-Na Kesh oddaj przesyłkę przy terminalu. HUD pokaże los córki dokerki i korektę wynagrodzenia za kolejne zlecenie. Spóźnienie dodatkowo obniża tę stawkę. Stan misji obowiązuje w bieżącej sesji gry.
+Na Kesh terminal służy do odprawy. Zgłoszenie wcześniej niezadeklarowanego leku kosztuje 30 kr z bieżącej wypłaty. Po odprawie porozmawiaj z dokerką przy podnośniku. Możesz też przekazać jej niezgłoszony lek od razu. Wtedy po przyjęciu następnego zlecenia okaż ładunek przy terminalu Kesh, aby dostać zgodę na start. Stan licencji i rodziny obowiązuje w bieżącej sesji.
