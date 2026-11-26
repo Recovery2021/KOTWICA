@@ -66,7 +66,14 @@ namespace Kotwica.UI
             }
             else if (GameState.Mission == GameState.Stage.Repair && ship != null && ship.RequiresPermit)
                 jobText = "Napraw podnośnik przy zielonej tablicy na Kesh.";
-            else if (job == null && GameState.Outcome != null) jobText = GameState.Outcome;
+            else if (job == null && GameState.Outcome != null)
+            {
+                // The mission summary stays on screen for a moment, then gives way (it lives on in the journal)
+                const float outcomeSeconds = 20f;
+                if (Time.time - GameState.OutcomeTime < outcomeSeconds) jobText = GameState.Outcome;
+                else if (GameState.NeedsMedicineRun) jobText = "brak · opcjonalnie: kurs po lek z tablicy na Kesh";
+                else jobText = "brak · kolejne zadania w dzienniku (Tab)";
+            }
 
             float width = Mathf.Min(500, HudLayout.Width * 0.51f - 20);
             panelBottom = HudLayout.Panel(12, 12, width, $"Kredyty: {GameState.Credits} kr\nZlecenie: {jobText}", textStyle);

@@ -27,6 +27,8 @@ namespace Kotwica.Gameplay
         public static Stage Mission { get; private set; }
         public static Medicine Package { get; private set; }
         public static string Outcome { get; private set; }
+        /// <summary>When the outcome was written (the HUD shows it only for a while).</summary>
+        public static float OutcomeTime { get; private set; }
         public static int NextRewardAdjustment { get; private set; }
         private static double approvalAt;
         public static double ApprovalRemaining => System.Math.Max(0, approvalAt - Kotwica.Orbits.OrbitalClock.Now);
@@ -133,6 +135,7 @@ namespace Kotwica.Gameplay
             string family = Package == Medicine.None ? "Córka dokerki czeka. Na tablicy Kesh odbierz kolejny kurs po lek." : "Dokerka podała córce lek.";
             Outcome = $"{family} " + (InspectionDue ? "Następny kurs wymaga kontroli przed startem. " : "")
                 + (late ? "Spóźniony powrót. " : "") + $"Korekta kolejnej stawki: {NextRewardAdjustment:+0;-0;0} kr.";
+            OutcomeTime = Time.time;
             CompleteActiveJob();
             Mission = Stage.Complete;
 
