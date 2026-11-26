@@ -1,3 +1,6 @@
+using Kotwica.Core;
+using Kotwica.Quests;
+using Kotwica.World;
 using UnityEngine;
 
 namespace Kotwica.Gameplay
@@ -32,6 +35,8 @@ namespace Kotwica.Gameplay
         {
             if (Mission != Stage.Repair) return;
             Mission = Stage.Ready;
+            GameServices.Report(ObjectiveType.Interakcja, "kesh_podnosnik");
+            GameServices.Practice(Kotwica.Progression.PlayerAttribute.Technika, 40f);
             Notify("Podnośnik działa. Dokerka prosi o przewóz modułu i lek dla córki.");
         }
 
@@ -51,6 +56,7 @@ namespace Kotwica.Gameplay
         {
             if (Mission != Stage.Outbound) return;
             Mission = Stage.Decide;
+            GameServices.Report(ObjectiveType.Dostarcz, "varo_serwis");
             Notify("Serwis przyjął moduł. Medyczka jest za oknem magazynu. Podejdź do bramki kliniki.");
         }
 
@@ -58,6 +64,7 @@ namespace Kotwica.Gameplay
         {
             if (Mission != Stage.Decide) return;
             Package = choice;
+            GameServices.Report(ObjectiveType.Porozmawiaj, "varo_klinika");
             if (choice == Medicine.Approved)
             {
                 approvalAt = Kotwica.Orbits.OrbitalClock.Now + 25;
@@ -72,6 +79,7 @@ namespace Kotwica.Gameplay
         {
             if (!AtClinic) return;
             Package = Medicine.None;
+            GameServices.Report(ObjectiveType.Porozmawiaj, "varo_klinika");
             Mission = Stage.Decide;
             BeginReturn();
         }
@@ -127,6 +135,16 @@ namespace Kotwica.Gameplay
                 + (late ? "Spóźniony powrót. " : "") + $"Korekta kolejnej stawki: {NextRewardAdjustment:+0;-0;0} kr.";
             CompleteActiveJob();
             Mission = Stage.Complete;
+
+            // Choices leave marks on how each class sees the player
+            if (Package == Medicine.Approved) GameServices.ChangeReputation(SocialClass.Robotnicy, 5);
+            if (Package == Medicine.Undeclared)
+            {
+                GameServices.ChangeReputation(SocialClass.Robotnicy, 10);
+                GameServices.ChangeReputation(SocialClass.Elita, -5);
+            }
+            if (Package == Medicine.None) GameServices.ChangeReputation(SocialClass.Robotnicy, -5);
+            GameServices.Report(ObjectiveType.Dostarcz, "kesh_dokerka");
             Notify(Outcome);
         }
 
@@ -165,6 +183,10 @@ namespace Kotwica.Gameplay
             NextRewardAdjustment = 0;
             return true;
         }
+
+        /// <summary>Quest rewards, trading, loading a save.</summary>
+        public static void AddCredits(int amount) => Credits += amount;
+        public static void SetCredits(int amount) => Credits = amount;
 
         public static void CompleteActiveJob()
         {

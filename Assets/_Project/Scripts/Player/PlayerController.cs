@@ -78,7 +78,10 @@ namespace Kotwica.Player
             Vector3 move = Vector3.ClampMagnitude(forward * input.y + right * input.x, 1f);
             IsMoving = move.sqrMagnitude > 0.01f;
 
-            float speed = IsCrouched ? crouchSpeed : IsAiming ? aimSpeed : GameInput.SprintHeld() ? sprintSpeed : walkSpeed;
+            bool sprinting = !IsCrouched && !IsAiming && GameInput.SprintHeld() && IsMoving;
+            float speed = IsCrouched ? crouchSpeed : IsAiming ? aimSpeed
+                : sprinting ? sprintSpeed * GameServices.Bonus(Kotwica.Progression.PlayerAttribute.Sprawnosc, 0.04f) : walkSpeed;
+            if (sprinting) GameServices.Practice(Kotwica.Progression.PlayerAttribute.Sprawnosc, Time.deltaTime);
 
             // Aiming: face the camera direction; otherwise turn towards where we walk
             float t = 1f - Mathf.Exp(-rotationSharpness * Time.deltaTime);

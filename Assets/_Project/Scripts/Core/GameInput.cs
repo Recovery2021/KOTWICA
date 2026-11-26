@@ -57,6 +57,9 @@ namespace Kotwica.Core
         /// <summary>Ship: flight assist on/off.</summary>
         public static bool FlightAssistTogglePressed() => Down(Key.Z);
         public static bool CrouchTogglePressed() => Down(Key.C);
+        public static bool JournalTogglePressed() => Down(Key.Tab);
+        public static bool QuickSavePressed() => Down(Key.F5);
+        public static bool QuickLoadPressed() => Down(Key.F9);
         public static bool ReloadPressed() => Down(Key.R);
         /// <summary>Right mouse button: aim over the shoulder.</summary>
         public static bool AimHeld() => Locked && Ms != null && Ms.rightButton.isPressed;
@@ -75,6 +78,9 @@ namespace Kotwica.Core
         public static bool CursorTogglePressed() => Down(KeyCode.Escape);
         public static bool FlightAssistTogglePressed() => Down(KeyCode.Z);
         public static bool CrouchTogglePressed() => Down(KeyCode.C);
+        public static bool JournalTogglePressed() => Down(KeyCode.Tab);
+        public static bool QuickSavePressed() => Down(KeyCode.F5);
+        public static bool QuickLoadPressed() => Down(KeyCode.F9);
         public static bool ReloadPressed() => Down(KeyCode.R);
         public static bool AimHeld() => Locked && Input.GetMouseButton(1);
         public static bool FireHeld() => Locked && Input.GetMouseButton(0);

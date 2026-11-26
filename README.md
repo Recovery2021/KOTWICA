@@ -23,6 +23,12 @@ Assets/_Project/
     Gameplay/   zlecenia kurierskie, stan gry
     Combat/     zdrowie, broń gracza, AI wrogów, osłony, śluza
     Characters/ wzory postaci, model + animator w miejsce kapsuł
+    World/      dane pierścieni i dzielnic, klasy społeczne
+    Progression/ poziomy, atrybuty, reputacja
+    Items/      przedmioty, ekwipunek, kontrabanda
+    Quests/     zadania jako dane, dziennik, cele w scenie
+    Security/   poziom alarmu
+    SaveLoad/   zapis gry do JSON
     Environment/ efekty otoczenia (pulsujące światła)
     UI/         prototypowy HUD
     Editor/     generator sceny prototypu
@@ -57,6 +63,14 @@ Sterowanie: WASD, Shift bieg, C kucanie, PPM celowanie zza ramienia, LPM strzał
 ## Postacie i kreator (krok 3)
 Instrukcja pobrania postaci i animacji z Mixamo: [docs/characters.md](docs/characters.md).
 Potem: **Kotwica → Postacie: przygotuj wzory i animacje**, **Kotwica → Zbuduj scenę kreatora postaci**, **Kotwica → Zbuduj scenę Prototyp 02 (walka)**, Play w `CharacterCreator`.
+
+## Fundamenty otwartego świata (krok 4)
+Systemy działające w każdej scenie (tworzą się same): rozwój postaci, reputacja u trzech klas, ekwipunek, dziennik zadań, poziom alarmu, zapis gry.
+1. **Kotwica → Otwarty świat: utwórz dane startowe** (3 pierścienie, przedmioty, zadania w `Assets/_Project/Resources`).
+2. Play w dowolnej scenie. **Tab**: postać / dziennik / ekwipunek / reputacja. **F5** szybki zapis, **F9** wczytanie.
+3. Rozdział 1 wątku głównego to misja „Kurs powrotny” (Prototyp 01) i postępuje sam, gdy ją grasz.
+
+Nowe zadanie: prawy klik w `Resources/Quests` → Create → Kotwica → Zadanie. W scenie cele zgłaszają: `QuestTarget` (F), `QuestArea` (wejście w strefę), `QuestGiver` (przyjęcie zlecenia).
 
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.

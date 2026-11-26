@@ -476,6 +476,8 @@ namespace Kotwica.Combat
 
         private void OnDied(Health self)
         {
+            GameServices.AwardXp(25);
+            GameServices.Practice(Kotwica.Progression.PlayerAttribute.Walka, 15f);
             state = State.Dead;
             ReleaseCover();
             controller.enabled = false;

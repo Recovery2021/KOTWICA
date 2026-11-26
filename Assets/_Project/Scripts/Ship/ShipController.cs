@@ -292,6 +292,7 @@ namespace Kotwica.Ship
             // The ring we dock at becomes the still point of the world
             if (StationFrame.Instance != null) StationFrame.Instance.SetAnchor(port.Ring);
             SnapToPort(port);
+            GameServices.Practice(Kotwica.Progression.PlayerAttribute.Pilotaz, 15f);
             GameState.Notify($"Zadokowano: {port.Ring.DisplayName}");
         }
 

@@ -132,6 +132,7 @@ namespace Kotwica.Gameplay
             suspicion = audible ? 1f : Mathf.Clamp01(suspicion + Time.deltaTime * (visible ? (player.IsCrouched ? 0.45f : 3f) : -1));
             if (before < 0.25f && suspicion >= 0.25f) GameState.Notify("Patrol cię obserwuje. Schowaj się za osłoną.");
             if (suspicion < 1) return;
+            Kotwica.Core.GameServices.ReportCrime("varo", Kotwica.Security.CrimeType.Wtargniecie, true);
             bool confiscated = GameState.Mission == GameState.Stage.Return;
             if (confiscated) GameState.ConfiscateMedicine();
             player.TeleportTo(transform.TransformPoint(new Vector3(-9,0.1f,-20)), transform.rotation);

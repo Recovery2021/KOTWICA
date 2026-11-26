@@ -99,6 +99,7 @@ namespace Kotwica.Combat
             // Spread: random cone around the screen centre
             float spread = controller.IsAiming ? aimSpread : hipSpread;
             if (controller.IsMoving) spread += movingSpreadBonus;
+            spread /= GameServices.Bonus(Kotwica.Progression.PlayerAttribute.Walka, 0.06f); // trained shooters are steadier
             Transform view = viewCamera != null ? viewCamera.transform : transform;
             Vector3 direction = view.rotation
                 * Quaternion.Euler(UnityEngine.Random.Range(-spread, spread), UnityEngine.Random.Range(-spread, spread), 0f)
@@ -113,6 +114,7 @@ namespace Kotwica.Combat
                 {
                     target.TakeDamage(damage, direction);
                     LastHitTime = Time.time;
+                    GameServices.Practice(Kotwica.Progression.PlayerAttribute.Walka, 4f);
                     LastHitKilled = target.IsDead;
                 }
                 ShotEffects.Flash(hit.point - direction * 0.05f, new Color(1f, 0.7f, 0.4f), 1.5f, 1.5f);
