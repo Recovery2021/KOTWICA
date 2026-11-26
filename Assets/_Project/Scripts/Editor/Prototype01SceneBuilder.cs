@@ -4,6 +4,7 @@ using Kotwica.Orbits;
 using Kotwica.Player;
 using Kotwica.Ship;
 using Kotwica.UI;
+using Kotwica.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -47,6 +48,7 @@ namespace Kotwica.EditorTools
             systems.AddComponent<OrbitalClock>();
             var frame = systems.AddComponent<StationFrame>();
             var hud = systems.AddComponent<PrototypeHud>();
+            systems.AddComponent<RingStreamer>(); // loads ring districts (Ring_Kesh / Ring_Orrin / Ring_Varo) nearby
 
             // Gas giant (visual only, far below the rings)
             var planet = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -58,11 +60,18 @@ namespace Kotwica.EditorTools
             // Two rings on different orbits -> their distance changes over time (160 m to 1.4 km)
             OrbitalRing ringA = BuildRing("Kesh · doki robotnicze", 760f, 480f, 0f, 600f, palette, out DockingPort portA);
             OrbitalRing ringB = BuildRing("Varo · serwis specjalistów", 520f, 650f, 25f, 840f, palette, out DockingPort portB);
+            // Third ring (middle class) between the two: concentric circles never cross
+            OrbitalRing ringC = BuildRing("Orrin · dzielnica urzędów", 640f, 560f, 140f, 720f, palette, out DockingPort portC);
+            SetString(ringA, "ringId", "kesh");
+            SetString(ringB, "ringId", "varo");
+            SetString(ringC, "ringId", "orrin");
+            SetBool(portB, "requiresPermit"); // elite port: job or permit needed
 
             // Edit-mode preview of positions (at runtime StationFrame recalculates them every physics step)
             Vector3 anchorOrbital = ringA.GetOrbitalPosition(0d);
             ringA.transform.position = Vector3.zero;
             ringB.transform.SetPositionAndRotation(ringB.GetOrbitalPosition(0d) - anchorOrbital, ringB.Orientation(0d));
+            ringC.transform.SetPositionAndRotation(ringC.GetOrbitalPosition(0d) - anchorOrbital, ringC.Orientation(0d));
             planet.transform.position = -anchorOrbital;
 
             // Gameplay objects on the decks: each board sends you to the other ring

@@ -112,6 +112,7 @@ namespace Kotwica.Core
         /// <summary>Matches a scene ring to its data by name ("Kesh · doki robotnicze" -> "kesh").</summary>
         public static string RingIdFor(OrbitalRing ring)
         {
+            if (!string.IsNullOrEmpty(ring.RingId)) return ring.RingId;
             string name = ring.DisplayName.ToLowerInvariant();
             foreach (string id in new[] { "kesh", "orrin", "varo" })
                 if (name.Contains(id)) return id;

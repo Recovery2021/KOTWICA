@@ -78,7 +78,19 @@ namespace Kotwica.Ship
         /// <summary>Nearest ring's port: the frame the flight assist and the brake work against.</summary>
         public DockingPort ReferencePort { get; private set; }
 
-        public bool PortAllowed => !requiresPermit || (portInRange != null && GameState.ActiveJob?.Destination?.Port == portInRange);
+        /// <summary>
+        /// Open world rule: public ports (Kesh, Orrin) are free; guarded ports (Varo) need the job
+        /// that ends there or a permit in the inventory.
+        /// </summary>
+        public bool PortAllowed
+        {
+            get
+            {
+                if (!requiresPermit || portInRange == null || !portInRange.RequiresPermit) return true;
+                if (GameState.ActiveJob?.Destination?.Port == portInRange) return true;
+                return GameServices.Instance != null && GameServices.Instance.Inventory.Has(portInRange.PermitItemId);
+            }
+        }
         [SerializeField] private bool requiresPermit;
         public bool RequiresPermit => requiresPermit;
         public float CruiseSpeed => assistMaxForwardSpeed;
@@ -319,9 +331,10 @@ namespace Kotwica.Ship
             if (GameState.InspectionDue && requiresPermit) { GameState.Notify("Przed startem okaż ładunek w odprawie na Kesh."); return; }
             if (GameState.AtClinic && GameState.ActiveJob?.Destination?.Port == dockedAt)
                 GameState.ReturnWithoutMedicine();
-            if (requiresPermit && (GameState.ActiveJob == null || GameState.ActiveJob.Destination.Port == dockedAt))
+            // Open world: free to leave; only an outbound delivery must be handed in first
+            if (requiresPermit && GameState.Mission == GameState.Stage.Outbound && GameState.ActiveJob?.Destination?.Port == dockedAt)
             {
-                GameState.Notify("Odbierz zlecenie lub zakończ sprawy w porcie przed startem.");
+                GameState.Notify("Najpierw oddaj moduł w serwisie tego portu.");
                 return;
             }
             dockedAt = null;

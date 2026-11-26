@@ -12,6 +12,8 @@ namespace Kotwica.Orbits
     public class OrbitalRing : MonoBehaviour
     {
         [SerializeField] private string displayName = "Pierścień";
+        [Tooltip("Id linking this ring to its data (Resources/Rings) and its district scene Ring_<Id>, e.g. 'kesh'.")]
+        [SerializeField] private string ringId;
 
         [Header("Orbit around the planet")]
         [Tooltip("Orbit radius in metres, measured from the planet centre.")]
@@ -31,6 +33,7 @@ namespace Kotwica.Orbits
 
         private Rigidbody body;
         public string DisplayName => displayName;
+        public string RingId => ringId;
 
         private void Awake()
         {

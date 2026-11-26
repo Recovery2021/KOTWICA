@@ -15,7 +15,14 @@ namespace Kotwica.Ship
         [Tooltip("Size of the approach zone above the pad where auto-docking can start (m).")]
         [SerializeField] private Vector3 approachZoneSize = new Vector3(40f, 30f, 40f);
 
+        [Tooltip("Elite ports need a permit item or a job that ends here.")]
+        [SerializeField] private bool requiresPermit;
+        [Tooltip("Item that opens this port (e.g. przepustka_varo).")]
+        [SerializeField] private string permitItemId = "przepustka_varo";
+
         public OrbitalRing Ring => ring;
+        public bool RequiresPermit => requiresPermit;
+        public string PermitItemId => permitItemId;
         public Transform DockPoint => dockPoint != null ? dockPoint : transform;
 
         private Vector3 localDockPoint;

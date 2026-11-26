@@ -23,7 +23,7 @@ Assets/_Project/
     Gameplay/   zlecenia kurierskie, stan gry
     Combat/     zdrowie, broń gracza, AI wrogów, osłony, śluza
     Characters/ wzory postaci, model + animator w miejsce kapsuł
-    World/      dane pierścieni i dzielnic, klasy społeczne
+    World/      dane pierścieni, klasy społeczne, doczytywanie dzielnic
     Progression/ poziomy, atrybuty, reputacja
     Items/      przedmioty, ekwipunek, kontrabanda
     Quests/     zadania jako dane, dziennik, cele w scenie
@@ -71,6 +71,13 @@ Systemy działające w każdej scenie (tworzą się same): rozwój postaci, repu
 3. Rozdział 1 wątku głównego to misja „Kurs powrotny” (Prototyp 01) i postępuje sam, gdy ją grasz.
 
 Nowe zadanie: prawy klik w `Resources/Quests` → Create → Kotwica → Zadanie. W scenie cele zgłaszają: `QuestTarget` (F), `QuestArea` (wejście w strefę), `QuestGiver` (przyjęcie zlecenia).
+
+## Struktura świata (krok 5)
+Scena kosmosu (Prototyp 01) ma trzy pierścienie: Kesh (robotnicy), Orrin (klasa średnia), Varo (elita). Dzielnice każdego pierścienia to osobna scena (`Scenes/Rings/Ring_*.unity`), doczytywana w tle, gdy zbliżasz się do pierścienia albo na nim dokujesz (`RingStreamer`).
+1. **Kotwica → Otwarty świat: utwórz dane startowe** (jeśli jeszcze nie).
+2. **Kotwica → Świat: zbuduj dzielnice pierścieni**.
+3. **Kotwica → Zbuduj scenę Prototyp 01**, Play. Z pokładu portu idź na wschód (ulica dzielnicy).
+Porty Kesh i Orrin są otwarte; Varo wymaga zlecenia albo przepustki (rozdział 2 na Orrin).
 
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.
