@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 507ae0c118caebd4db0a7c45a75f7d68, type: 3}
+  m_Name: Quest_main_01_kurs_powrotny
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.Quests.QuestDefinition
+  id: main_01_kurs_powrotny
+  title: "Rozdzia\u0142 1: Kurs powrotny"
+  description: "Dokerka z Kesh potrzebuje naprawionego modu\u0142u z Varo i leku
+    dla c\xF3rki. Przepustka obejmuje tylko jeden port, a czas ucieka."
+  kind: 0
+  ringId: kesh
+  minLevel: 1
+  requiredQuests: []
+  autoStart: 1
+  repeatable: 0
+  objectives:
+  - description: "Napraw podno\u015Bnik dokerki na Kesh"
+    type: 1
+    targetId: kesh_podnosnik
+    count: 1
+  - description: "Dostarcz modu\u0142 do serwisu na Varo"
+    type: 3
+    targetId: varo_serwis
+    count: 1
+  - description: Zdecyduj w klinice Varo, co z lekiem
+    type: 2
+    targetId: varo_klinika
+    count: 1
+  - description: "Wr\xF3\u0107 do dokerki na Kesh"
+    type: 3
+    targetId: kesh_dokerka
+    count: 1
+  reward:
+    credits: 0
+    xp: 200
+    reputation:
+    - socialClass: 0
+      amount: 5
+    items: []

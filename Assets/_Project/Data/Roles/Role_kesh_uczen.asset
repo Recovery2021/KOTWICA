@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c943c70a95eadc848829c44f5cb9010b, type: 3}
+  m_Name: Role_kesh_uczen
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.World.ResidentRole
+  roleName: "ucze\u0144 warsztat\xF3w"
+  socialClass: 0
+  schedule:
+  - fromHour: 0
+    activity: 0
+  - fromHour: 8
+    activity: 2
+  - fromHour: 14
+    activity: 3
+  - fromHour: 20
+    activity: 0
+  homeLine: "Matka czeka z kolacj\u0105."
+  workLine: '-'
+  studyLine: "Dzi\u015B spawanie w pr\xF3\u017Cni. Na sucho, na szcz\u0119\u015Bcie."
+  leisureLine: "Mo\u017Ce kiedy\u015B polec\u0119 na Varo."

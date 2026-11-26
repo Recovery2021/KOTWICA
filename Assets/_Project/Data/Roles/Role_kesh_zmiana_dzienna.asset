@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c943c70a95eadc848829c44f5cb9010b, type: 3}
+  m_Name: Role_kesh_zmiana_dzienna
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.World.ResidentRole
+  roleName: doker, zmiana dzienna
+  socialClass: 0
+  schedule:
+  - fromHour: 0
+    activity: 0
+  - fromHour: 6
+    activity: 1
+  - fromHour: 14
+    activity: 3
+  - fromHour: 19
+    activity: 0
+  homeLine: "Padam z n\xF3g."
+  workLine: "Kontenery same si\u0119 nie prze\u0142aduj\u0105."
+  studyLine: '-'
+  leisureLine: Na bazarze rzucili filtry. Drogo.

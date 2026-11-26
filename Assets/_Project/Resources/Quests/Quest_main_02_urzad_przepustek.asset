@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 507ae0c118caebd4db0a7c45a75f7d68, type: 3}
+  m_Name: Quest_main_02_urzad_przepustek
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.Quests.QuestDefinition
+  id: main_02_urzad_przepustek
+  title: "Rozdzia\u0142 2: Urz\u0105d Przepustek (w budowie)"
+  description: "Kurs na Varo otworzy\u0142 ci oczy: przepustki decyduj\u0105, kto
+    prze\u017Cyje upadek stacji. Na Orrin kto\u015B handluje nimi na lewo."
+  kind: 0
+  ringId: orrin
+  minLevel: 1
+  requiredQuests:
+  - main_01_kurs_powrotny
+  autoStart: 1
+  repeatable: 0
+  objectives:
+  - description: "Dotrzyj do Urz\u0119du Przepustek na Orrin"
+    type: 0
+    targetId: orrin_urzad
+    count: 1
+  - description: "Porozmawiaj z urz\u0119dnikiem od przepustek"
+    type: 2
+    targetId: orrin_urzednik
+    count: 1
+  - description: "Zdob\u0105d\u017A przepustk\u0119 na Varo"
+    type: 4
+    targetId: przepustka_varo
+    count: 1
+  reward:
+    credits: 150
+    xp: 300
+    reputation:
+    - socialClass: 1
+      amount: 10
+    items: []

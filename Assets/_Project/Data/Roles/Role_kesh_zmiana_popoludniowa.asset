@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c943c70a95eadc848829c44f5cb9010b, type: 3}
+  m_Name: Role_kesh_zmiana_popoludniowa
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.World.ResidentRole
+  roleName: "hutnik, zmiana popo\u0142udniowa"
+  socialClass: 0
+  schedule:
+  - fromHour: 0
+    activity: 0
+  - fromHour: 10
+    activity: 3
+  - fromHour: 13
+    activity: 1
+  - fromHour: 21
+    activity: 0
+  homeLine: Jeszcze godzina snu...
+  workLine: Piec znowu przegrzany.
+  studyLine: '-'
+  leisureLine: "Ostatnia chwila przed zmian\u0105."

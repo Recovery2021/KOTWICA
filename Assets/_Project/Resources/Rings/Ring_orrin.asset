@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d010e50391797154fb8c7fdba638dcc0, type: 3}
+  m_Name: Ring_orrin
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.World.RingDefinition
+  id: orrin
+  displayName: Orrin
+  socialClass: 1
+  description: "Pier\u015Bcie\u0144 klasy \u015Bredniej (nazwa robocza). Urz\u0119dy,
+    handel i szko\u0142y techniczne. Kolejki, piecz\u0105tki i neony sklep\xF3w."
+  lawMultiplier: 1
+  alertDecayPerSecond: 0.05
+  maxGuards: 3
+  armedFromLevel: 3
+  bribesAccepted: 0
+  finePerLevel: 40
+  districts:
+  - name: Bloki mieszkalne
+    type: 0
+    description: 
+  - name: "Urz\u0105d Przepustek"
+    type: 5
+    description: 
+  - name: Targowisko
+    type: 3
+    description: 
+  - name: "Szko\u0142a techniczna"
+    type: 2
+    description: 
+  - name: "Dzielnica serwis\xF3w"
+    type: 1
+    description: 

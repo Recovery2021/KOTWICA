@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c943c70a95eadc848829c44f5cb9010b, type: 3}
+  m_Name: Role_varo_student
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.World.ResidentRole
+  roleName: student akademii
+  socialClass: 2
+  schedule:
+  - fromHour: 0
+    activity: 0
+  - fromHour: 9
+    activity: 2
+  - fromHour: 15
+    activity: 3
+  - fromHour: 23
+    activity: 0
+  homeLine: "Ojciec m\xF3wi, \u017Ce Kesh i tak upadnie pierwszy."
+  workLine: '-'
+  studyLine: "Wyk\u0142ad o stabilizacji orbity. Nudy."
+  leisureLine: "Kolacja u Celin\xF3w, wypada by\u0107."

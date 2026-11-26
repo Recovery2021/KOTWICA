@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d010e50391797154fb8c7fdba638dcc0, type: 3}
+  m_Name: Ring_kesh
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.World.RingDefinition
+  id: kesh
+  displayName: Kesh
+  socialClass: 0
+  description: "Pier\u015Bcie\u0144 robotnik\xF3w. Doki, odlewnie i recykling pr\xF3\u017Cniowy.
+    T\u0142ok, para i bursztynowe \u015Bwiat\u0142a; ochrona bywa przekupna."
+  lawMultiplier: 0.6
+  alertDecayPerSecond: 0.08
+  maxGuards: 2
+  armedFromLevel: 4
+  bribesAccepted: 1
+  finePerLevel: 30
+  districts:
+  - name: "Doki prze\u0142adunkowe"
+    type: 6
+    description: 
+  - name: Baraki kontenerowe
+    type: 0
+    description: 
+  - name: Odlewnia i recykling
+    type: 1
+    description: 
+  - name: "Warsztaty przyzak\u0142adowe"
+    type: 2
+    description: 
+  - name: "Bazar przy \u015Bluzie"
+    type: 3
+    description: 

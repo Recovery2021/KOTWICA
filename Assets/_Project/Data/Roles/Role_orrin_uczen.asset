@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c943c70a95eadc848829c44f5cb9010b, type: 3}
+  m_Name: Role_orrin_uczen
+  m_EditorClassIdentifier: Assembly-CSharp::Kotwica.World.ResidentRole
+  roleName: "ucze\u0144 szko\u0142y technicznej"
+  socialClass: 1
+  schedule:
+  - fromHour: 0
+    activity: 0
+  - fromHour: 8
+    activity: 2
+  - fromHour: 15
+    activity: 3
+  - fromHour: 21
+    activity: 0
+  homeLine: Egzamin jutro.
+  workLine: '-'
+  studyLine: "Jak zdam, dostan\u0119 przydzia\u0142 na Varo. Mo\u017Ce."
+  leisureLine: Targ to jedyne ciekawe miejsce.
