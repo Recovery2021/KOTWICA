@@ -79,6 +79,10 @@ Scena kosmosu (Prototyp 01) ma trzy pierścienie: Kesh (robotnicy), Orrin (klasa
 3. **Kotwica → Zbuduj scenę Prototyp 01**, Play. Z pokładu portu idź na wschód (ulica dzielnicy).
 Porty Kesh i Orrin są otwarte; Varo wymaga zlecenia albo przepustki (rozdział 2 na Orrin).
 
+## Mieszkańcy i zegar stacji (krok 6)
+Doba stacji trwa 24 minuty (1 godzina = 1 minuta, start 07:00, godzina w prawym panelu). Mieszkańcy dzielnic (Kesh 10, Orrin 10, Varo 6) żyją według ról: dom → praca / nauka → odpoczynek → dom; w domu znikają w budynku. Przy alarmie 2+ uciekają do domów. Przestępstwo widziane przez mieszkańca liczy się w całości.
+Role (godziny, kwestie) to pliki w `Assets/_Project/Data/Roles`. Po zmianach: **Kotwica → Świat: zbuduj dzielnice pierścieni**.
+
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.
 2. Sklonuj `Recovery2021/KOTWICA`.

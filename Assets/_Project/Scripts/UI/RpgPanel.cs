@@ -59,6 +59,9 @@ namespace Kotwica.UI
             float x = Screen.width - w - 16f;
             float y = 150f;
 
+            GUI.Label(new Rect(x, y, w, 22), services.Clock.Label, small);
+            y += 20f;
+
             PlayerProfile p = services.Profile;
             GUI.Label(new Rect(x, y, w, 22), $"Poziom {p.Level} · XP {p.Xp}/{p.XpToNextLevel}" + (p.UnspentPoints > 0 ? "  [Tab: punkt!]" : ""), small);
             y += 24f;

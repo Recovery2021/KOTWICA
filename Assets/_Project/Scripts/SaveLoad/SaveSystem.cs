@@ -7,6 +7,7 @@ using Kotwica.Orbits;
 using Kotwica.Progression;
 using Kotwica.Quests;
 using Kotwica.Security;
+using Kotwica.World;
 using UnityEngine;
 
 namespace Kotwica.SaveLoad
@@ -27,6 +28,7 @@ namespace Kotwica.SaveLoad
         public Inventory inventory;
         public QuestLog quests;
         public AlertSystem alert;
+        public StationClock clock;
     }
 
     /// <summary>
@@ -57,7 +59,8 @@ namespace Kotwica.SaveLoad
                 reputation = services.Reputation,
                 inventory = services.Inventory,
                 quests = services.Quests,
-                alert = services.Alert
+                alert = services.Alert,
+                clock = services.Clock
             };
 
             try

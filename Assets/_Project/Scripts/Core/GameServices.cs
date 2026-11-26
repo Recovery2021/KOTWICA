@@ -24,6 +24,7 @@ namespace Kotwica.Core
         public Inventory Inventory { get; private set; }
         public QuestLog Quests { get; private set; }
         public AlertSystem Alert { get; private set; }
+        public StationClock Clock { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => Instance = null;
@@ -60,6 +61,7 @@ namespace Kotwica.Core
             Inventory = new Inventory();
             Quests = new QuestLog();
             Alert = new AlertSystem();
+            Clock = new StationClock();
             Wire();
             Quests.StartAutoQuests();
         }
@@ -72,6 +74,7 @@ namespace Kotwica.Core
             Inventory = data.inventory ?? new Inventory();
             Quests = data.quests ?? new QuestLog();
             Alert = data.alert ?? new AlertSystem();
+            Clock = data.clock ?? new StationClock();
             Wire();
         }
 
@@ -93,6 +96,7 @@ namespace Kotwica.Core
 
         private void Update()
         {
+            Clock.Tick(Time.deltaTime);
             Alert.Tick(Time.deltaTime, playerSeenBySecurity: false);
 
             if (GameInput.QuickSavePressed()) SaveSystem.Save("szybki");

@@ -149,6 +149,7 @@ namespace Kotwica.EditorTools
             Sign("PASER", new Vector3(84f, Floor + 2.4f, -5f));
 
             StreetLights(new Color(1f, 0.6f, 0.25f), 2.5f, 14f);
+            PopulateKesh();
         }
 
         // --- Orrin: middle class ----------------------------------------------------------------
@@ -187,6 +188,7 @@ namespace Kotwica.EditorTools
                 give: "przepustka_varo", idle: "Numerek i czekać. Jak wszyscy.");
 
             StreetLights(new Color(0.7f, 0.85f, 1f), 3f, 12f);
+            PopulateOrrin();
         }
 
         // --- Varo: elite -----------------------------------------------------------------------------
@@ -224,6 +226,7 @@ namespace Kotwica.EditorTools
             }
 
             StreetLights(new Color(0.9f, 0.95f, 1f), 3.5f, 10f);
+            PopulateVaro();
         }
 
         // --- Building blocks --------------------------------------------------------------------------
@@ -340,6 +343,171 @@ namespace Kotwica.EditorTools
             var area = go.AddComponent<QuestArea>();
             var so = new SerializedObject(area);
             so.FindProperty("targetId").stringValue = targetId;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // --- Residents ---------------------------------------------------------------------------------
+        // Roles (schedules) are data assets in Assets/_Project/Data/Roles: edit hours and lines there.
+
+        private const string RoleFolder = "Assets/_Project/Data/Roles";
+
+        private static void PopulateKesh()
+        {
+            ResidentRole day = Role("kesh_zmiana_dzienna", "doker, zmiana dzienna", SocialClass.Robotnicy,
+                new[] { (0, Activity.Dom), (6, Activity.Praca), (14, Activity.Wypoczynek), (19, Activity.Dom) },
+                "Padam z nóg.", "Kontenery same się nie przeładują.", "-", "Na bazarze rzucili filtry. Drogo.");
+            ResidentRole late = Role("kesh_zmiana_popoludniowa", "hutnik, zmiana popołudniowa", SocialClass.Robotnicy,
+                new[] { (0, Activity.Dom), (10, Activity.Wypoczynek), (13, Activity.Praca), (21, Activity.Dom) },
+                "Jeszcze godzina snu...", "Piec znowu przegrzany.", "-", "Ostatnia chwila przed zmianą.");
+            ResidentRole student = Role("kesh_uczen", "uczeń warsztatów", SocialClass.Robotnicy,
+                new[] { (0, Activity.Dom), (8, Activity.Nauka), (14, Activity.Wypoczynek), (20, Activity.Dom) },
+                "Matka czeka z kolacją.", "-", "Dziś spawanie w próżni. Na sucho, na szczęście.", "Może kiedyś polecę na Varo.");
+
+            var homes = new List<Transform>();
+            for (int i = 0; i < 12; i += 2)
+            {
+                float x = 24f + i * 7f;
+                homes.Add(Spot($"Dom_{i}a", new Vector3(x, Floor, 14.6f)));
+                homes.Add(Spot($"Dom_{i}b", new Vector3(x, Floor, -14.6f)));
+            }
+            Transform[] work = { Spot("Praca: pompownia", new Vector3(102f, Floor, -4f)), Spot("Praca: doki", new Vector3(10f, Floor, -12f)), Spot("Praca: rampa", new Vector3(10f, Floor, 13f)) };
+            Sign("WARSZTATY", new Vector3(60f, Floor + 3f, 10f));
+            Transform school = Spot("Nauka: warsztaty", new Vector3(60f, Floor, 9f));
+            Transform[] leisure = { Spot("Bazar", new Vector3(24f, Floor, 6f)), Spot("Pod rurami", new Vector3(46f, Floor, -6f)) };
+
+            string[] names = { "Tamar", "Bodo", "Ilka", "Rusz", "Weno", "Jaga", "Kord", "Mila", "Sten", "Orla" };
+            ResidentRole[] roles = { day, day, day, day, late, late, late, student, student, student };
+            for (int i = 0; i < names.Length; i++)
+                Resident(names[i], roles[i], "kesh", homes[i % homes.Count], work[i % work.Length], school, leisure[i % leisure.Length],
+                    7f, extra["KontenerB"]);
+        }
+
+        private static void PopulateOrrin()
+        {
+            ResidentRole clerk = Role("orrin_urzednik", "urzędnik", SocialClass.KlasaSrednia,
+                new[] { (0, Activity.Dom), (8, Activity.Praca), (16, Activity.Wypoczynek), (20, Activity.Dom) },
+                "Jutro znowu kolejka.", "Formularz B-12. Następny!", "-", "Herbata z targu, jedyna przyjemność.");
+            ResidentRole trader = Role("orrin_handlarz", "handlarz", SocialClass.KlasaSrednia,
+                new[] { (0, Activity.Dom), (7, Activity.Praca), (19, Activity.Wypoczynek), (22, Activity.Dom) },
+                "Utarg słaby.", "Filtry, uszczelki, kawa syntetyczna!", "-", "Kto by pomyślał, że ceny jeszcze wzrosną.");
+            ResidentRole student = Role("orrin_uczen", "uczeń szkoły technicznej", SocialClass.KlasaSrednia,
+                new[] { (0, Activity.Dom), (8, Activity.Nauka), (15, Activity.Wypoczynek), (21, Activity.Dom) },
+                "Egzamin jutro.", "-", "Jak zdam, dostanę przydział na Varo. Może.", "Targ to jedyne ciekawe miejsce.");
+
+            var homes = new List<Transform>();
+            for (int i = 0; i < 6; i++)
+            {
+                float x = 26f + i * 12f;
+                if (i != 5) homes.Add(Spot($"Dom_{i}a", new Vector3(x, Floor, 12.5f)));
+                homes.Add(Spot($"Dom_{i}b", new Vector3(x, Floor, -12.5f)));
+            }
+            Sign("SZKOŁA TECHNICZNA", new Vector3(86f, Floor + 4f, 12.2f));
+            Transform school = Spot("Nauka: szkoła", new Vector3(86f, Floor, 11.8f));
+            var work = new List<Transform> { Spot("Praca: urząd", new Vector3(100f, Floor, -5f)) };
+            for (int i = 0; i < 4; i++) work.Add(Spot($"Praca: stragan {i}", new Vector3(32f + i * 9f, Floor, i % 2 == 0 ? 6.6f : -6.6f)));
+            Transform[] leisure = { Spot("Targ", new Vector3(45f, Floor, 0f)), Spot("Ławki", new Vector3(55f, Floor, 2f)) };
+
+            string[] names = { "Pela", "Adri", "Konst", "Liwa", "Marek", "Nesa", "Teo", "Wanda", "Ivo", "Rena" };
+            ResidentRole[] roles = { clerk, clerk, clerk, clerk, trader, trader, trader, student, student, student };
+            for (int i = 0; i < names.Length; i++)
+            {
+                // Clerks go to the office, traders to their stalls
+                Transform job = roles[i] == trader ? work[1 + i % 4] : work[0];
+                Resident(names[i], roles[i], "orrin", homes[i % homes.Count], job, school, leisure[i % leisure.Length], 8f, extra["Beton"]);
+            }
+        }
+
+        private static void PopulateVaro()
+        {
+            ResidentRole scientist = Role("varo_naukowiec", "naukowiec zarządu", SocialClass.Elita,
+                new[] { (0, Activity.Dom), (9, Activity.Praca), (17, Activity.Wypoczynek), (22, Activity.Dom) },
+                "Proszę zejść mi z drogi.", "Wyniki są gorsze, niż raportujemy.", "-", "Ogrody to jedyne miejsce, gdzie nie słychać stacji.");
+            ResidentRole student = Role("varo_student", "student akademii", SocialClass.Elita,
+                new[] { (0, Activity.Dom), (9, Activity.Nauka), (15, Activity.Wypoczynek), (23, Activity.Dom) },
+                "Ojciec mówi, że Kesh i tak upadnie pierwszy.", "-", "Wykład o stabilizacji orbity. Nudy.", "Kolacja u Celinów, wypada być.");
+            ResidentRole resident = Role("varo_rezydent", "rezydent", SocialClass.Elita,
+                new[] { (0, Activity.Dom), (10, Activity.Wypoczynek), (18, Activity.Dom) },
+                "Ochrona! A, to tylko kurier.", "-", "-", "Te róże przywieziono jeszcze z pierwszym transportem.");
+
+            var homes = new List<Transform>();
+            foreach (float x in new[] { 28f, 50f, 72f })
+            {
+                homes.Add(Spot($"Dom_{x}a", new Vector3(x, Floor, 10.2f)));
+                homes.Add(Spot($"Dom_{x}b", new Vector3(x, Floor, -10.2f)));
+            }
+            Transform[] work = { Spot("Praca: laboratorium A", new Vector3(94f, Floor, -3f)), Spot("Praca: laboratorium B", new Vector3(94f, Floor, 3f)) };
+            Sign("AKADEMIA", new Vector3(90f, Floor + 3f, -11f));
+            Transform school = Spot("Nauka: akademia", new Vector3(90f, Floor, -10f));
+            Transform[] leisure = { Spot("Ogród wschodni", new Vector3(39f, Floor, 6.5f)), Spot("Ogród zachodni", new Vector3(61f, Floor, -6.5f)) };
+
+            string[] names = { "Aurel", "Celin", "Damira", "Evander", "Ilse", "Viktor" };
+            ResidentRole[] roles = { scientist, scientist, scientist, student, student, resident };
+            for (int i = 0; i < names.Length; i++)
+                Resident(names[i], roles[i], "varo", homes[i % homes.Count], work[i % work.Length], school, leisure[i % leisure.Length],
+                    4f, extra["Elita"]);
+        }
+
+        private static Transform Spot(string name, Vector3 position)
+        {
+            var go = new GameObject("Miejsce: " + name);
+            go.transform.SetParent(root, false);
+            go.transform.localPosition = position;
+            return go.transform;
+        }
+
+        private static ResidentRole Role(string fileName, string roleName, SocialClass socialClass, (int hour, Activity activity)[] schedule,
+            string home, string work, string study, string leisure)
+        {
+            ArtPalette.EnsureFolder(RoleFolder);
+            string path = $"{RoleFolder}/Role_{fileName}.asset";
+            var role = AssetDatabase.LoadAssetAtPath<ResidentRole>(path);
+            if (role != null) return role; // keep the user's edits
+
+            role = ScriptableObject.CreateInstance<ResidentRole>();
+            role.roleName = roleName;
+            role.socialClass = socialClass;
+            foreach ((int hour, Activity activity) in schedule)
+                role.schedule.Add(new ScheduleEntry { fromHour = hour, activity = activity });
+            role.homeLine = home;
+            role.workLine = work;
+            role.studyLine = study;
+            role.leisureLine = leisure;
+            AssetDatabase.CreateAsset(role, path);
+            return role;
+        }
+
+        private static void Resident(string name, ResidentRole role, string ringId, Transform home, Transform work, Transform school,
+            Transform leisure, float lane, Material clothes)
+        {
+            var go = new GameObject("Mieszkaniec: " + name);
+            go.transform.SetParent(root, false);
+            go.transform.localPosition = home.localPosition;
+
+            var body = GameObject.CreatePrimitive(PrimitiveType.Capsule); // collider kept: the player bumps into people
+            body.name = "Ciało";
+            body.transform.SetParent(go.transform, false);
+            body.transform.localPosition = new Vector3(0f, 0.9f, 0f);
+            body.transform.localScale = new Vector3(0.6f, 0.9f, 0.6f);
+            body.GetComponent<Renderer>().sharedMaterial = clothes;
+
+            var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            head.name = "Głowa";
+            Object.DestroyImmediate(head.GetComponent<Collider>());
+            head.transform.SetParent(go.transform, false);
+            head.transform.localPosition = new Vector3(0f, 1.62f, 0f);
+            head.transform.localScale = Vector3.one * 0.28f;
+            head.GetComponent<Renderer>().sharedMaterial = palette["M_Pipe"];
+
+            var ai = go.AddComponent<ResidentAI>();
+            var so = new SerializedObject(ai);
+            so.FindProperty("residentName").stringValue = name;
+            so.FindProperty("role").objectReferenceValue = role;
+            so.FindProperty("ringId").stringValue = ringId;
+            so.FindProperty("home").objectReferenceValue = home;
+            so.FindProperty("work").objectReferenceValue = work;
+            so.FindProperty("school").objectReferenceValue = school;
+            so.FindProperty("leisure").objectReferenceValue = leisure;
+            so.FindProperty("laneOffset").floatValue = lane;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 

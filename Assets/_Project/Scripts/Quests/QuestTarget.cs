@@ -62,7 +62,13 @@ namespace Kotwica.Quests
             if (type != ObjectiveType.Zdobadz) GameServices.Report(type, targetId);
             if (!string.IsNullOrEmpty(giveItemId)) services.Inventory.Add(giveItemId);
 
-            if (isCrime) GameServices.ReportCrime(null, crime, witnessed);
+            if (isCrime)
+            {
+                // Residents nearby with a clear view turn it into a witnessed crime
+                bool seen = witnessed || Kotwica.World.Witnesses.AnyoneSees(transform.position);
+                GameServices.ReportCrime(null, crime, seen);
+                if (seen) Kotwica.Gameplay.GameState.Notify("Ktoś to widział!");
+            }
             if (singleUse) gameObject.SetActive(false);
         }
     }
