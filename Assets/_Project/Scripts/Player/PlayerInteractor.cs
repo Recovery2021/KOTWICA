@@ -29,7 +29,6 @@ namespace Kotwica.Player
         private void Update()
         {
             Current = FindNearest();
-
             if (Current != null && Current.CanInteract && Time.frameCount != enabledFrame && GameInput.InteractPressed())
             {
                 Current.Interact();

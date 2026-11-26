@@ -55,41 +55,27 @@ namespace Kotwica.Orbits
         private void Reposition(bool teleport)
         {
             double t = OrbitalClock.Now;
-            Vector3 anchorOrbital = anchor != null ? anchor.GetOrbitalPosition(t) : Vector3.zero;
-
-            foreach (OrbitalRing ring in Rings)
-            {
-                ring.ApplyScenePosition(ring.GetOrbitalPosition(t) - anchorOrbital, t, teleport);
-            }
-
-            if (planet != null) planet.position = -anchorOrbital;
+            Quaternion inverse = Quaternion.Inverse(anchor.Orientation(t));
+            Vector3 origin = anchor.GetOrbitalPosition(t);
+            foreach (var ring in Rings)
+                ring.Place(inverse * (ring.GetOrbitalPosition(t) - origin), inverse * ring.Orientation(t), teleport);
+            if (planet != null) planet.position = inverse * -origin;
         }
 
-        /// <summary>
-        /// Makes another ring the still point (called when a ship docks there).
-        /// Shifts all free objects (player, ship, camera) so nothing visibly jumps.
-        /// </summary>
+        public Vector3 PointPosition(OrbitalRing ring, Vector3 local, double t) =>
+            Quaternion.Inverse(anchor.Orientation(t)) *
+            (ring.GetOrbitalPosition(t) + ring.Orientation(t) * local - anchor.GetOrbitalPosition(t));
+
         public void SetAnchor(OrbitalRing newAnchor)
         {
             if (newAnchor == null || newAnchor == anchor) return;
-
-            Vector3 shift = -newAnchor.ScenePosition;
-            Vector3 newAnchorVelocity = newAnchor.FrameVelocity;
-
+            double t = OrbitalClock.Now;
+            Vector3 origin = PointPosition(newAnchor, Vector3.zero, t);
+            Quaternion rotation = Quaternion.Inverse(newAnchor.Orientation(t)) * anchor.Orientation(t);
             anchor = newAnchor;
             Reposition(true);
-
-            // Velocities are now measured against the new anchor
-            foreach (OrbitalRing ring in Rings)
-            {
-                ring.ResetFrameVelocity(ring == anchor ? Vector3.zero : ring.FrameVelocity - newAnchorVelocity);
-            }
-
-            foreach (FrameObject obj in FreeObjects)
-            {
-                obj.ShiftBy(shift, newAnchorVelocity);
-            }
-
+            foreach (var obj in FreeObjects)
+                obj.ChangeFrame(origin, rotation);
             Physics.SyncTransforms();
         }
     }

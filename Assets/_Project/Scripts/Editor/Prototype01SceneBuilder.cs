@@ -23,7 +23,6 @@ namespace Kotwica.EditorTools
         private const string MaterialFolder = "Assets/_Project/Art/Materials/Graybox";
 
         // Ring geometry (metres)
-        private const float RingRadius = 60f;
         private const float DeckTop = 13f;      // walkable surface height above the ring centre
         private const float DeckSize = 32f;
 
@@ -51,25 +50,29 @@ namespace Kotwica.EditorTools
 
             // Gas giant (visual only, far below the rings)
             var planet = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            planet.name = "Morwen (gazowy olbrzym)";
+            planet.name = "Gwiazda Halden";
             Object.DestroyImmediate(planet.GetComponent<Collider>());
             planet.transform.localScale = Vector3.one * 600f;
             planet.GetComponent<Renderer>().sharedMaterial = palette.Planet;
 
             // Two rings on different orbits -> their distance changes over time (160 m to 1.4 km)
-            OrbitalRing ringA = BuildRing("Pierścień Kesh", 600f, 300f, 0f, 50f, palette, out DockingPort portA);
-            OrbitalRing ringB = BuildRing("Pierścień Varo", 760f, 430f, 25f, 70f, palette, out DockingPort portB);
+            OrbitalRing ringA = BuildRing("Kesh · doki robotnicze", 760f, 480f, 0f, 600f, palette, out DockingPort portA);
+            OrbitalRing ringB = BuildRing("Varo · serwis specjalistów", 520f, 650f, 25f, 840f, palette, out DockingPort portB);
 
             // Edit-mode preview of positions (at runtime StationFrame recalculates them every physics step)
             Vector3 anchorOrbital = ringA.GetOrbitalPosition(0d);
             ringA.transform.position = Vector3.zero;
-            ringB.transform.position = ringB.GetOrbitalPosition(0d) - anchorOrbital;
+            ringB.transform.SetPositionAndRotation(ringB.GetOrbitalPosition(0d) - anchorOrbital, ringB.Orientation(0d));
             planet.transform.position = -anchorOrbital;
 
             // Gameplay objects on the decks: each board sends you to the other ring
             DeliveryTerminal terminalA = CreateTerminal(ringA, portA, palette, new Vector3(9f, DeckTop, -9f));
             DeliveryTerminal terminalB = CreateTerminal(ringB, portB, palette, new Vector3(9f, DeckTop, -9f));
-            CreateJobBoard(ringA, terminalB, 120, palette, new Vector3(-9f, DeckTop, -9f));
+            var board = CreateJobBoard(ringA, terminalB, 120, palette, new Vector3(-9f, DeckTop, -9f));
+            Set(board, "home", terminalA);
+            var lift = Cube(ringA.transform, "Podnośnik dokerki", new Vector3(-5f, DeckTop + 0.65f, -9f), Quaternion.identity,
+                new Vector3(2.5f, 1.3f, 2f), palette.Pad).AddComponent<JobBoard>();
+            SetBool(lift, "lift");
             CreateJobBoard(ringB, terminalA, 150, palette, new Vector3(-9f, DeckTop, -9f));
 
             // Ship, player and camera
@@ -83,6 +86,7 @@ namespace Kotwica.EditorTools
             Set(frame, "planet", planet.transform);
 
             Set(ship, "startDockedAt", portA);
+            SetBool(ship, "requiresPermit");
             Set(ship, "cameraRig", rig);
             Set(ship, "player", player);
             Set(ship, "exitPoint", exitPoint);
@@ -134,8 +138,9 @@ namespace Kotwica.EditorTools
             var spinPart = new GameObject("Habitat (obrotowy)").transform;
             spinPart.SetParent(root.transform, false);
 
-            const int segments = 24;
-            float segmentLength = 2f * Mathf.PI * RingRadius / segments * 1.04f;
+            spinPart.localPosition = Vector3.back * orbitRadius;
+            const int segments = 96;
+            float segmentLength = 2f * Mathf.PI * orbitRadius / segments * 1.04f;
             for (int i = 0; i < segments; i++)
             {
                 float angle = i * Mathf.PI * 2f / segments;
@@ -143,28 +148,11 @@ namespace Kotwica.EditorTools
                 var tangent = new Vector3(-Mathf.Sin(angle), 0f, Mathf.Cos(angle));
                 Quaternion rotation = Quaternion.LookRotation(tangent, Vector3.up);
 
-                Cube(spinPart, $"Segment_{i:00}", outward * RingRadius, rotation, new Vector3(8f, 8f, segmentLength), palette.Hull);
+                Cube(spinPart, $"Segment_{i:00}", outward * orbitRadius, rotation, new Vector3(8f, 8f, segmentLength), palette.Hull);
                 // Thin lit window strip on the outside: life inside the ring
-                Cube(spinPart, $"Okna_{i:00}", outward * (RingRadius + 4.05f), rotation, new Vector3(0.1f, 1.2f, segmentLength * 0.7f), palette.WindowStrip, false);
+                Cube(spinPart, $"Okna_{i:00}", outward * (orbitRadius + 4.05f), rotation, new Vector3(0.1f, 1.2f, segmentLength * 0.7f), palette.WindowStrip, false);
             }
 
-            for (int k = 0; k < 4; k++)
-            {
-                float angle = k * Mathf.PI * 0.5f;
-                var outward = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
-                const float hubRadius = 6f;
-                float spokeLength = RingRadius - 4f - hubRadius;
-                Cube(spinPart, $"Szprycha_{k}", outward * (hubRadius + spokeLength * 0.5f), Quaternion.LookRotation(outward),
-                    new Vector3(2.5f, 2.5f, spokeLength), palette.Hull);
-            }
-
-            var hub = GameObject.CreatePrimitive(PrimitiveType.Cylinder); // radius 6, height 24
-            hub.name = "Piasta";
-            hub.transform.SetParent(spinPart, false);
-            hub.transform.localScale = new Vector3(12f, 12f, 12f);
-            hub.GetComponent<Renderer>().sharedMaterial = palette.Hull;
-
-            // Non-spinning dock deck on top of the hub (normal gravity, walkable)
             Cube(root.transform, "Pokład", new Vector3(0f, DeckTop - 0.5f, 0f), Quaternion.identity, new Vector3(DeckSize, 1f, DeckSize), palette.Deck);
             float half = DeckSize * 0.5f;
             Cube(root.transform, "Barierka_N", new Vector3(0f, DeckTop + 0.55f, half), Quaternion.identity, new Vector3(DeckSize, 1.1f, 0.3f), palette.Rail);
@@ -205,7 +193,7 @@ namespace Kotwica.EditorTools
             SetFloat(ring, "orbitalPeriod", period);
             SetFloat(ring, "phaseDegrees", phase);
             SetFloat(ring, "spinPeriod", spinPeriod);
-            Set(ring, "spinPart", spinPart);
+            SetFloat(ring, "inclinationDegrees", phase == 0f ? 0f : 18f);
 
             return ring;
         }
@@ -220,13 +208,15 @@ namespace Kotwica.EditorTools
             return terminal;
         }
 
-        private static void CreateJobBoard(OrbitalRing ring, DeliveryTerminal destination, int reward, Palette palette, Vector3 deckPosition)
+        private static JobBoard CreateJobBoard(OrbitalRing ring, DeliveryTerminal destination, int reward, Palette palette, Vector3 deckPosition)
         {
             GameObject go = Cube(ring.transform, "TablicaZleceń", deckPosition + Vector3.up * 1.4f, Quaternion.identity,
                 new Vector3(2.4f, 2.2f, 0.2f), palette.Board);
             var board = go.AddComponent<JobBoard>();
             Set(board, "destination", destination);
             SetInt(board, "reward", reward);
+            SetBool(board, "missionBoard");
+            return board;
         }
 
         private static ShipController BuildShip(Palette palette, DockingPort startPort, out Transform exitPoint)
@@ -313,7 +303,7 @@ namespace Kotwica.EditorTools
                 Pad = Mat("GB_Ladowisko", new Color(0.1f, 0.2f, 0.25f), new Color(0.2f, 0.7f, 0.9f) * 0.6f, 0.4f, 0f),
                 Board = Mat("GB_Tablica", new Color(0.05f, 0.12f, 0.08f), new Color(0.3f, 1f, 0.5f) * 0.8f, 0.6f, 0f),
                 Terminal = Mat("GB_Terminal", new Color(0.3f, 0.18f, 0.08f), new Color(1f, 0.45f, 0.1f) * 0.8f, 0.4f, 0.3f),
-                Planet = Mat("GB_Morwen", new Color(0.45f, 0.3f, 0.22f), Color.black, 0.1f, 0f),
+                Planet = Mat("GB_Gwiazda", new Color(1f, 0.8f, 0.45f), new Color(1.8f, 1.1f, 0.4f), 0.1f, 0f),
                 ShipHull = Mat("GB_StatekKadlub", new Color(0.55f, 0.53f, 0.5f), Color.black, 0.45f, 0.7f),
                 Glass = Mat("GB_Szklo", new Color(0.05f, 0.08f, 0.1f), new Color(0.3f, 0.6f, 0.8f) * 0.5f, 0.9f, 0f),
                 Engine = Mat("GB_Silnik", new Color(0.1f, 0.1f, 0.1f), new Color(0.4f, 0.7f, 1f) * 1.5f, 0.3f, 0f),
@@ -375,6 +365,13 @@ namespace Kotwica.EditorTools
             SerializedProperty property = so.FindProperty(field);
             if (property == null) { Debug.LogError($"[Kotwica] Brak pola '{field}' w {target.GetType().Name}"); return; }
             property.objectReferenceValue = value;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void SetBool(Object target, string field)
+        {
+            var so = new SerializedObject(target);
+            so.FindProperty(field).boolValue = true;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 

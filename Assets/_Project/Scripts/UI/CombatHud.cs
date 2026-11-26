@@ -39,7 +39,9 @@ namespace Kotwica.UI
         private void OnGUI()
         {
             EnsureStyles();
-            float w = Screen.width, h = Screen.height;
+            var previous = GUI.matrix;
+            GUI.matrix = previous * Matrix4x4.Scale(Vector3.one * HudLayout.Scale);
+            float w = HudLayout.Width, h = HudLayout.Height;
 
             DrawDamageFlash(w, h);
             if (!Defeat) DrawCrosshair(w, h);
@@ -53,6 +55,7 @@ namespace Kotwica.UI
 
             GUI.Label(new Rect(16, h - 30, w - 32, 22),
                 "WASD ruch · Shift bieg · C kucanie · PPM celowanie · LPM strzał · R przeładowanie · F interakcja · Esc kursor", smallStyle);
+            GUI.matrix = previous;
         }
 
         private void DrawCrosshair(float w, float h)
@@ -84,18 +87,16 @@ namespace Kotwica.UI
             Fill(back, new Color(0f, 0f, 0f, 0.55f));
             Fill(new Rect(back.x + 2, back.y + 2, (back.width - 4) * k, back.height - 4),
                 Color.Lerp(new Color(0.85f, 0.15f, 0.1f), new Color(0.75f, 0.85f, 0.9f), k));
-            GUI.Label(new Rect(20, h - 96, 260, 24), $"Zdrowie {Mathf.CeilToInt(playerHealth.Current)}", textStyle);
-            if (playerController != null && playerController.IsAnchored)
-                GUI.Label(new Rect(170, h - 96, 160, 24), "[trzymasz uchwyt]", smallStyle);
-            else if (playerController != null && playerController.IsCrouched)
-                GUI.Label(new Rect(170, h - 96, 120, 24), "[kucasz]", smallStyle);
+            string stance = playerController != null && playerController.IsAnchored ? " · na uchwycie"
+                : playerController != null && playerController.IsCrouched ? " · kucasz" : "";
+            HudLayout.Panel(20, h - 110, 260, $"Zdrowie {Mathf.CeilToInt(playerHealth.Current)}{stance}", textStyle);
         }
 
         private void DrawAmmo(float w, float h)
         {
             if (shooter == null) return;
             string text = shooter.IsReloading ? "PRZEŁADOWANIE..." : $"{shooter.Ammo} / {shooter.Reserve}";
-            GUI.Label(new Rect(w - 220, h - 80, 200, 40), text, new GUIStyle(bigStyle) { alignment = TextAnchor.MiddleRight });
+            HudLayout.Caption(w - 150, h - 98, text, bigStyle);
         }
 
         private void DrawSuspicion(float w)
@@ -105,10 +106,10 @@ namespace Kotwica.UI
             foreach (EnemyAI enemy in EnemyAI.All) suspicion = Mathf.Max(suspicion, enemy.Suspicion);
             if (suspicion <= 0.02f) return;
 
-            var bar = new Rect(w * 0.5f - 60, 60, 120, 8);
+            var bar = new Rect(w * 0.5f - 60, 76, 120, 8);
             Fill(bar, new Color(0f, 0f, 0f, 0.5f));
             Fill(new Rect(bar.x, bar.y, bar.width * suspicion, bar.height), new Color(1f, 0.75f, 0.2f, 0.9f));
-            GUI.Label(new Rect(0, 30, w, 26), "Ktoś coś zauważył...", centerStyle);
+            HudLayout.Caption(w / 2, 30, "Ktoś coś zauważył...", centerStyle);
         }
 
         private void DrawDamageFlash(float w, float h)
@@ -131,7 +132,7 @@ namespace Kotwica.UI
         private void DrawMessage(float w, float h)
         {
             if (string.IsNullOrEmpty(GameState.LastMessage) || Time.time - GameState.LastMessageTime > 3.5f) return;
-            GUI.Label(new Rect(0, h * 0.2f, w, 36), GameState.LastMessage, bigStyle);
+            HudLayout.Caption(w / 2, h * 0.2f, GameState.LastMessage, bigStyle);
         }
 
         private void DrawAirlock(float w, float h)
@@ -142,12 +143,12 @@ namespace Kotwica.UI
             if (airlock.CountdownRemaining > 0f)
             {
                 string line = safe ? "Trzymasz się. Śluza otwiera się za" : "ZŁAP UCHWYT [F]! Śluza otwiera się za";
-                GUI.Label(new Rect(0, h * 0.28f, w, 40), $"{line} {Mathf.CeilToInt(airlock.CountdownRemaining)}",
+                HudLayout.Caption(w / 2, h * 0.28f, $"{line} {Mathf.CeilToInt(airlock.CountdownRemaining)}",
                     new GUIStyle(bigStyle) { normal = { textColor = new Color(1f, 0.35f, 0.25f) } });
             }
             else if (airlock.Venting)
             {
-                GUI.Label(new Rect(0, h * 0.28f, w, 40), safe ? "DEKOMPRESJA. Trzymaj się!" : "DEKOMPRESJA! CIĄGNIE CIĘ!",
+                HudLayout.Caption(w / 2, h * 0.28f, safe ? "DEKOMPRESJA. Trzymaj się!" : "DEKOMPRESJA! CIĄGNIE CIĘ!",
                     new GUIStyle(bigStyle) { normal = { textColor = new Color(1f, 0.35f, 0.25f) } });
             }
         }
@@ -185,10 +186,10 @@ namespace Kotwica.UI
         {
             if (textStyle != null) return;
             white = Texture2D.whiteTexture;
-            textStyle = new GUIStyle(GUI.skin.label) { fontSize = 16, normal = { textColor = new Color(0.85f, 0.9f, 0.95f) } };
+            textStyle = new GUIStyle(GUI.skin.label) { fontSize = 20, normal = { textColor = Color.white } };
             bigStyle = new GUIStyle(textStyle) { fontSize = 24, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
             centerStyle = new GUIStyle(textStyle) { alignment = TextAnchor.MiddleCenter };
-            smallStyle = new GUIStyle(textStyle) { fontSize = 13, normal = { textColor = new Color(0.65f, 0.7f, 0.75f) } };
+            smallStyle = new GUIStyle(textStyle) { fontSize = 15, normal = { textColor = new Color(0.65f, 0.7f, 0.75f) } };
         }
     }
 }

@@ -22,6 +22,8 @@ namespace Kotwica.Orbits
         public double Time { get; private set; }
 
         /// <summary>Orbital time, or scene time when no clock exists (e.g. edit-mode tests).</summary>
+        public static float Rate => Instance != null ? Instance.timeScale : 1f;
+
         public static double Now => Instance != null ? Instance.Time : UnityEngine.Time.timeSinceLevelLoad;
 
         private void Awake()
