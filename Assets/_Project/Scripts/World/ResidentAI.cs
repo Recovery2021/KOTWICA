@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Kotwica.Combat;
 using Kotwica.Core;
+using Kotwica.Security;
 using UnityEngine;
 
 namespace Kotwica.World
@@ -7,7 +9,8 @@ namespace Kotwica.World
     /// <summary>
     /// A resident living by the clock: walks between home, work, school and leisure spots of its district.
     /// Moves in the district's own coordinates (no physics), so it rides along with the orbiting ring.
-    /// At home it goes inside (disappears). When the ring's alert is 2+ it hurries home.
+    /// At home it goes inside (disappears). Alert 2+ or gunfire nearby sends it running home.
+    /// Can be hurt (attack = crime, death = murder, both checked for witnesses).
     /// Walking past shows a short line (no interaction).
     /// </summary>
     public class ResidentAI : MonoBehaviour, IInteractable
@@ -36,12 +39,22 @@ namespace Kotwica.World
         private Collider[] colliders;
         private float personalOffset;   // hours: not everyone leaves at the same minute
         private Vector3 spotJitter;
+        private Health health;
+        private float panicUntil;
 
         public bool IsVisible { get; private set; } = true;
         public Activity CurrentActivity => current;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => All.Clear();
+
+        /// <summary>Gunfire: everyone within range runs home for a minute.</summary>
+        public static void Panic(Vector3 worldPosition, float range)
+        {
+            foreach (ResidentAI resident in All)
+                if ((resident.transform.position - worldPosition).sqrMagnitude <= range * range)
+                    resident.panicUntil = Time.time + 60f;
+        }
 
         private void OnEnable() { if (!All.Contains(this)) All.Add(this); }
         private void OnDisable() => All.Remove(this);
@@ -50,6 +63,12 @@ namespace Kotwica.World
         {
             renderers = GetComponentsInChildren<Renderer>(true);
             colliders = GetComponentsInChildren<Collider>(true);
+            health = GetComponent<Health>();
+            if (health != null)
+            {
+                health.Damaged += OnHurt;
+                health.Died += OnKilled;
+            }
 
             // Stable per-person randomness from the name
             int seed = residentName.GetHashCode();
@@ -65,6 +84,7 @@ namespace Kotwica.World
 
         private void Update()
         {
+            if (health != null && health.IsDead) return;
             Activity wanted = WantedActivity(out bool panic);
             if (wanted != current)
             {
@@ -78,7 +98,7 @@ namespace Kotwica.World
 
         private Activity WantedActivity(out bool panic)
         {
-            panic = GameServices.Instance != null && GameServices.Instance.Alert.Level(ringId) >= 2;
+            panic = Time.time < panicUntil || (GameServices.Instance != null && GameServices.Instance.Alert.Level(ringId) >= 2);
             if (panic) return Activity.Dom;
             float hour = GameServices.Instance != null ? GameServices.Instance.Clock.Hour : 12f;
             return role != null ? role.ActivityAt(hour + personalOffset) : Activity.Dom;
@@ -142,6 +162,23 @@ namespace Kotwica.World
             if (colliders != null) foreach (Collider c in colliders) c.enabled = !inside;
         }
 
+        // --- Violence -----------------------------------------------------------------------------------
+
+        private void OnHurt(Health self, Vector3 direction)
+        {
+            panicUntil = Time.time + 90f;
+            if (!self.IsDead) GameServices.ReportCrime(ringId, CrimeType.Napasc, Witnesses.AnyoneSees(transform.position + Vector3.up));
+        }
+
+        private void OnKilled(Health self)
+        {
+            GameServices.ReportCrime(ringId, CrimeType.Zabojstwo, Witnesses.AnyoneSees(transform.position + Vector3.up, 20f, this));
+            path.Clear();
+            transform.localRotation *= Quaternion.Euler(-85f, 0f, 0f); // lies on the street
+            transform.localPosition += new Vector3(0f, 0.3f, 0f);
+            IsVisible = false; // the dead are no witnesses
+        }
+
         // --- Passing remark (shown, not usable) ---------------------------------------------------
 
         public string Prompt
@@ -155,17 +192,22 @@ namespace Kotwica.World
         }
 
         public bool CanInteract => false;
+        public bool IsDead => health != null && health.IsDead;
         public void Interact() { }
     }
 
     /// <summary>Residents as witnesses: a crime seen by anyone nearby counts in full.</summary>
     public static class Witnesses
     {
-        public static bool AnyoneSees(Vector3 worldPosition, float range = 15f)
+        public static bool AnyoneSees(Vector3 worldPosition, float range = 15f, ResidentAI except = null)
         {
+            // Officers always count, residents only when close with a clear view
+            foreach (SecurityGuard guard in SecurityGuard.All)
+                if (guard.CanSee(worldPosition)) return true;
+
             foreach (ResidentAI resident in ResidentAI.All)
             {
-                if (!resident.IsVisible) continue;
+                if (resident == except || !resident.IsVisible) continue;
                 Vector3 eye = resident.transform.position + resident.transform.up * 1.6f;
                 if ((eye - worldPosition).sqrMagnitude > range * range) continue;
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Kotwica.Combat
 {
-    public enum Team { Player, Enemy }
+    public enum Team { Player, Enemy, Civilian, Security }
 
     /// <summary>
     /// Hit points for the player and enemies. Others listen to Damaged / Died
@@ -51,6 +51,21 @@ namespace Kotwica.Combat
         }
 
         public void Kill(string cause) => TakeDamage(Current + 1f, Vector3.zero, cause);
+
+        /// <summary>Setup for characters spawned from code (guards).</summary>
+        public void Configure(Team newTeam, float newMax)
+        {
+            team = newTeam;
+            maxHealth = newMax;
+            Current = newMax;
+        }
+
+        /// <summary>Back to full health (respawn in the infirmary).</summary>
+        public void Revive()
+        {
+            Current = maxHealth;
+            DeathCause = null;
+        }
 
         /// <summary>First living character of a team (e.g. AI looking for the player).</summary>
         public static Health FindFirst(Team team)

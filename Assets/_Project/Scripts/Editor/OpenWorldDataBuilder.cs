@@ -49,7 +49,23 @@ namespace Kotwica.EditorTools
                 ("Rezydencje z ogrodami", DistrictType.Mieszkalna), ("Zarząd stacji", DistrictType.Praca),
                 ("Klinika", DistrictType.Medycyna), ("Laboratoria", DistrictType.Praca),
                 ("Akademia", DistrictType.Edukacja));
+            // Security tuning is refreshed every run, also on rings created by older versions
+            Security("kesh", 2, 4, true, 30);
+            Security("orrin", 3, 3, false, 40);
+            Security("varo", 5, 3, false, 60);
             return n;
+        }
+
+        /// <summary>How hard each ring's guards come down on the player (see SecurityResponse).</summary>
+        private static void Security(string id, int maxGuards, int armedFrom, bool bribes, int finePerLevel)
+        {
+            var ring = AssetDatabase.LoadAssetAtPath<RingDefinition>($"{Root}/Rings/Ring_{id}.asset");
+            if (ring == null) return;
+            ring.maxGuards = maxGuards;
+            ring.armedFromLevel = armedFrom;
+            ring.bribesAccepted = bribes;
+            ring.finePerLevel = finePerLevel;
+            EditorUtility.SetDirty(ring);
         }
 
         private static int Ring(string id, string name, SocialClass socialClass, float law, float decay, string description,

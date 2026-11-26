@@ -25,6 +25,8 @@ namespace Kotwica.Core
         public QuestLog Quests { get; private set; }
         public AlertSystem Alert { get; private set; }
         public StationClock Clock { get; private set; }
+        /// <summary>Set every frame by the security response; alert does not cool down while true.</summary>
+        public bool PlayerSeenBySecurity { get; set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => Instance = null;
@@ -97,7 +99,7 @@ namespace Kotwica.Core
         private void Update()
         {
             Clock.Tick(Time.deltaTime);
-            Alert.Tick(Time.deltaTime, playerSeenBySecurity: false);
+            Alert.Tick(Time.deltaTime, PlayerSeenBySecurity);
 
             if (GameInput.QuickSavePressed()) SaveSystem.Save("szybki");
             if (GameInput.QuickLoadPressed()) SaveSystem.Load("szybki");

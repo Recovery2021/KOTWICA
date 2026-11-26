@@ -86,6 +86,7 @@ namespace Kotwica.Ship
         {
             get
             {
+                if (portInRange != null && PortLockedDown(portInRange, 3)) return false; // alert 3+: port refuses you
                 if (!requiresPermit || portInRange == null || !portInRange.RequiresPermit) return true;
                 if (GameState.ActiveJob?.Destination?.Port == portInRange) return true;
                 return GameServices.Instance != null && GameServices.Instance.Inventory.Has(portInRange.PermitItemId);
@@ -93,6 +94,14 @@ namespace Kotwica.Ship
         }
         [SerializeField] private bool requiresPermit;
         public bool RequiresPermit => requiresPermit;
+
+        /// <summary>True when the alert on the port's ring is at least the given level.</summary>
+        public static bool PortLockedDown(DockingPort port, int fromLevel)
+        {
+            if (GameServices.Instance == null || port == null || port.Ring == null) return false;
+            string ring = GameServices.RingIdFor(port.Ring);
+            return ring != null && GameServices.Instance.Alert.Level(ring) >= fromLevel;
+        }
         public float CruiseSpeed => assistMaxForwardSpeed;
 
         public bool CanAutoDock => PortAllowed && !IsDocked && !IsAutoDocking && portInRange != null
@@ -141,7 +150,7 @@ namespace Kotwica.Ship
             if (GameInput.InteractPressed() && !IsAutoDocking)
             {
                 if (IsDocked) ExitShip();
-                else if (portInRange != null && !PortAllowed) GameState.Notify("Przepustka nie obejmuje tego portu.");
+                else if (portInRange != null && !PortAllowed) GameState.Notify(PortLockedDown(portInRange, 3) ? "Port zablokowany: na tym pierścieniu trwa alarm." : "Przepustka nie obejmuje tego portu.");
                 else if (CanAutoDock) BeginAutoDock(portInRange);
                 else if (portInRange != null) GameState.Notify($"Za szybko do dokowania! Zwolnij poniżej {autoDockMaxSpeed:0} m/s.");
             }
@@ -328,6 +337,11 @@ namespace Kotwica.Ship
 
         private void Undock()
         {
+            if (PortLockedDown(dockedAt, 4))
+            {
+                GameState.Notify("Blokada portu: przy takim alarmie ochrona nie wypuści statku.");
+                return;
+            }
             if (GameState.InspectionDue && requiresPermit) { GameState.Notify("Przed startem okaż ładunek w odprawie na Kesh."); return; }
             if (GameState.AtClinic && GameState.ActiveJob?.Destination?.Port == dockedAt)
                 GameState.ReturnWithoutMedicine();

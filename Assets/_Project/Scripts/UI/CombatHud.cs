@@ -19,13 +19,16 @@ namespace Kotwica.UI
         [SerializeField] private PlayerController playerController;
         [SerializeField] private PlayerInteractor interactor;
         [SerializeField] private AirlockController airlock;
+        [Tooltip("Arena rounds (victory/defeat screen, R restarts). Off in the open world: death = infirmary.")]
+        [SerializeField] private bool roundMode = true;
+        [SerializeField] private bool showHelp = true;
 
         private GUIStyle textStyle, bigStyle, smallStyle, centerStyle;
         private Texture2D white;
         private float endTime = -1f;
 
-        private bool Victory => Health.CountAlive(Team.Enemy) == 0;
-        private bool Defeat => playerHealth != null && playerHealth.IsDead;
+        private bool Victory => roundMode && Health.CountAlive(Team.Enemy) == 0;
+        private bool Defeat => roundMode && playerHealth != null && playerHealth.IsDead;
 
         private void Update()
         {
@@ -53,7 +56,7 @@ namespace Kotwica.UI
             DrawAirlock(w, h);
             DrawEndScreen(w, h);
 
-            GUI.Label(new Rect(16, h - 30, w - 32, 22),
+            if (showHelp) GUI.Label(new Rect(16, h - 30, w - 32, 22),
                 "WASD ruch · Shift bieg · C kucanie · PPM celowanie · LPM strzał · R przeładowanie · F interakcja · Esc kursor", smallStyle);
             GUI.matrix = previous;
         }

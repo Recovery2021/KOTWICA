@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using Kotwica.Characters;
+using Kotwica.Combat;
 using Kotwica.Gameplay;
 using Kotwica.Orbits;
 using Kotwica.Player;
+using Kotwica.Security;
 using Kotwica.Ship;
 using Kotwica.UI;
 using Kotwica.World;
@@ -49,6 +52,7 @@ namespace Kotwica.EditorTools
             var frame = systems.AddComponent<StationFrame>();
             var hud = systems.AddComponent<PrototypeHud>();
             systems.AddComponent<RingStreamer>(); // loads ring districts (Ring_Kesh / Ring_Orrin / Ring_Varo) nearby
+            systems.AddComponent<SecurityResponse>(); // guards spawned by the alert level, arrests, infirmary
 
             // Gas giant (visual only, far below the rings)
             var planet = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -101,6 +105,16 @@ namespace Kotwica.EditorTools
             Set(ship, "exitPoint", exitPoint);
 
             Set(player, "cameraTransform", camera.transform);
+            ArmPlayer(player.gameObject, rig);
+
+            // Combat HUD in open-world mode: health/ammo only, death goes to the infirmary instead of a round screen
+            var combatHud = systems.AddComponent<CombatHud>();
+            Set(combatHud, "playerHealth", player.GetComponent<Health>());
+            Set(combatHud, "shooter", player.GetComponent<PlayerShooter>());
+            Set(combatHud, "playerController", player);
+            Set(combatHud, "interactor", player.GetComponent<PlayerInteractor>());
+            SetFalse(combatHud, "roundMode");
+            SetFalse(combatHud, "showHelp");
 
             Set(hud, "interactor", player.GetComponent<PlayerInteractor>());
             Set(hud, "ship", ship);
@@ -281,6 +295,28 @@ namespace Kotwica.EditorTools
             return player;
         }
 
+        /// <summary>Health, a sidearm and the animated avatar: the same kit as the combat prototype.</summary>
+        private static void ArmPlayer(GameObject player, CameraRig rig)
+        {
+            var health = player.AddComponent<Health>();
+            var so = new SerializedObject(health);
+            so.FindProperty("team").enumValueIndex = (int)Team.Player;
+            so.FindProperty("maxHealth").floatValue = 100f;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            var muzzle = new GameObject("Lufa").transform;
+            muzzle.SetParent(player.transform, false);
+            muzzle.localPosition = new Vector3(0.3f, 1.35f, 0.45f);
+
+            var shooter = player.AddComponent<PlayerShooter>();
+            Set(shooter, "cameraRig", rig);
+            Set(shooter, "muzzle", muzzle);
+
+            var avatar = player.AddComponent<CharacterAvatar>();
+            Transform body = player.transform.Find("Ciało (placeholder)");
+            if (body != null) Set(avatar, "placeholder", body.gameObject);
+        }
+
         private static Camera BuildCamera(Transform followTarget)
         {
             var go = new GameObject("Main Camera");
@@ -381,6 +417,13 @@ namespace Kotwica.EditorTools
         {
             var so = new SerializedObject(target);
             so.FindProperty(field).boolValue = true;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void SetFalse(Object target, string field)
+        {
+            var so = new SerializedObject(target);
+            so.FindProperty(field).boolValue = false;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 

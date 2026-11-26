@@ -83,6 +83,9 @@ Porty Kesh i Orrin są otwarte; Varo wymaga zlecenia albo przepustki (rozdział 
 Doba stacji trwa 24 minuty (1 godzina = 1 minuta, start 07:00, godzina w prawym panelu). Mieszkańcy dzielnic (Kesh 10, Orrin 10, Varo 6) żyją według ról: dom → praca / nauka → odpoczynek → dom; w domu znikają w budynku. Przy alarmie 2+ uciekają do domów. Przestępstwo widziane przez mieszkańca liczy się w całości.
 Role (godziny, kwestie) to pliki w `Assets/_Project/Data/Roles`. Po zmianach: **Kotwica → Świat: zbuduj dzielnice pierścieni**.
 
+## Ochrona i alarm (krok 7)
+Przestępstwo przy świadkach podnosi alarm pierścienia (0–5). Z posterunków wychodzą strażnicy (Kesh 2, Orrin 3, Varo 5), od poziomu 3 (Kesh 4) strzelają. Złapanie = mandat (w Kesh łapówka przy Perswazji 3+) i konfiskata kontrabandy. Śmierć = ambulatorium za 25% kredytów. Alarm 3+ zamyka port dla dokowania, 4+ blokuje start. Strzały wywołują panikę mieszkańców. Kod: `Scripts/Security`.
+
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.
 2. Sklonuj `Recovery2021/KOTWICA`.

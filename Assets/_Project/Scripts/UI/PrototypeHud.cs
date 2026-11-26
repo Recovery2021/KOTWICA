@@ -96,7 +96,7 @@ namespace Kotwica.UI
                 else if (ship.IsDocked) prompt = "[Spacja] Odcumuj     [F] Wyjdź ze statku";
                 else if (ship.PortInRange != null)
                 {
-                    prompt = !ship.PortAllowed ? "Brak zgody na dokowanie w tym porcie" : ship.CanAutoDock
+                    prompt = !ship.PortAllowed ? (ShipController.PortLockedDown(ship.PortInRange, 3) ? "Port zablokowany: alarm na tym pierścieniu" : "Brak zgody na dokowanie w tym porcie") : ship.CanAutoDock
                         ? $"[F] Automatyczne dokowanie: {ship.PortInRange.Ring.DisplayName}"
                         : $"Zbyt szybko do dokowania (max {ship.AutoDockMaxSpeed:0} m/s), puść W lub przytrzymaj X";
                 }
@@ -156,7 +156,7 @@ namespace Kotwica.UI
         {
             string help = ship != null && ship.IsPiloted
                 ? "W/S naprzód/wstecz · A/D na boki · Spacja/Ctrl góra/dół · mysz obrót · Q/E przechył · X stop · Z asystent · F dokowanie"
-                : "WASD ruch · Shift bieg · Spacja skok · F interakcja · Esc kursor";
+                : "WASD ruch · Shift bieg · C kucanie · PPM/LPM celowanie i strzał · R przeładowanie · F interakcja · Tab dziennik";
             GUI.Label(new Rect(16, HudLayout.Height - 32, HudLayout.Width - 32, 24), help, smallStyle);
         }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Kotwica.Combat;
 using Kotwica.Quests;
 using Kotwica.Security;
 using Kotwica.World;
@@ -78,6 +79,7 @@ namespace Kotwica.EditorTools
             root = go.transform;
 
             BuildStreet();
+            SecurityPosts();
             build();
 
             ArtPalette.EnsureFolder(SceneFolder);
@@ -509,6 +511,25 @@ namespace Kotwica.EditorTools
             so.FindProperty("leisure").objectReferenceValue = leisure;
             so.FindProperty("laneOffset").floatValue = lane;
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            // Residents can be hurt: harming one is a crime and makes the street panic
+            var health = go.AddComponent<Health>();
+            var hso = new SerializedObject(health);
+            hso.FindProperty("team").enumValueIndex = (int)Team.Civilian;
+            hso.FindProperty("maxHealth").floatValue = 40f;
+            hso.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Security posts at both ends of the street: guards spawn here when the alert rises.</summary>
+        private static void SecurityPosts()
+        {
+            foreach (float x in new[] { 20f, 112f })
+            {
+                var post = new GameObject("Posterunek ochrony");
+                post.transform.SetParent(root, false);
+                post.transform.localPosition = new Vector3(x, Floor + 0.05f, -18f);
+                post.AddComponent<SecurityPost>();
+            }
         }
 
         private static Material Mat(string fileName, Color color, float metallic, float smoothness, Color emission = default)

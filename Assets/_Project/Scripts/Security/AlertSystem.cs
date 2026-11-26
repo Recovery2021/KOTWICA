@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Kotwica.Security
 {
-    public enum CrimeType { Wtargniecie, Kradziez, Przemyt, Napasc, Zabojstwo }
+    public enum CrimeType { Wtargniecie, Kradziez, Przemyt, Napasc, Zabojstwo, Strzelanina }
 
     /// <summary>
     /// "Poziom alarmu": 0..5 per ring. Crimes raise it (more on strict, upper-class rings),
@@ -41,6 +41,7 @@ namespace Kotwica.Security
             CrimeType.Przemyt => 1f,
             CrimeType.Napasc => 1.2f,
             CrimeType.Zabojstwo => 2.5f,
+            CrimeType.Strzelanina => 0.8f,
             _ => 0.5f
         };
 

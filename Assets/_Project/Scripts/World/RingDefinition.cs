@@ -37,6 +37,16 @@ namespace Kotwica.World
         [Tooltip("Alert stars lost per second while nobody is watching.")]
         public float alertDecayPerSecond = 0.05f;
 
+        [Header("Security response")]
+        [Tooltip("Guards on duty at alert level 5 (fewer at lower levels).")]
+        public int maxGuards = 3;
+        [Tooltip("From this alert level guards shoot instead of only arresting.")]
+        public int armedFromLevel = 3;
+        [Tooltip("Guards here take bribes (needs Perswazja 3+).")]
+        public bool bribesAccepted;
+        [Tooltip("Fine per alert level, before the law multiplier.")]
+        public int finePerLevel = 40;
+
         public List<DistrictInfo> districts = new List<DistrictInfo>();
 
         private static Dictionary<string, RingDefinition> cache;
