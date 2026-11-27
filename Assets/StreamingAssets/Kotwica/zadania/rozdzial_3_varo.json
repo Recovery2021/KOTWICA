@@ -1,0 +1,26 @@
+{
+  "zadania": [
+    {
+      "id": "main_03_zarzad",
+      "tytul": "Rozdział 3: Sekretarz Zarządu (w budowie)",
+      "rodzaj": "Glowny",
+      "pierscien": "varo",
+      "opis": "Przepustki podpisuje ktoś z Zarządu. Miejsca w kapsułach ratunkowych dostają ci, którzy zapłacą. Trzeba się dowiedzieć, ilu ich naprawdę jest.",
+      "minPoziom": 1,
+      "wymagane": ["main_02_urzad_przepustek"],
+      "autostart": true,
+      "powtarzalne": false,
+      "cele": [
+        { "typ": "Idz", "cel": "varo_zarzad", "ilosc": 1, "opis": "Dotrzyj pod gmach Zarządu na Varo" },
+        { "typ": "Porozmawiaj", "cel": "varo_halvard", "ilosc": 1, "opis": "Znajdź sekretarza Halvarda (w budowie)" }
+      ],
+      "nagroda": {
+        "kredyty": 200,
+        "xp": 400,
+        "reputacja": [
+          { "klasa": "Robotnicy", "wartosc": 10 }
+        ]
+      }
+    }
+  ]
+}

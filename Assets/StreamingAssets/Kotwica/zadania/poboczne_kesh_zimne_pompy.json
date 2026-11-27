@@ -1,0 +1,132 @@
+{
+  "zadania": [
+    {
+      "id": "side_kesh_pompy",
+      "tytul": "Zimne pompy",
+      "rodzaj": "Poboczny",
+      "pierscien": "kesh",
+      "opis": "Brygadzista pompowni twierdzi, że części do pomp znikają z magazynu. Bez nich baraki zamarzną.",
+      "minPoziom": 1,
+      "autostart": false,
+      "powtarzalne": false,
+      "cele": [
+        { "typ": "Porozmawiaj", "cel": "kesh_brygadzista", "ilosc": 1, "opis": "Porozmawiaj z brygadzistą pompowni" },
+        { "typ": "Zdobadz", "cel": "czesci_pomp", "ilosc": 3, "opis": "Zdobądź części do pomp" },
+        { "typ": "Dostarcz", "cel": "kesh_pompownia", "ilosc": 1, "opis": "Zanieś części do pompowni" }
+      ],
+      "nagroda": {
+        "kredyty": 80,
+        "xp": 120,
+        "reputacja": [
+          { "klasa": "Robotnicy", "wartosc": 10 }
+        ]
+      }
+    }
+  ],
+  "rozmowy": [
+    {
+      "id": "dlg_oren",
+      "rozmowca": "Brygadzista Oren",
+      "wejscia": [
+        {
+          "wezel": "oren_start",
+          "warunki": [
+            { "typ": "ZadanieMoznaRozpoczac", "id": "side_kesh_pompy" }
+          ]
+        },
+        {
+          "wezel": "oren_szukaj",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Zdobadz", "id": "czesci_pomp" }
+          ]
+        },
+        {
+          "wezel": "oren_zanies",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Dostarcz", "id": "kesh_pompownia" }
+          ]
+        },
+        {
+          "wezel": "oren_po",
+          "warunki": [
+            { "typ": "ZadanieUkonczone", "id": "side_kesh_pompy" }
+          ]
+        },
+        { "wezel": "oren_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "oren_start",
+          "tekst": "Kurier? Dobrze, że jesteś. Ktoś wynosi części do pomp z magazynu. Bez nich baraki zamarzną za dwie zmiany. Trzy skrzynki leżą jeszcze gdzieś między kontenerami, zanim złodziej je zabierze.",
+          "wybory": [
+            {
+              "tekst": "Znajdę je.",
+              "dalej": "oren_ok",
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "side_kesh_pompy" },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_brygadzista" }
+              ]
+            },
+            {
+              "tekst": "Znajdę, ale zaliczka się przyda. Paliwo nie jest za darmo.",
+              "dalej": "oren_zaliczka",
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "side_kesh_pompy" },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_brygadzista" },
+                { "typ": "Kredyty", "wartosc": 30 }
+              ],
+              "test": { "atrybut": "Perswazja", "trudnosc": 2 }
+            },
+            { "tekst": "Kto kradnie?", "dalej": "oren_kto" },
+            { "tekst": "Nie teraz.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "oren_kto",
+          "tekst": "Gdybym wiedział, już by nie miał rąk. Paser spod rur skupuje wszystko, co da się przetopić. Ale za rękę nikt go nie złapał.",
+          "wybory": [
+            {
+              "tekst": "Znajdę te części.",
+              "dalej": "oren_ok",
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "side_kesh_pompy" },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_brygadzista" }
+              ]
+            },
+            { "tekst": "Nie teraz.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "oren_ok",
+          "tekst": "Trzy skrzynki. Potem zanieś je do zaworu przy pompowni.",
+          "wybory": []
+        },
+        {
+          "id": "oren_zaliczka",
+          "tekst": "(liczy kredyty) Trzydzieści. Więcej nie mam, reszta po robocie. Trzy skrzynki, do zaworu przy pompowni.",
+          "wybory": []
+        },
+        {
+          "id": "oren_szukaj",
+          "tekst": "Szukaj między kontenerami. Trzy skrzynki.",
+          "wybory": []
+        },
+        {
+          "id": "oren_zanies",
+          "tekst": "Masz je? To do zaworu przy pompowni, szybko.",
+          "wybory": []
+        },
+        {
+          "id": "oren_po",
+          "tekst": "Pompy chodzą. Ludzie w barakach mówią o tobie. Dobrze mówią.",
+          "wybory": []
+        },
+        {
+          "id": "oren_idle",
+          "tekst": "Pompy dalej stoją. Zimno w barakach.",
+          "wybory": []
+        }
+      ]
+    }
+  ]
+}

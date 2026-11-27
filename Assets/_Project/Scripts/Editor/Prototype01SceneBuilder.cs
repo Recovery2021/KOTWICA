@@ -75,6 +75,11 @@ namespace Kotwica.EditorTools
             SetString(portA, "displayName", "Kesh · port główny");
             BuildExtraDock(ringA, "Dok B", StationLayout.KeshDockBPosition, StationLayout.KeshDockBRotation,
                 "kesh_b", "Kesh · dok B", palette);
+            // Second docks of the other rings need the same permit as their main port
+            Permit(BuildExtraDock(ringC, "Dok handlowy", StationLayout.OrrinDockBPosition, StationLayout.OrrinDockBRotation,
+                "orrin_b", "Orrin · dok handlowy", palette), "przepustka_orrin", "Orrin · dok handlowy");
+            Permit(BuildExtraDock(ringB, "Dok prywatny", StationLayout.VaroDockBPosition, StationLayout.VaroDockBRotation,
+                "varo_b", "Varo · dok prywatny", palette), "przepustka_varo", "Varo · dok prywatny");
 
             // Edit-mode preview of positions (at runtime StationFrame recalculates them every physics step)
             Vector3 anchorOrbital = ringA.GetOrbitalPosition(0d);

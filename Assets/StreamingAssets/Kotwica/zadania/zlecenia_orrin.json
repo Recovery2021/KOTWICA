@@ -1,0 +1,53 @@
+{
+  "zadania": [
+    {
+      "id": "job_orrin_towar",
+      "tytul": "Kurs: towar z doku handlowego",
+      "rodzaj": "Aktywnosc",
+      "pierscien": "orrin",
+      "opis": "Targ na Orrin czeka na dostawę z doku handlowego.",
+      "minPoziom": 1,
+      "autostart": false,
+      "powtarzalne": true,
+      "cele": [
+        { "typ": "Zdobadz", "cel": "towar_orrin", "ilosc": 1, "opis": "Odbierz towar z rampy doku handlowego Orrin" },
+        { "typ": "Dostarcz", "cel": "orrin_targ", "ilosc": 1, "opis": "Dostarcz towar do straganu na targu" }
+      ],
+      "nagroda": { "kredyty": 90, "xp": 45 }
+    }
+  ],
+  "rozmowy": [
+    {
+      "id": "dlg_tablica_orrin",
+      "rozmowca": "Tablica zleceń · Orrin",
+      "wejscia": [
+        { "wezel": "tab_start" }
+      ],
+      "wezly": [
+        {
+          "id": "tab_start",
+          "tekst": "Zlecenia przewozowe Orrin. Wymagana przepustka pierścienia i własny statek.",
+          "wybory": [
+            {
+              "tekst": "Towar z doku handlowego na targ (90 kr)",
+              "dalej": "tab_ok",
+              "warunki": [
+                { "typ": "ZadanieMoznaRozpoczac", "id": "job_orrin_towar" },
+                { "typ": "MaPrzedmiot", "id": "rejestracja_statku" }
+              ],
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "job_orrin_towar" }
+              ]
+            },
+            { "tekst": "Nic nie biorę.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "tab_ok",
+          "tekst": "Zlecenie przyjęte. Szczegóły w dzienniku (Tab).",
+          "wybory": []
+        }
+      ]
+    }
+  ]
+}

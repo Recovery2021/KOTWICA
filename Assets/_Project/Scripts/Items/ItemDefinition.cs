@@ -31,7 +31,11 @@ namespace Kotwica.Items
             if (cache == null)
             {
                 cache = new Dictionary<string, ItemDefinition>();
-                foreach (ItemDefinition item in Resources.LoadAll<ItemDefinition>("Items")) cache[item.id] = item;
+                var fromFiles = Kotwica.Content.ContentLibrary.Items; // editable JSON first, assets as fallback
+                if (fromFiles.Count > 0)
+                    foreach (ItemDefinition item in fromFiles) cache[item.id] = item;
+                else
+                    foreach (ItemDefinition item in Resources.LoadAll<ItemDefinition>("Items")) cache[item.id] = item;
             }
             return cache.TryGetValue(itemId, out ItemDefinition found) ? found : null;
         }

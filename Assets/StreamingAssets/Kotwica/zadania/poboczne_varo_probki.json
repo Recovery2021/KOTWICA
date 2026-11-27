@@ -1,0 +1,152 @@
+{
+  "zadania": [
+    {
+      "id": "side_varo_probki",
+      "tytul": "Próbki z chłodni",
+      "rodzaj": "Poboczny",
+      "pierscien": "varo",
+      "opis": "Laborantka z Varo chce wynieść próbki dla paserów z Kesh. Dobrze płaci, ale elita nie zapomina.",
+      "minPoziom": 2,
+      "wymagane": ["main_01_kurs_powrotny"],
+      "autostart": false,
+      "powtarzalne": false,
+      "cele": [
+        { "typ": "Porozmawiaj", "cel": "varo_laborantka", "ilosc": 1, "opis": "Porozmawiaj z laborantką" },
+        { "typ": "Interakcja", "cel": "varo_chlodnia", "ilosc": 1, "opis": "Wynieś próbki z chłodni" },
+        { "typ": "Dostarcz", "cel": "kesh_paser", "ilosc": 1, "opis": "Sprzedaj próbki paserowi na Kesh" }
+      ],
+      "nagroda": {
+        "kredyty": 150,
+        "xp": 100,
+        "reputacja": [
+          { "klasa": "Elita", "wartosc": -10 },
+          { "klasa": "Robotnicy", "wartosc": 5 }
+        ]
+      }
+    }
+  ],
+  "rozmowy": [
+    {
+      "id": "dlg_ida",
+      "rozmowca": "Laborantka Ida",
+      "wejscia": [
+        {
+          "wezel": "ida_po_donos",
+          "warunki": [
+            { "typ": "FlagaUstawiona", "id": "ida_doniesiona" }
+          ]
+        },
+        {
+          "wezel": "ida_start",
+          "warunki": [
+            { "typ": "ZadanieMoznaRozpoczac", "id": "side_varo_probki" }
+          ]
+        },
+        {
+          "wezel": "ida_czeka",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Interakcja", "id": "varo_chlodnia" }
+          ]
+        },
+        {
+          "wezel": "ida_paser",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Dostarcz", "id": "kesh_paser" }
+          ]
+        },
+        {
+          "wezel": "ida_po",
+          "warunki": [
+            { "typ": "ZadanieUkonczone", "id": "side_varo_probki" }
+          ]
+        },
+        { "wezel": "ida_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "ida_start",
+          "tekst": "(rozgląda się) Pan z dołu, prawda? Kurier. W chłodni leżą próbki, których Zarząd nie wpisuje do raportów. Na Kesh są ludzie, którzy dużo za nie zapłacą. Ja nie mogę ich wynieść. Pan może.",
+          "wybory": [
+            { "tekst": "Ile?", "dalej": "ida_ile" },
+            { "tekst": "Co jest w tych próbkach?", "dalej": "ida_co" },
+            {
+              "tekst": "Zgłoszę to ochronie.",
+              "dalej": "ida_donos",
+              "efekty": [
+                { "typ": "UstawFlage", "id": "ida_doniesiona" },
+                { "typ": "Reputacja", "klasa": "Elita", "wartosc": 10 },
+                { "typ": "Kredyty", "wartosc": 50 }
+              ]
+            },
+            { "tekst": "Nie interesuje mnie to.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "ida_ile",
+          "tekst": "Sto pięćdziesiąt na rękę od pasera. Elita nie zapomina, ale elita nie schodzi na Kesh.",
+          "wybory": [
+            {
+              "tekst": "Wchodzę w to.",
+              "dalej": "ida_ok",
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "side_varo_probki" },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "varo_laborantka" }
+              ]
+            },
+            { "tekst": "Nie.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "ida_co",
+          "tekst": "Wyniki badań powietrza z dolnych pierścieni. Prawdziwe wyniki. Ludzie na Kesh oddychają czymś, czego nie ma w raportach.",
+          "wybory": [
+            {
+              "tekst": "Wchodzę w to.",
+              "dalej": "ida_ok",
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "side_varo_probki" },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "varo_laborantka" }
+              ]
+            },
+            { "tekst": "Nie.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "ida_ok",
+          "tekst": "Chłodnia stoi przy laboratorium. Kamery patrzą na ulicę, nie na chłodnię. Zwykle.",
+          "wybory": []
+        },
+        {
+          "id": "ida_donos",
+          "tekst": "(blednie) Nie... Proszę... (za tobą słychać kroki ochrony)",
+          "wybory": []
+        },
+        {
+          "id": "ida_czeka",
+          "tekst": "Proszę się pośpieszyć. Zmiana ochrony za pół godziny.",
+          "wybory": []
+        },
+        {
+          "id": "ida_paser",
+          "tekst": "Ma je pan? To na Kesh, do pasera. I proszę tu nie wracać przez jakiś czas.",
+          "wybory": []
+        },
+        {
+          "id": "ida_po",
+          "tekst": "Na Kesh podobno mówią o próbkach. Dobrze. Niech mówią.",
+          "wybory": []
+        },
+        {
+          "id": "ida_po_donos",
+          "tekst": "(Ida patrzy przez ciebie, jakby cię tu nie było.)",
+          "wybory": []
+        },
+        {
+          "id": "ida_idle",
+          "tekst": "Proszę nie dotykać niczego w laboratorium.",
+          "wybory": []
+        }
+      ]
+    }
+  ]
+}

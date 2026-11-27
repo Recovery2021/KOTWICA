@@ -97,6 +97,12 @@ Gra zaczyna się na **Kesh** i rozdział 1 dzieje się w całości tutaj: dokerk
 **Statek:** bez rejestracji (kupionej u Brodda) nie wejdziesz do kokpitu. Porty Kesh są otwarte. Port innego pierścienia bez przepustki = straż portowa konfiskuje statek i odsyła cię na Kesh (depozyt u Brodda: 150 kr). HUD ostrzega przed dokowaniem, a w locie pokazuje cel z dziennika.
 Stare zapisy (F9) z poprzednią wersją rozdziału 1 nie pasują: zacznij nową grę.
 
+## Zadania w plikach konfiguracyjnych (krok 10)
+Zadania główne i poboczne, zlecenia, rozmowy i przedmioty są w plikach JSON w **`Assets/StreamingAssets/Kotwica/`** (`przedmioty.json`, `zadania/*.json`). Gra wczytuje je przy każdym Play, a w gotowej grze leżą w `..._Data/StreamingAssets/Kotwica` i też można je edytować. Opis formatu i wszystkie dozwolone słowa: **`Assets/StreamingAssets/Kotwica/JAK_EDYTOWAC.md`**.
+Menu **Kotwica → Zadania: sprawdź pliki** wyłapuje literówki w id, nieznane węzły rozmów i brakujące przedmioty. **Kotwica → Zadania: otwórz folder** otwiera folder z plikami. Stare zasoby w `Resources/Quests`, `Resources/Dialogues` i `Resources/Items` są ignorowane, gdy pliki JSON istnieją, i można je usunąć.
+**Zarobek:** tablice zleceń na pokładzie portu Kesh i na doku B (paczka do baraków 30 kr, wkłady do pompowni 45 kr; statkiem: kursy między portem a dokiem B po 80 kr) oraz na Orrin (towar z doku handlowego na targ, 90 kr). Zlecenia są powtarzalne.
+**Drugie doki:** Orrin · dok handlowy i Varo · dok prywatny (te same przepustki co główne porty).
+
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.
 2. Sklonuj `Recovery2021/KOTWICA`.

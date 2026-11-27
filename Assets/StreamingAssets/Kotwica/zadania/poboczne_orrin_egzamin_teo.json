@@ -1,0 +1,209 @@
+{
+  "zadania": [
+    {
+      "id": "side_orrin_egzamin",
+      "tytul": "Egzamin Teo",
+      "rodzaj": "Poboczny",
+      "pierscien": "orrin",
+      "opis": "Uczeń szkoły technicznej ma jutro egzamin, od którego zależy przydział na Varo. Terminal w szkole zna odpowiedzi.",
+      "minPoziom": 1,
+      "autostart": false,
+      "powtarzalne": false,
+      "cele": [
+        { "typ": "Porozmawiaj", "cel": "orrin_teo", "ilosc": 1, "opis": "Porozmawiaj z Teo" },
+        { "typ": "Interakcja", "cel": "orrin_szkola_terminal", "ilosc": 1, "opis": "Zdobądź odpowiedzi z terminalu szkoły" },
+        { "typ": "Porozmawiaj", "cel": "orrin_teo", "ilosc": 1, "opis": "Wróć do Teo" }
+      ],
+      "nagroda": {
+        "kredyty": 60,
+        "xp": 100,
+        "reputacja": [
+          { "klasa": "KlasaSrednia", "wartosc": 5 }
+        ]
+      }
+    }
+  ],
+  "rozmowy": [
+    {
+      "id": "dlg_teo",
+      "rozmowca": "Teo",
+      "wejscia": [
+        {
+          "wezel": "teo_start",
+          "warunki": [
+            { "typ": "ZadanieMoznaRozpoczac", "id": "side_orrin_egzamin" }
+          ]
+        },
+        {
+          "wezel": "teo_czeka",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Interakcja", "id": "orrin_szkola_terminal" }
+          ]
+        },
+        {
+          "wezel": "teo_daj",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "orrin_teo" },
+            { "typ": "MaPrzedmiot", "id": "odpowiedzi_egzamin" }
+          ]
+        },
+        {
+          "wezel": "teo_wynik",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "orrin_teo" },
+            { "typ": "FlagaUstawiona", "id": "teo_uczciwie" }
+          ]
+        },
+        {
+          "wezel": "teo_bez",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "orrin_teo" }
+          ]
+        },
+        {
+          "wezel": "teo_po_uczciwie",
+          "warunki": [
+            { "typ": "ZadanieUkonczone", "id": "side_orrin_egzamin" },
+            { "typ": "FlagaUstawiona", "id": "teo_uczciwie" }
+          ]
+        },
+        {
+          "wezel": "teo_po",
+          "warunki": [
+            { "typ": "ZadanieUkonczone", "id": "side_orrin_egzamin" }
+          ]
+        },
+        { "wezel": "teo_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "teo_start",
+          "tekst": "Jutro egzamin z napędów. Jak zdam, dostanę przydział na Varo. Jak nie... zostanę na Orrin na zawsze. Pomożesz mi?",
+          "wybory": [
+            { "tekst": "Co trzeba zrobić?", "dalej": "teo_plan" },
+            { "tekst": "Nie mam czasu.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "teo_plan",
+          "tekst": "W szkole stoi terminal z odpowiedziami. Wieczorem nikt go nie pilnuje. Prawie nikt.",
+          "wybory": [
+            {
+              "tekst": "Zdobędę je.",
+              "dalej": "teo_ok",
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "side_orrin_egzamin" },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_teo" }
+              ]
+            },
+            {
+              "tekst": "Lepiej, żebyś to umiał. Siadaj, przerobimy napędy razem.",
+              "dalej": "teo_nauka",
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "side_orrin_egzamin" },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_teo" },
+                { "typ": "ZglosCel", "cel": "Interakcja", "id": "orrin_szkola_terminal" },
+                { "typ": "UstawFlage", "id": "teo_uczciwie" }
+              ],
+              "test": { "atrybut": "Technika", "trudnosc": 3 }
+            },
+            { "tekst": "To nie dla mnie.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "teo_ok",
+          "tekst": "Terminal stoi przy wejściu do szkoły technicznej. Uważaj na ludzi: jak ktoś zobaczy, wezwie ochronę.",
+          "wybory": []
+        },
+        {
+          "id": "teo_nauka",
+          "tekst": "(godzinę później) ...czyli sprzężenie idzie przed stabilizatorem. Dobra. Chyba rozumiem. Przyjdź po egzaminie, powiem ci, jak poszło.",
+          "wybory": []
+        },
+        {
+          "id": "teo_czeka",
+          "tekst": "Terminal stoi przy wejściu do szkoły. Pośpiesz się, egzamin jutro.",
+          "wybory": []
+        },
+        {
+          "id": "teo_daj",
+          "tekst": "Masz je? Pokaż!",
+          "wybory": [
+            {
+              "tekst": "Trzymaj.",
+              "dalej": "teo_koniec_oszust",
+              "efekty": [
+                { "typ": "ZabierzPrzedmiot", "id": "odpowiedzi_egzamin", "wartosc": 1 },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_teo" }
+              ]
+            },
+            {
+              "tekst": "Zatrzymam je. Zdasz, bo umiesz więcej, niż myślisz.",
+              "dalej": "teo_koniec_uczciwy",
+              "efekty": [
+                { "typ": "ZabierzPrzedmiot", "id": "odpowiedzi_egzamin", "wartosc": 1 },
+                { "typ": "UstawFlage", "id": "teo_uczciwie" },
+                { "typ": "Reputacja", "klasa": "KlasaSrednia", "wartosc": 5 },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_teo" }
+              ],
+              "test": { "atrybut": "Perswazja", "trudnosc": 3 }
+            }
+          ]
+        },
+        {
+          "id": "teo_koniec_oszust",
+          "tekst": "Zdam. Na pewno zdam. ...Nie mów nikomu, dobra? Na Varo nie lubią takich jak my.",
+          "wybory": []
+        },
+        {
+          "id": "teo_koniec_uczciwy",
+          "tekst": "Myślisz? ...Dobra. Spróbuję sam. Jak się uda, będę ci winien więcej niż kredyty.",
+          "wybory": []
+        },
+        {
+          "id": "teo_wynik",
+          "tekst": "Zdałem! Sam! Przydział na Varo... Nie wiem, jak ci dziękować.",
+          "wybory": [
+            {
+              "tekst": "Powodzenia na górze.",
+              "dalej": "",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_teo" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "teo_bez",
+          "tekst": "Zabrali ci odpowiedzi? To koniec...",
+          "wybory": [
+            {
+              "tekst": "Nie koniec. Siadaj, nauczę cię.",
+              "dalej": "teo_nauka",
+              "efekty": [
+                { "typ": "UstawFlage", "id": "teo_uczciwie" }
+              ],
+              "test": { "atrybut": "Technika", "trudnosc": 3 }
+            },
+            { "tekst": "Coś wymyślę.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "teo_po_uczciwie",
+          "tekst": "Za tydzień lecę na Varo. Pierwszy z naszego bloku.",
+          "wybory": []
+        },
+        {
+          "id": "teo_po",
+          "tekst": "Zdałem. Tylko czasem śni mi się ten terminal.",
+          "wybory": []
+        },
+        {
+          "id": "teo_idle",
+          "tekst": "Jutro egzamin. Nie mam teraz głowy do rozmów.",
+          "wybory": []
+        }
+      ]
+    }
+  ]
+}

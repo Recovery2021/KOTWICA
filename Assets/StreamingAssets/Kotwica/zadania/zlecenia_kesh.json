@@ -1,0 +1,129 @@
+{
+  "zadania": [
+    {
+      "id": "job_kesh_paczka",
+      "tytul": "Zlecenie: paczka do baraków",
+      "rodzaj": "Aktywnosc",
+      "pierscien": "kesh",
+      "opis": "Magazyn portowy ma paczkę dla baraku 7 na ulicy. Płatne przy odbiorze.",
+      "minPoziom": 1,
+      "autostart": false,
+      "powtarzalne": true,
+      "cele": [
+        { "typ": "Zdobadz", "cel": "paczka_kesh", "ilosc": 1, "opis": "Odbierz paczkę z magazynu portowego (pokład portu)" },
+        { "typ": "Dostarcz", "cel": "kesh_barak", "ilosc": 1, "opis": "Zostaw paczkę w skrzynce baraku 7 na ulicy" }
+      ],
+      "nagroda": { "kredyty": 30, "xp": 20 }
+    },
+    {
+      "id": "job_kesh_filtry",
+      "tytul": "Zlecenie: wkłady do pompowni",
+      "rodzaj": "Aktywnosc",
+      "pierscien": "kesh",
+      "opis": "Pompownia czeka na dwa wkłady filtrów z magazynu portowego.",
+      "minPoziom": 1,
+      "autostart": false,
+      "powtarzalne": true,
+      "cele": [
+        { "typ": "Zdobadz", "cel": "wklady_filtrow", "ilosc": 2, "opis": "Odbierz dwa wkłady z magazynu portowego" },
+        { "typ": "Dostarcz", "cel": "kesh_pompownia_filtry", "ilosc": 1, "opis": "Oddaj wkłady przy wejściu do pompowni" }
+      ],
+      "nagroda": { "kredyty": 45, "xp": 25 }
+    },
+    {
+      "id": "job_kesh_dok_b",
+      "tytul": "Kurs: skrzynia na dok B",
+      "rodzaj": "Aktywnosc",
+      "pierscien": "kesh",
+      "opis": "Kapitanat na doku B czeka na części. Bez statku nie dolecisz.",
+      "minPoziom": 1,
+      "autostart": false,
+      "powtarzalne": true,
+      "cele": [
+        { "typ": "Zdobadz", "cel": "skrzynia_dok_b", "ilosc": 1, "opis": "Odbierz skrzynię z magazynu portowego" },
+        { "typ": "Dostarcz", "cel": "kesh_b_rampa", "ilosc": 1, "opis": "Dostarcz skrzynię na rampę doku B" }
+      ],
+      "nagroda": { "kredyty": 80, "xp": 40 }
+    },
+    {
+      "id": "job_kesh_z_doku_b",
+      "tytul": "Kurs: skrzynia z doku B",
+      "rodzaj": "Aktywnosc",
+      "pierscien": "kesh",
+      "opis": "Zwrot z doku B do magazynu portowego. Bez statku nie dolecisz.",
+      "minPoziom": 1,
+      "autostart": false,
+      "powtarzalne": true,
+      "cele": [
+        { "typ": "Zdobadz", "cel": "skrzynia_z_doku_b", "ilosc": 1, "opis": "Odbierz skrzynię z rampy doku B" },
+        { "typ": "Dostarcz", "cel": "kesh_magazyn", "ilosc": 1, "opis": "Oddaj skrzynię w magazynie portowym" }
+      ],
+      "nagroda": { "kredyty": 80, "xp": 40 }
+    }
+  ],
+  "rozmowy": [
+    {
+      "id": "dlg_tablica_kesh",
+      "rozmowca": "Tablica zleceń · Kesh",
+      "wejscia": [
+        { "wezel": "tab_start" }
+      ],
+      "wezly": [
+        {
+          "id": "tab_start",
+          "tekst": "Zlecenia dla kurierów. Płatne przy odbiorze. Kto zgubi towar, ten nie wraca.",
+          "wybory": [
+            {
+              "tekst": "Paczka do baraków (30 kr)",
+              "dalej": "tab_ok",
+              "warunki": [
+                { "typ": "ZadanieMoznaRozpoczac", "id": "job_kesh_paczka" }
+              ],
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "job_kesh_paczka" }
+              ]
+            },
+            {
+              "tekst": "Wkłady filtrów do pompowni (45 kr)",
+              "dalej": "tab_ok",
+              "warunki": [
+                { "typ": "ZadanieMoznaRozpoczac", "id": "job_kesh_filtry" }
+              ],
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "job_kesh_filtry" }
+              ]
+            },
+            {
+              "tekst": "Skrzynia na dok B, statkiem (80 kr)",
+              "dalej": "tab_ok",
+              "warunki": [
+                { "typ": "ZadanieMoznaRozpoczac", "id": "job_kesh_dok_b" },
+                { "typ": "MaPrzedmiot", "id": "rejestracja_statku" }
+              ],
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "job_kesh_dok_b" }
+              ]
+            },
+            {
+              "tekst": "Skrzynia z doku B do magazynu, statkiem (80 kr)",
+              "dalej": "tab_ok",
+              "warunki": [
+                { "typ": "ZadanieMoznaRozpoczac", "id": "job_kesh_z_doku_b" },
+                { "typ": "MaPrzedmiot", "id": "rejestracja_statku" }
+              ],
+              "efekty": [
+                { "typ": "RozpocznijZadanie", "id": "job_kesh_z_doku_b" }
+              ]
+            },
+            { "tekst": "Nic nie biorę.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "tab_ok",
+          "tekst": "Zlecenie przyjęte. Szczegóły w dzienniku (Tab).",
+          "wybory": []
+        }
+      ]
+    }
+  ]
+}

@@ -64,7 +64,9 @@ namespace Kotwica.Dialogue
             int amount = Mathf.Max(1, e.value);
             switch (e.type)
             {
-                case EffectType.RozpocznijZadanie: s.Quests.Start(e.id); break;
+                case EffectType.RozpocznijZadanie:
+                    if (s.Quests.Start(e.id)) s.Quests.Track(e.id); // the HUD shows the job just taken
+                    break;
                 case EffectType.ZglosCel: GameServices.Report(e.objective, e.id); break;
                 case EffectType.DajPrzedmiot:
                     s.Inventory.Add(e.id, amount);

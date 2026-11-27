@@ -1,0 +1,586 @@
+{
+  "zadania": [
+    {
+      "id": "main_01_kurs_powrotny",
+      "tytul": "Rozdział 1: Lek dla córki",
+      "rodzaj": "Glowny",
+      "pierscien": "kesh",
+      "opis": "Na Kesh nikt nic nie daje za darmo. Dokerka Mara ma zepsuty podnośnik i chorą córkę, a ty dopiero zaczynasz. Zanim polecisz wyżej, musisz zapracować na statek i na zaufanie portu.",
+      "minPoziom": 1,
+      "autostart": true,
+      "powtarzalne": false,
+      "cele": [
+        { "typ": "Porozmawiaj", "cel": "kesh_dokerka_start", "ilosc": 1, "opis": "Porozmawiaj z dokerką Marą na pokładzie portu" },
+        { "typ": "Interakcja", "cel": "kesh_podnosnik", "ilosc": 1, "opis": "Wymontuj zatarty moduł z podnośnika" },
+        { "typ": "Dostarcz", "cel": "kesh_serwis", "ilosc": 1, "opis": "Zanieś moduł do warsztatu Brena na ulicy" },
+        { "typ": "Porozmawiaj", "cel": "kesh_medyczka", "ilosc": 1, "opis": "Zapytaj w ambulatorium o lek dla córki Mary" },
+        { "typ": "Porozmawiaj", "cel": "kesh_dokerka", "ilosc": 1, "opis": "Wróć do dokerki Mary" },
+        { "typ": "Zdobadz", "cel": "rejestracja_statku", "ilosc": 1, "opis": "Kup holownik u handlarza Brodda na pokładzie portu" },
+        { "typ": "Lec", "cel": "port_kesh_b", "ilosc": 1, "opis": "Przeleć statkiem na dok B Kesh" },
+        { "typ": "Porozmawiaj", "cel": "kesh_kapitan", "ilosc": 1, "opis": "Zgłoś się do kapitana portu Hale" },
+        { "typ": "Interakcja", "cel": "kesh_b_kontener", "ilosc": 1, "opis": "Znajdź kontener z podmienioną plombą" },
+        { "typ": "Porozmawiaj", "cel": "kesh_kapitan", "ilosc": 1, "opis": "Oddaj plombę kapitanowi Hale" }
+      ],
+      "nagroda": {
+        "kredyty": 0,
+        "xp": 250,
+        "reputacja": [
+          { "klasa": "Robotnicy", "wartosc": 5 }
+        ]
+      }
+    }
+  ],
+  "rozmowy": [
+    {
+      "id": "dlg_mara",
+      "rozmowca": "Dokerka Mara",
+      "wejscia": [
+        {
+          "wezel": "mara_start",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_dokerka_start" }
+          ]
+        },
+        {
+          "wezel": "mara_podnosnik",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Interakcja", "id": "kesh_podnosnik" }
+          ]
+        },
+        {
+          "wezel": "mara_serwis",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Dostarcz", "id": "kesh_serwis" }
+          ]
+        },
+        {
+          "wezel": "mara_ambulatorium",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_medyczka" }
+          ]
+        },
+        {
+          "wezel": "mara_lek_legalny",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_dokerka" },
+            { "typ": "MaPrzedmiot", "id": "lek_przydzial" }
+          ]
+        },
+        {
+          "wezel": "mara_lek_nielegalny",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_dokerka" },
+            { "typ": "MaPrzedmiot", "id": "lek_bez_zgody" }
+          ]
+        },
+        {
+          "wezel": "mara_bez_leku",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_dokerka" }
+          ]
+        },
+        {
+          "wezel": "mara_po",
+          "warunki": [
+            { "typ": "FlagaUstawiona", "id": "ch1_lek" }
+          ]
+        },
+        {
+          "wezel": "mara_po_bez",
+          "warunki": [
+            { "typ": "FlagaUstawiona", "id": "ch1_bez_leku" }
+          ]
+        },
+        { "wezel": "mara_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "mara_start",
+          "tekst": "Ty jesteś ten nowy? Podnośnik znowu stanął, a zmiana zaraz się zaczyna. Jak nie ruszy, potrącą mi z dniówki. A córka... córka kaszle od tygodnia.",
+          "wybory": [
+            {
+              "tekst": "Pokaż ten podnośnik.",
+              "dalej": "mara_ok",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_dokerka_start" }
+              ]
+            },
+            { "tekst": "Co z córką?", "dalej": "mara_corka" }
+          ]
+        },
+        {
+          "id": "mara_corka",
+          "tekst": "Powietrze w barakach. Medyczka mówi, że lek jest, ale na przydział. A przydziały idą najpierw na górę, na Varo.",
+          "wybory": [
+            {
+              "tekst": "Najpierw podnośnik. Potem zobaczymy.",
+              "dalej": "mara_ok",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_dokerka_start" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mara_ok",
+          "tekst": "Stoi za mną. Moduł sterujący się zatarł. Wyjmij go, Bren z warsztatu na ulicy go postawi.",
+          "wybory": []
+        },
+        {
+          "id": "mara_podnosnik",
+          "tekst": "Moduł siedzi pod osłoną z boku. Odkręcisz cztery śruby i wyjdzie.",
+          "wybory": []
+        },
+        {
+          "id": "mara_serwis",
+          "tekst": "Warsztat Brena jest w połowie ulicy, między barakami. Nie zgub tego modułu, nie mam na nowy.",
+          "wybory": []
+        },
+        {
+          "id": "mara_ambulatorium",
+          "tekst": "Ambulatorium jest przed pompownią. Powiedz medyczce, że to dla małej Mary.",
+          "wybory": []
+        },
+        {
+          "id": "mara_lek_legalny",
+          "tekst": "Ze stemplem? Z przydziału? (ściska opakowanie) Nikt tu nie dostaje przydziału...",
+          "wybory": [
+            {
+              "tekst": "Dla córki.",
+              "dalej": "mara_koniec",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_dokerka" },
+                { "typ": "ZabierzPrzedmiot", "id": "lek_przydzial", "wartosc": 1 },
+                { "typ": "Kredyty", "wartosc": 100 },
+                { "typ": "Reputacja", "klasa": "Robotnicy", "wartosc": 5 },
+                { "typ": "UstawFlage", "id": "ch1_lek" },
+                { "typ": "UstawFlage", "id": "ch1_lek_legalny" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mara_lek_nielegalny",
+          "tekst": "Bez stempla? Jak ochrona to u mnie znajdzie... (chowa pod kurtkę) Nieważne. Dziękuję.",
+          "wybory": [
+            {
+              "tekst": "Nikt się nie dowie.",
+              "dalej": "mara_koniec",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_dokerka" },
+                { "typ": "ZabierzPrzedmiot", "id": "lek_bez_zgody", "wartosc": 1 },
+                { "typ": "Kredyty", "wartosc": 100 },
+                { "typ": "Reputacja", "klasa": "Robotnicy", "wartosc": 10 },
+                { "typ": "Reputacja", "klasa": "Elita", "wartosc": -5 },
+                { "typ": "UstawFlage", "id": "ch1_lek" },
+                { "typ": "UstawFlage", "id": "ch1_lek_nielegalny" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mara_bez_leku",
+          "tekst": "Nie dali? ...Jasne. Na Kesh nikt nic nie daje.",
+          "wybory": [
+            { "tekst": "Wrócę z lekiem.", "dalej": "" },
+            {
+              "tekst": "Przepraszam. Nie dało się.",
+              "dalej": "mara_koniec_bez",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_dokerka" },
+                { "typ": "Kredyty", "wartosc": 100 },
+                { "typ": "Reputacja", "klasa": "Robotnicy", "wartosc": -5 },
+                { "typ": "UstawFlage", "id": "ch1_bez_leku" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "mara_koniec",
+          "tekst": "Za podnośnik i za to... sto kredytów. Więcej nie mam. Słuchaj: Brodd na pokładzie sprzedaje stary holownik. Ze statkiem zarobisz więcej niż na nogach. A kapitan portu na doku B szuka ludzi, którym można ufać.",
+          "wybory": []
+        },
+        {
+          "id": "mara_koniec_bez",
+          "tekst": "Sto kredytów za podnośnik. Tyle mogę. Słuchaj: Brodd na pokładzie sprzedaje stary holownik. Ze statkiem zarobisz więcej niż na nogach. A kapitan portu na doku B szuka ludzi, którym można ufać.",
+          "wybory": []
+        },
+        {
+          "id": "mara_po",
+          "tekst": "Córka śpi spokojnie, pierwszy raz od tygodnia.",
+          "wybory": []
+        },
+        {
+          "id": "mara_po_bez",
+          "tekst": "Córka dalej kaszle. Jakoś to będzie. Zawsze jakoś było.",
+          "wybory": []
+        },
+        {
+          "id": "mara_idle",
+          "tekst": "Zmiana się zaczyna. Nie mam czasu.",
+          "wybory": []
+        }
+      ]
+    },
+    {
+      "id": "dlg_medyczka",
+      "rozmowca": "Medyczka Nadia",
+      "wejscia": [
+        {
+          "wezel": "med_start",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_medyczka" }
+          ]
+        },
+        {
+          "wezel": "med_start",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_dokerka" },
+            { "typ": "NieMaPrzedmiotu", "id": "lek_przydzial" },
+            { "typ": "NieMaPrzedmiotu", "id": "lek_bez_zgody" }
+          ]
+        },
+        { "wezel": "med_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "med_start",
+          "tekst": "Lek dla córki dokerki? Jest. Na półce za mną, w skrzynce z plombą Zarządu. Przydział dla Kesh na ten cykl już wydany. Reszta leci na Varo.",
+          "wybory": [
+            {
+              "tekst": "Złożę wniosek o przydział. (opłata 60 kr)",
+              "dalej": "med_przydzial",
+              "warunki": [
+                { "typ": "KredytyCoNajmniej", "wartosc": 60 }
+              ],
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_medyczka" },
+                { "typ": "Kredyty", "wartosc": -60 },
+                { "typ": "DajPrzedmiot", "id": "lek_przydzial", "wartosc": 1 }
+              ]
+            },
+            {
+              "tekst": "Dziecko kaszle od tygodnia. Pani wie, że to nie może czekać do następnego cyklu.",
+              "dalej": "med_perswazja",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_medyczka" },
+                { "typ": "DajPrzedmiot", "id": "lek_przydzial", "wartosc": 1 }
+              ],
+              "test": { "atrybut": "Perswazja", "trudnosc": 3 }
+            },
+            {
+              "tekst": "A gdyby jedna skrzynka zginęła w drodze na Varo?",
+              "dalej": "med_bez_zgody",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_medyczka" },
+                { "typ": "DajPrzedmiot", "id": "lek_bez_zgody", "wartosc": 1 }
+              ]
+            },
+            {
+              "tekst": "Nie stać mnie. Powiem Marze.",
+              "dalej": "",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_medyczka" }
+              ]
+            },
+            { "tekst": "Wrócę później.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "med_przydzial",
+          "tekst": "(stempluje formularz) Przydział z rezerwy. Oficjalnie. Niech pan to trzyma przy sobie, ochrona sprawdza.",
+          "wybory": []
+        },
+        {
+          "id": "med_perswazja",
+          "tekst": "(długo milczy) ...Wypiszę z rezerwy awaryjnej. Za darmo. I nie było tej rozmowy.",
+          "wybory": []
+        },
+        {
+          "id": "med_bez_zgody",
+          "tekst": "Nic nie słyszałam. Skrzynka stoi przy drzwiach, a ja idę na zaplecze.\n\n(Lek bez przydziału: jeśli ochrona go znajdzie, przepadnie.)",
+          "wybory": []
+        },
+        {
+          "id": "med_idle",
+          "tekst": "Ambulatorium Kesh. Jeśli nie krwawisz, czekaj w kolejce.",
+          "wybory": []
+        }
+      ]
+    },
+    {
+      "id": "dlg_brodd",
+      "rozmowca": "Handlarz Brodd",
+      "wejscia": [
+        {
+          "wezel": "brodd_dlug",
+          "warunki": [
+            { "typ": "MaPrzedmiot", "id": "rejestracja_statku" },
+            { "typ": "FlagaUstawiona", "id": "dlug_stocznia" },
+            { "typ": "FlagaNieustawiona", "id": "dlug_splacony" }
+          ]
+        },
+        {
+          "wezel": "brodd_wlasciciel",
+          "warunki": [
+            { "typ": "MaPrzedmiot", "id": "rejestracja_statku" }
+          ]
+        },
+        {
+          "wezel": "brodd_depozyt",
+          "warunki": [
+            { "typ": "FlagaUstawiona", "id": "statek_skonfiskowany" }
+          ]
+        },
+        { "wezel": "brodd_start" }
+      ],
+      "wezly": [
+        {
+          "id": "brodd_start",
+          "tekst": "Holownik Wróbel. Stary, ale silniki ma uczciwe. Trzysta kredytów i jest twój. Doki Kesh, ładownia na dwie skrzynie. Na inne pierścienie i tak cię nie wpuszczą bez przepustki: straż portowa zabiera statki od ręki.",
+          "wybory": [
+            {
+              "tekst": "Biorę. (300 kr)",
+              "dalej": "brodd_kupiony",
+              "warunki": [
+                { "typ": "KredytyCoNajmniej", "wartosc": 300 }
+              ],
+              "efekty": [
+                { "typ": "Kredyty", "wartosc": -300 },
+                { "typ": "DajPrzedmiot", "id": "rejestracja_statku", "wartosc": 1 }
+              ]
+            },
+            {
+              "tekst": "Za te silniki? Dwieście dwadzieścia i nie płaczesz.",
+              "dalej": "brodd_kupiony",
+              "warunki": [
+                { "typ": "KredytyCoNajmniej", "wartosc": 220 }
+              ],
+              "efekty": [
+                { "typ": "Kredyty", "wartosc": -220 },
+                { "typ": "DajPrzedmiot", "id": "rejestracja_statku", "wartosc": 1 }
+              ],
+              "test": { "atrybut": "Perswazja", "trudnosc": 3 }
+            },
+            {
+              "tekst": "Osiemdziesiąt teraz, reszta z kursów.",
+              "dalej": "brodd_raty",
+              "warunki": [
+                { "typ": "KredytyCoNajmniej", "wartosc": 80 }
+              ],
+              "efekty": [
+                { "typ": "Kredyty", "wartosc": -80 },
+                { "typ": "DajPrzedmiot", "id": "rejestracja_statku", "wartosc": 1 },
+                { "typ": "UstawFlage", "id": "dlug_stocznia" }
+              ]
+            },
+            { "tekst": "Jeszcze nie.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "brodd_kupiony",
+          "tekst": "Rejestracja, kody startowe. Stoi na lądowisku obok. W kokpicie Spacja odcumowuje, a dok B jest kawałek dalej po obręczy, za końcem ulicy. Wypatruj masztu z pomarańczowym światłem.",
+          "wybory": []
+        },
+        {
+          "id": "brodd_raty",
+          "tekst": "Dobra. Ale jak nie spłacisz, znajdę cię nawet na Varo. Reszta: dwieście dwadzieścia. Kapitan portu płaci za uczciwe kursy, zacznij od niego.",
+          "wybory": []
+        },
+        {
+          "id": "brodd_dlug",
+          "tekst": "Reszta za Wróbla: dwieście dwadzieścia. Pamiętam.",
+          "wybory": [
+            {
+              "tekst": "Spłacam. (220 kr)",
+              "dalej": "brodd_splacone",
+              "warunki": [
+                { "typ": "KredytyCoNajmniej", "wartosc": 220 }
+              ],
+              "efekty": [
+                { "typ": "Kredyty", "wartosc": -220 },
+                { "typ": "UstawFlage", "id": "dlug_splacony" }
+              ]
+            },
+            { "tekst": "Jeszcze nie mam.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "brodd_splacone",
+          "tekst": "Uczciwy kurier na Kesh. Kto by pomyślał.",
+          "wybory": []
+        },
+        {
+          "id": "brodd_wlasciciel",
+          "tekst": "Lata? To dobrze. Wróbel ma więcej lat niż ty, szanuj go.",
+          "wybory": []
+        },
+        {
+          "id": "brodd_depozyt",
+          "tekst": "Straż portowa przyholowała twojego Wróbla. Depozyt: sto pięćdziesiąt.",
+          "wybory": [
+            {
+              "tekst": "Płacę. (150 kr)",
+              "dalej": "brodd_odebrany",
+              "warunki": [
+                { "typ": "KredytyCoNajmniej", "wartosc": 150 }
+              ],
+              "efekty": [
+                { "typ": "Kredyty", "wartosc": -150 },
+                { "typ": "DajPrzedmiot", "id": "rejestracja_statku", "wartosc": 1 }
+              ]
+            },
+            { "tekst": "Później.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "brodd_odebrany",
+          "tekst": "Tym razem miej przepustkę, zanim gdzieś zadokujesz.",
+          "wybory": []
+        }
+      ]
+    },
+    {
+      "id": "dlg_kapitan",
+      "rozmowca": "Kapitan portu Hale",
+      "wejscia": [
+        {
+          "wezel": "kap_raport",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_kapitan" },
+            { "typ": "MaPrzedmiot", "id": "podmieniona_plomba" }
+          ]
+        },
+        {
+          "wezel": "kap_start",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "kesh_kapitan" }
+          ]
+        },
+        {
+          "wezel": "kap_szukaj",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Interakcja", "id": "kesh_b_kontener" }
+          ]
+        },
+        {
+          "wezel": "kap_po",
+          "warunki": [
+            { "typ": "MaPrzedmiot", "id": "przepustka_orrin" }
+          ]
+        },
+        { "wezel": "kap_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "kap_start",
+          "tekst": "Mara mówi, że można ci ufać. Sprawdzimy. Ktoś podmienia plomby na kontenerach z filtrami powietrza: dobre filtry lecą na Orrin, a do baraków trafia złom. Znajdź podmieniony kontener i przynieś mi plombę.",
+          "wybory": [
+            {
+              "tekst": "Załatwione.",
+              "dalej": "kap_ok",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_kapitan" }
+              ]
+            },
+            { "tekst": "Co z tego będę miał?", "dalej": "kap_nagroda" }
+          ]
+        },
+        {
+          "id": "kap_nagroda",
+          "tekst": "Przepustkę na Orrin. Prawdziwą, z moim podpisem. Bez niej straż portowa na Orrin zabierze ci statek, zanim wyłączysz silniki.",
+          "wybory": [
+            {
+              "tekst": "Biorę to.",
+              "dalej": "kap_ok",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_kapitan" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "kap_ok",
+          "tekst": "Trzy kontenery przy rampie. Sprawdź plomby. Numery Zarządu mają kreskę pod ostatnią cyfrą.",
+          "wybory": []
+        },
+        {
+          "id": "kap_szukaj",
+          "tekst": "Trzy kontenery przy rampie. Któraś plomba jest podrobiona.",
+          "wybory": []
+        },
+        {
+          "id": "kap_raport",
+          "tekst": "(ogląda plombę pod lampą) Podróbka. Dobra robota. Trzymaj: przepustka na Orrin i transport filtrów. Zawieź je do portu Orrin i patrz, komu tam zależy na przydziałach.",
+          "wybory": [
+            {
+              "tekst": "Lecę.",
+              "dalej": "kap_koniec",
+              "efekty": [
+                { "typ": "ZabierzPrzedmiot", "id": "podmieniona_plomba", "wartosc": 1 },
+                { "typ": "DajPrzedmiot", "id": "przepustka_orrin", "wartosc": 1 },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_kapitan" }
+              ]
+            },
+            {
+              "tekst": "Za taką robotę należy się coś więcej.",
+              "dalej": "kap_premia",
+              "efekty": [
+                { "typ": "ZabierzPrzedmiot", "id": "podmieniona_plomba", "wartosc": 1 },
+                { "typ": "DajPrzedmiot", "id": "przepustka_orrin", "wartosc": 1 },
+                { "typ": "Kredyty", "wartosc": 50 },
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "kesh_kapitan" }
+              ],
+              "test": { "atrybut": "Perswazja", "trudnosc": 2 }
+            }
+          ]
+        },
+        {
+          "id": "kap_koniec",
+          "tekst": "Nie zawiedź mnie. Na Orrin wszyscy są uprzejmi. To najgorsze.",
+          "wybory": []
+        },
+        {
+          "id": "kap_premia",
+          "tekst": "Masz tupet. Pięćdziesiąt ekstra. I nie zawiedź mnie.",
+          "wybory": []
+        },
+        {
+          "id": "kap_po",
+          "tekst": "Orrin czeka. Na Orrin wszyscy są uprzejmi. To najgorsze.",
+          "wybory": []
+        },
+        {
+          "id": "kap_idle",
+          "tekst": "Kapitanat Kesh, dok B. Bez sprawy nie zawracaj głowy.",
+          "wybory": []
+        }
+      ]
+    },
+    {
+      "id": "dlg_kontener",
+      "rozmowca": "Kontener z filtrami",
+      "wejscia": [
+        {
+          "wezel": "kont_ok",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Interakcja", "id": "kesh_b_kontener" }
+          ]
+        },
+        { "wezel": "kont_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "kont_ok",
+          "tekst": "Plomba Zarządu, kreska pod ostatnią cyfrą, numer zgadza się z listem przewozowym. Ten jest czysty.",
+          "wybory": []
+        },
+        {
+          "id": "kont_idle",
+          "tekst": "Filtry powietrza dla Orrin. Plomba Zarządu.",
+          "wybory": []
+        }
+      ]
+    }
+  ]
+}

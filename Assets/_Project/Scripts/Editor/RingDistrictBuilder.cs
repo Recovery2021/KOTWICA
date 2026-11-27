@@ -202,6 +202,87 @@ namespace Kotwica.EditorTools
                 extra["KontenerB"], "dlg_kontener", "Sprawdź plombę");
             Inspectable("Kontener z filtrami", StationLayout.KeshDockB(new Vector3(6f, Floor + 1.3f, -12.5f)), new Vector3(2.6f, 2.6f, 2.6f),
                 extra["KontenerC"], "dlg_kontener", "Sprawdź plombę");
+
+            BuildKeshJobs();
+        }
+
+        /// <summary>
+        /// Repeatable jobs (zadania/zlecenia_kesh.json): job boards on both decks, the port warehouse with pickup
+        /// points, and drop-off points on the street and on dock B. Ids here must match the JSON files.
+        /// </summary>
+        private static void BuildKeshJobs()
+        {
+            // Main deck: job board and the port warehouse (pickups lie in front of it)
+            Inspectable("Tablica zleceń", new Vector3(-12.5f, Floor + 1.4f, 0.5f), new Vector3(0.2f, 2.2f, 2.4f), extra["NeonCyjan"],
+                "dlg_tablica_kesh", "Tablica zleceń");
+            Sign("ZLECENIA", new Vector3(-12.5f, Floor + 2.9f, 0.5f));
+            Box("Magazyn portowy", new Vector3(-13f, Floor + 1.5f, 7f), new Vector3(4f, 3f, 6f), extra["KontenerA"]);
+            Sign("MAGAZYN PORTOWY", new Vector3(-13f, Floor + 3.4f, 7f));
+            Pickup("Paczki", new Vector3(-10.4f, Floor + 0.35f, 4.6f), "paczka_kesh", "Odbierz paczkę do baraków");
+            Pickup("Wkłady filtrów", new Vector3(-10.4f, Floor + 0.35f, 6.2f), "wklady_filtrow", "Odbierz wkład filtra");
+            Pickup("Skrzynia dla doku B", new Vector3(-10.4f, Floor + 0.35f, 7.8f), "skrzynia_dok_b", "Odbierz skrzynię dla doku B");
+            Target("Okienko magazynu", new Vector3(-10.6f, Floor + 0.6f, 9.6f), new Vector3(0.4f, 1.2f, 1.2f), palette["M_LightAmber"],
+                ObjectiveType.Dostarcz, "kesh_magazyn", "Oddaj skrzynię z doku B", take: "skrzynia_z_doku_b");
+
+            // Street drop-offs
+            Target("Skrzynka baraku 7", new Vector3(73f, Floor + 0.7f, -15.4f), new Vector3(0.6f, 0.8f, 0.4f), palette["M_Warning"],
+                ObjectiveType.Dostarcz, "kesh_barak", "Zostaw paczkę w skrzynce baraku 7", take: "paczka_kesh");
+            Sign("BARAK 7", new Vector3(73f, Floor + 1.6f, -15.4f));
+            Target("Przyjęcie filtrów", new Vector3(103f, Floor + 0.8f, -4f), new Vector3(0.8f, 1.6f, 0.8f), palette["M_PaintedMetal"],
+                ObjectiveType.Dostarcz, "kesh_pompownia_filtry", "Oddaj wkłady filtrów", take: "wklady_filtrow", takeCount: 2);
+
+            // Dock B: ramp drop-off and pickup, a second job board
+            Target("Rampa doku B", StationLayout.KeshDockB(new Vector3(0f, Floor + 0.35f, -13f)), new Vector3(1.2f, 0.7f, 1.2f), palette["M_Warning"],
+                ObjectiveType.Dostarcz, "kesh_b_rampa", "Zostaw skrzynię na rampie", take: "skrzynia_dok_b");
+            Pickup("Skrzynia z doku B", StationLayout.KeshDockB(new Vector3(2.5f, Floor + 0.35f, -13f)), "skrzynia_z_doku_b", "Odbierz skrzynię do magazynu");
+            Inspectable("Tablica zleceń", StationLayout.KeshDockB(new Vector3(-13f, Floor + 1.4f, 2f)), new Vector3(0.6f, 2.2f, 0.6f), extra["NeonCyjan"],
+                "dlg_tablica_kesh", "Tablica zleceń");
+        }
+
+        /// <summary>Orrin's trade dock (by ship, Orrin permit) and its job: goods from the dock ramp to a market stall.</summary>
+        private static void BuildOrrinTradeDock()
+        {
+            Inspectable("Tablica zleceń", new Vector3(-12.5f, Floor + 1.4f, 0.5f), new Vector3(0.2f, 2.2f, 2.4f), extra["NeonCyjan"],
+                "dlg_tablica_orrin", "Tablica zleceń");
+            Sign("ZLECENIA", new Vector3(-12.5f, Floor + 2.9f, 0.5f));
+            Target("Stragan z kawą", new Vector3(41f, Floor + 0.6f, -3.6f), new Vector3(1.6f, 1.2f, 0.6f), extra["NeonRoz"],
+                ObjectiveType.Dostarcz, "orrin_targ", "Oddaj towar na stragan", take: "towar_orrin");
+
+            DockBox(StationLayout.OrrinDockB(new Vector3(-10f, Floor + 1.5f, -11f)), StationLayout.OrrinDockBRotation,
+                "Biuro doku", new Vector3(5f, 3f, 4f), extra["Beton"]);
+            Sign("DOK HANDLOWY ORRIN", StationLayout.OrrinDockB(new Vector3(-10f, Floor + 3.6f, -11f)));
+            for (int i = 0; i < 4; i++)
+                DockBox(StationLayout.OrrinDockB(new Vector3(8f + (i % 2) * 3f, Floor + 1.3f, -12f + (i / 2) * 3f)), StationLayout.OrrinDockBRotation,
+                    "Kontener", new Vector3(2.6f, 2.6f, 2.6f), extra["KontenerB"]);
+            Pickup("Towar dla targu", StationLayout.OrrinDockB(new Vector3(1f, Floor + 0.35f, -13f)), "towar_orrin", "Odbierz towar dla targu");
+            Inspectable("Tablica zleceń", StationLayout.OrrinDockB(new Vector3(-13f, Floor + 1.4f, 2f)), new Vector3(0.6f, 2.2f, 0.6f), extra["NeonCyjan"],
+                "dlg_tablica_orrin", "Tablica zleceń");
+        }
+
+        /// <summary>Varo's private dock (by ship, Varo permit): quiet, clean, watched. Content comes with chapter 3.</summary>
+        private static void BuildVaroPrivateDock()
+        {
+            DockBox(StationLayout.VaroDockB(new Vector3(-9f, Floor + 2f, -11f)), StationLayout.VaroDockBRotation,
+                "Pawilon", new Vector3(6f, 4f, 5f), extra["Elita"]);
+            DockBox(StationLayout.VaroDockB(new Vector3(-9f, Floor + 2f, -8.45f)), StationLayout.VaroDockBRotation,
+                "Szyba pawilonu", new Vector3(5f, 2.4f, 0.05f), palette["M_Glass"]);
+            Sign("DOK PRYWATNY · TYLKO DLA ZARZĄDU", StationLayout.VaroDockB(new Vector3(-9f, Floor + 4.6f, -11f)));
+            for (int i = 0; i < 2; i++)
+                DockBox(StationLayout.VaroDockB(new Vector3(8f, Floor + 0.25f, -6f - i * 4f)), StationLayout.VaroDockBRotation,
+                    "Donica", new Vector3(1.6f, 0.5f, 1.6f), extra["Ogrod"]);
+        }
+
+        /// <summary>A box placed on a second dock, turned with that dock.</summary>
+        private static void DockBox(Vector3 position, Quaternion rotation, string name, Vector3 size, Material material)
+        {
+            GameObject go = Box(name, position, size, material);
+            go.transform.localRotation = rotation;
+        }
+
+        /// <summary>A crate that hands out a job item while a "Zdobadz &lt;item&gt;" objective is active (reusable).</summary>
+        private static void Pickup(string name, Vector3 position, string itemId, string prompt)
+        {
+            Target(name, position, new Vector3(0.8f, 0.7f, 0.8f), palette["M_PaintedMetal"], ObjectiveType.Zdobadz, itemId, prompt, give: itemId);
         }
 
         /// <summary>A box on Kesh dock B, turned with the dock (its deck follows the curve of the hoop).</summary>
@@ -272,6 +353,8 @@ namespace Kotwica.EditorTools
             // A trader's courier scooter: taking it is theft
             Vehicle(VehicleStyle.Skuter, "Skuter kurierski", new Vector3(22f, Floor, 3.5f), owner: "Marek", maxSpeed: 14f);
 
+            BuildOrrinTradeDock();
+
             StreetLights(new Color(0.7f, 0.85f, 1f), 3f, 12f);
             PopulateOrrin();
         }
@@ -313,6 +396,8 @@ namespace Kotwica.EditorTools
 
             // A resident's hover car: stealing it on Varo brings the strictest security on the station
             Vehicle(VehicleStyle.Lewitujacy, "Kabriolet lewitujący", new Vector3(24f, Floor, 3f), owner: "Viktor", maxSpeed: 16f);
+
+            BuildVaroPrivateDock();
 
             StreetLights(new Color(0.9f, 0.95f, 1f), 3.5f, 10f);
             PopulateVaro();

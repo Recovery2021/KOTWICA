@@ -1,0 +1,414 @@
+{
+  "zadania": [
+    {
+      "id": "main_02_urzad_przepustek",
+      "tytul": "Rozdział 2: Urząd Przepustek",
+      "rodzaj": "Glowny",
+      "pierscien": "orrin",
+      "opis": "Przepustka od kapitana Hale otworzyła ci drogę na Orrin. Tu przepustki decydują, kto dostanie się bliżej Zarządu i kto przeżyje, gdy stacja zacznie się sypać. Ktoś handluje nimi na lewo.",
+      "minPoziom": 1,
+      "wymagane": ["main_01_kurs_powrotny"],
+      "autostart": true,
+      "powtarzalne": false,
+      "cele": [
+        { "typ": "Lec", "cel": "port_orrin", "ilosc": 1, "opis": "Zawieź filtry kapitana Hale: zadokuj w porcie Orrin" },
+        { "typ": "Idz", "cel": "orrin_urzad", "ilosc": 1, "opis": "Dotrzyj do Urzędu Przepustek na Orrin" },
+        { "typ": "Porozmawiaj", "cel": "orrin_urzednik", "ilosc": 1, "opis": "Porozmawiaj z urzędniczką Sel" },
+        { "typ": "Interakcja", "cel": "orrin_archiwum", "ilosc": 1, "opis": "Sprawdź rejestr w terminalu archiwum B-12" },
+        { "typ": "Porozmawiaj", "cel": "orrin_dorn", "ilosc": 1, "opis": "Rozmów się z kwatermistrzem Dornem na targu" },
+        { "typ": "Zdobadz", "cel": "przepustka_varo", "ilosc": 1, "opis": "Zdobądź przepustkę na Varo" },
+        { "typ": "Lec", "cel": "port_varo", "ilosc": 1, "opis": "Zadokuj w porcie Varo" }
+      ],
+      "nagroda": {
+        "kredyty": 150,
+        "xp": 300,
+        "reputacja": [
+          { "klasa": "KlasaSrednia", "wartosc": 10 }
+        ]
+      }
+    }
+  ],
+  "rozmowy": [
+    {
+      "id": "dlg_sel",
+      "rozmowca": "Urzędniczka Sel",
+      "wejscia": [
+        {
+          "wezel": "sel_start",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "orrin_urzednik" }
+          ]
+        },
+        {
+          "wezel": "sel_raport",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Zdobadz", "id": "przepustka_varo" },
+            { "typ": "FlagaUstawiona", "id": "ch2_doniesienie" },
+            { "typ": "MaPrzedmiot", "id": "wyciag_rejestru" }
+          ]
+        },
+        {
+          "wezel": "sel_archiwum",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Interakcja", "id": "orrin_archiwum" }
+          ]
+        },
+        {
+          "wezel": "sel_po",
+          "warunki": [
+            { "typ": "FlagaUstawiona", "id": "ch2_sel_oficjalna" }
+          ]
+        },
+        { "wezel": "sel_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "sel_start",
+          "tekst": "Numerek? Przydziały na Varo wyczerpane do końca cyklu. Następny!",
+          "wybory": [
+            { "tekst": "Wyczerpane? Na targu mówią, że da się je kupić.", "dalej": "sel_rynek" },
+            {
+              "tekst": "Ręce pani drżą. Ktoś grzebie w rejestrze, prawda?",
+              "dalej": "sel_prawda",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_urzednik" },
+                { "typ": "DajPrzedmiot", "id": "kod_archiwum", "wartosc": 1 },
+                { "typ": "UstawFlage", "id": "sel_ufa" }
+              ],
+              "test": { "atrybut": "Perswazja", "trudnosc": 3 }
+            },
+            {
+              "tekst": "A gdyby przydział się znalazł? Za fatygę. (100 kr)",
+              "dalej": "sel_lapowka",
+              "warunki": [
+                { "typ": "KredytyCoNajmniej", "wartosc": 100 }
+              ],
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_urzednik" },
+                { "typ": "Kredyty", "wartosc": -100 },
+                { "typ": "DajPrzedmiot", "id": "kod_archiwum", "wartosc": 1 },
+                { "typ": "UstawFlage", "id": "sel_przekupiona" }
+              ]
+            },
+            { "tekst": "Nieważne.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "sel_rynek",
+          "tekst": "(ścisza głos) Proszę tego nie mówić przy kolejce. Ja tylko stempluję. Rejestr nie zgadza się od miesięcy, ale archiwum to nie moja sprawa. Terminal B-12, zaraz za mną. Bez kodu nic pan nie zobaczy.",
+          "wybory": [
+            {
+              "tekst": "To niech mi pani da kod. Nikt się nie dowie, że to od pani.",
+              "dalej": "sel_prawda",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_urzednik" },
+                { "typ": "DajPrzedmiot", "id": "kod_archiwum", "wartosc": 1 },
+                { "typ": "UstawFlage", "id": "sel_ufa" }
+              ],
+              "test": { "atrybut": "Perswazja", "trudnosc": 3 }
+            },
+            {
+              "tekst": "Poradzę sobie bez kodu.",
+              "dalej": "",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_urzednik" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sel_prawda",
+          "tekst": "...Dobrze. Cztery, cztery, zero, B. Jeśli ktoś zapyta, stał pan w kolejce jak wszyscy. I niech pan uważa na Dorna z targu. Zawsze ma towar, którego nikt inny nie ma.",
+          "wybory": [
+            { "tekst": "Dziękuję.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "sel_lapowka",
+          "tekst": "(chowa kredyty pod formularze) Kod do archiwum leży na biurku. Gdyby pan go przypadkiem zobaczył... Następny!",
+          "wybory": [
+            { "tekst": "Rozumiem.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "sel_archiwum",
+          "tekst": "Terminal B-12 jest za mną. Ja niczego nie widzę. Następny!",
+          "wybory": []
+        },
+        {
+          "id": "sel_raport",
+          "tekst": "Wyciąg z rejestru? Z kluczem Dorna... (długo milczy) Złożę raport. A pan dostanie przydział. Prawdziwy, z moim podpisem.",
+          "wybory": [
+            {
+              "tekst": "Oddaj wyciąg.",
+              "dalej": "sel_raport_koniec",
+              "efekty": [
+                { "typ": "ZabierzPrzedmiot", "id": "wyciag_rejestru", "wartosc": 1 },
+                { "typ": "DajPrzedmiot", "id": "przepustka_varo", "wartosc": 1 },
+                { "typ": "UstawFlage", "id": "ch2_sel_oficjalna" },
+                { "typ": "Reputacja", "klasa": "KlasaSrednia", "wartosc": 5 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "sel_raport_koniec",
+          "tekst": "Port Varo przyjmie pana statek. I proszę... niech pan tu nie wraca przez jakiś czas.",
+          "wybory": []
+        },
+        {
+          "id": "sel_po",
+          "tekst": "Raport poszedł do Zarządu. Mam nadzieję, że trafi do właściwych rąk.",
+          "wybory": []
+        },
+        {
+          "id": "sel_idle",
+          "tekst": "Numerek i czekać. Jak wszyscy.",
+          "wybory": []
+        }
+      ]
+    },
+    {
+      "id": "dlg_archiwum",
+      "rozmowca": "Terminal archiwum B-12",
+      "wejscia": [
+        {
+          "wezel": "arch_kod",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Interakcja", "id": "orrin_archiwum" },
+            { "typ": "MaPrzedmiot", "id": "kod_archiwum" }
+          ]
+        },
+        {
+          "wezel": "arch_brak",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Interakcja", "id": "orrin_archiwum" }
+          ]
+        },
+        { "wezel": "arch_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "arch_kod",
+          "tekst": "Wpisujesz kod: 440B.\nREJESTR PRZYDZIAŁÓW NA VARO: 40 pozycji w cyklu. 31 podpisanych tym samym kluczem: K. DORN, kwatermistrz targu Orrin.\nKlucz wydany przez: SEKRETARIAT ZARZĄDU STACJI.",
+          "wybory": [
+            {
+              "tekst": "Skopiuj wyciąg i wyloguj się.",
+              "dalej": "",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Interakcja", "id": "orrin_archiwum" },
+                { "typ": "ZabierzPrzedmiot", "id": "kod_archiwum", "wartosc": 1 },
+                { "typ": "DajPrzedmiot", "id": "wyciag_rejestru", "wartosc": 1 },
+                { "typ": "Doswiadczenie", "wartosc": 40 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "arch_brak",
+          "tekst": "DOSTĘP ZABLOKOWANY. PODAJ KOD.",
+          "wybory": [
+            {
+              "tekst": "Obejdź zabezpieczenie (włamanie, ktoś może zauważyć).",
+              "dalej": "arch_wlam",
+              "efekty": [
+                { "typ": "Przestepstwo", "przestepstwo": "Wtargniecie" }
+              ],
+              "test": { "atrybut": "Technika", "trudnosc": 3 }
+            },
+            {
+              "tekst": "Przeszukaj biurko urzędniczki (kradzież, ktoś może zauważyć).",
+              "dalej": "arch_biurko",
+              "efekty": [
+                { "typ": "Przestepstwo", "przestepstwo": "Kradziez" },
+                { "typ": "DajPrzedmiot", "id": "kod_archiwum", "wartosc": 1 }
+              ]
+            },
+            { "tekst": "Odejdź.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "arch_biurko",
+          "tekst": "Pod stertą formularzy B-12 leży kartka z czterema znakami: 440B.",
+          "wybory": [
+            { "tekst": "Wpisz kod.", "dalej": "arch_kod" }
+          ]
+        },
+        {
+          "id": "arch_wlam",
+          "tekst": "Panel puszcza po minucie. Gdzieś na zapleczu cicho piszczy czujnik.\nREJESTR PRZYDZIAŁÓW NA VARO: 40 pozycji w cyklu. 31 podpisanych tym samym kluczem: K. DORN, kwatermistrz targu Orrin.\nKlucz wydany przez: SEKRETARIAT ZARZĄDU STACJI.",
+          "wybory": [
+            {
+              "tekst": "Skopiuj wyciąg i znikaj.",
+              "dalej": "",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Interakcja", "id": "orrin_archiwum" },
+                { "typ": "DajPrzedmiot", "id": "wyciag_rejestru", "wartosc": 1 },
+                { "typ": "Doswiadczenie", "wartosc": 40 }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "arch_idle",
+          "tekst": "TERMINAL B-12 · Rejestr przydziałów. Dostęp tylko dla personelu.",
+          "wybory": []
+        }
+      ]
+    },
+    {
+      "id": "dlg_dorn",
+      "rozmowca": "Kwatermistrz Dorn",
+      "wejscia": [
+        {
+          "wezel": "dorn_start",
+          "warunki": [
+            { "typ": "CelAktywny", "cel": "Porozmawiaj", "id": "orrin_dorn" }
+          ]
+        },
+        {
+          "wezel": "dorn_po_wydal",
+          "warunki": [
+            { "typ": "FlagaUstawiona", "id": "ch2_dorn_wydal" }
+          ]
+        },
+        {
+          "wezel": "dorn_po_sila",
+          "warunki": [
+            { "typ": "FlagaUstawiona", "id": "ch2_sila" }
+          ]
+        },
+        {
+          "wezel": "dorn_po_donos",
+          "warunki": [
+            { "typ": "FlagaUstawiona", "id": "ch2_doniesienie" }
+          ]
+        },
+        { "wezel": "dorn_idle" }
+      ],
+      "wezly": [
+        {
+          "id": "dorn_start",
+          "tekst": "Kurier, co? Filtry, uszczelki, kawa. A może coś... na wyższe piętra?",
+          "wybory": [
+            { "tekst": "Przepustka na Varo. Ile?", "dalej": "dorn_cena" },
+            {
+              "tekst": "Mam wyciąg z rejestru. Trzydzieści jeden przydziałów z twoim kluczem.",
+              "dalej": "dorn_wyciag",
+              "warunki": [
+                { "typ": "MaPrzedmiot", "id": "wyciag_rejestru" }
+              ]
+            },
+            { "tekst": "Tylko patrzę.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "dorn_cena",
+          "tekst": "Dwieście pięćdziesiąt. Prawdziwy stempel, prawdziwy klucz. Nie pytaj czyj.",
+          "wybory": [
+            {
+              "tekst": "Biorę. (250 kr)",
+              "dalej": "dorn_kupiona",
+              "warunki": [
+                { "typ": "KredytyCoNajmniej", "wartosc": 250 }
+              ],
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_dorn" },
+                { "typ": "Kredyty", "wartosc": -250 },
+                { "typ": "DajPrzedmiot", "id": "przepustka_varo", "wartosc": 1 },
+                { "typ": "UstawFlage", "id": "ch2_kupiona" }
+              ]
+            },
+            {
+              "tekst": "A może porozmawiamy o twoim kluczu?",
+              "dalej": "dorn_wyciag",
+              "warunki": [
+                { "typ": "MaPrzedmiot", "id": "wyciag_rejestru" }
+              ]
+            },
+            { "tekst": "Za drogo.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "dorn_kupiona",
+          "tekst": "Miłego lotu. I zapomnij, skąd ją masz. Na Varo nie lubią pytań.",
+          "wybory": []
+        },
+        {
+          "id": "dorn_wyciag",
+          "tekst": "(blednie) Skąd to masz? Słuchaj... ja tylko sprzedaję. Klucz dostaję z góry, w skrzynkach z próbkami. Nic więcej nie wiem.",
+          "wybory": [
+            {
+              "tekst": "Wiesz. Dasz mi przepustkę i nazwisko, a wyciąg zniknie.",
+              "dalej": "dorn_nazwisko",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_dorn" },
+                { "typ": "DajPrzedmiot", "id": "przepustka_varo", "wartosc": 1 },
+                { "typ": "UstawFlage", "id": "ch2_dorn_wydal" },
+                { "typ": "Doswiadczenie", "wartosc": 60 }
+              ],
+              "test": { "atrybut": "Perswazja", "trudnosc": 4 }
+            },
+            {
+              "tekst": "(chwytasz go za kołnierz) Przepustka. Teraz.",
+              "dalej": "dorn_sila",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_dorn" },
+                { "typ": "DajPrzedmiot", "id": "przepustka_varo", "wartosc": 1 },
+                { "typ": "Przestepstwo", "przestepstwo": "Napasc" },
+                { "typ": "Reputacja", "klasa": "KlasaSrednia", "wartosc": -5 },
+                { "typ": "UstawFlage", "id": "ch2_sila" }
+              ],
+              "test": { "atrybut": "Walka", "trudnosc": 3 }
+            },
+            {
+              "tekst": "Zaniosę to Sel. Niech ochrona się tobą zajmie.",
+              "dalej": "dorn_donos",
+              "efekty": [
+                { "typ": "ZglosCel", "cel": "Porozmawiaj", "id": "orrin_dorn" },
+                { "typ": "UstawFlage", "id": "ch2_doniesienie" },
+                { "typ": "Reputacja", "klasa": "KlasaSrednia", "wartosc": 5 }
+              ]
+            },
+            { "tekst": "Jeszcze wrócę.", "dalej": "" }
+          ]
+        },
+        {
+          "id": "dorn_nazwisko",
+          "tekst": "Halvard. Sekretarz Zarządu. On podpisuje, ja sprzedaję, a ludzie z Kesh płacą ostatnimi oszczędnościami za miejsce w kapsułach ratunkowych. Teraz zejdź mi z oczu.",
+          "wybory": []
+        },
+        {
+          "id": "dorn_sila",
+          "tekst": "Dobra, dobra! Bierz! (krzyczy) Ochrona! Napad!",
+          "wybory": []
+        },
+        {
+          "id": "dorn_donos",
+          "tekst": "Ty... nie wiesz, z kim zadzierasz. Ten klucz nie jest mój.\n\n(Wróć z wyciągiem do urzędniczki Sel.)",
+          "wybory": []
+        },
+        {
+          "id": "dorn_po_wydal",
+          "tekst": "Znowu ty? Nic więcej nie wiem. Idź już.",
+          "wybory": []
+        },
+        {
+          "id": "dorn_po_sila",
+          "tekst": "Trzymaj się ode mnie z daleka.",
+          "wybory": []
+        },
+        {
+          "id": "dorn_po_donos",
+          "tekst": "Ochrona już tu węszy. Twoja robota, co?",
+          "wybory": []
+        },
+        {
+          "id": "dorn_idle",
+          "tekst": "Filtry, uszczelki, kawa syntetyczna. Kupujesz albo nie zasłaniasz.",
+          "wybory": []
+        }
+      ]
+    }
+  ]
+}

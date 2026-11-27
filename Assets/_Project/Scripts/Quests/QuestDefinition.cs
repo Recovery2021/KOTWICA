@@ -49,8 +49,8 @@ namespace Kotwica.Quests
     }
 
     /// <summary>
-    /// A quest as data (asset in Resources/Quests): objectives in order, requirements and reward.
-    /// New quests are made in the editor, no code needed.
+    /// A quest as data: objectives in order, requirements and reward. Normally read from the editable
+    /// JSON files in StreamingAssets/Kotwica (see ContentLibrary); assets in Resources/Quests are a fallback.
     /// </summary>
     [CreateAssetMenu(menuName = "Kotwica/Zadanie", fileName = "Quest_")]
     public class QuestDefinition : ScriptableObject
@@ -94,7 +94,12 @@ namespace Kotwica.Quests
         {
             if (cache != null) return;
             cache = new Dictionary<string, QuestDefinition>();
-            foreach (QuestDefinition quest in Resources.LoadAll<QuestDefinition>("Quests")) cache[quest.id] = quest;
+            // Editable JSON files (StreamingAssets/Kotwica) win; the old assets are only a fallback
+            var fromFiles = Kotwica.Content.ContentLibrary.Quests;
+            if (fromFiles.Count > 0)
+                foreach (QuestDefinition quest in fromFiles) cache[quest.id] = quest;
+            else
+                foreach (QuestDefinition quest in Resources.LoadAll<QuestDefinition>("Quests")) cache[quest.id] = quest;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

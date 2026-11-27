@@ -96,7 +96,7 @@ namespace Kotwica.Dialogue
     }
 
     /// <summary>
-    /// A conversation as data (asset in Resources/Dialogues): opening entries chosen by quest state,
+    /// A conversation as data (normally from the JSON files in StreamingAssets/Kotwica): opening entries chosen by quest state,
     /// nodes with lines, and choices that can need an attribute (e.g. Perswazja 3) and change the world.
     /// </summary>
     [CreateAssetMenu(menuName = "Kotwica/Rozmowa", fileName = "Dialogue_")]
@@ -116,7 +116,11 @@ namespace Kotwica.Dialogue
             if (cache == null)
             {
                 cache = new Dictionary<string, DialogueDefinition>();
-                foreach (DialogueDefinition d in Resources.LoadAll<DialogueDefinition>("Dialogues")) cache[d.id] = d;
+                var fromFiles = Kotwica.Content.ContentLibrary.Dialogues; // editable JSON first, assets as fallback
+                if (fromFiles.Count > 0)
+                    foreach (DialogueDefinition d in fromFiles) cache[d.id] = d;
+                else
+                    foreach (DialogueDefinition d in Resources.LoadAll<DialogueDefinition>("Dialogues")) cache[d.id] = d;
             }
             return dialogueId != null && cache.TryGetValue(dialogueId, out DialogueDefinition found) ? found : null;
         }

@@ -40,7 +40,7 @@ namespace Kotwica.Dialogue
             DialogueDefinition def = DialogueDefinition.Find(dialogueId);
             if (def == null)
             {
-                Debug.LogWarning($"[Kotwica] Brak rozmowy '{dialogueId}' w Resources/Dialogues (uruchom: Otwarty świat: utwórz dane startowe).");
+                Debug.LogWarning($"[Kotwica] Brak rozmowy '{dialogueId}' w plikach StreamingAssets/Kotwica (menu Kotwica > Zadania: sprawdź pliki).");
                 return false;
             }
 

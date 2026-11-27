@@ -1,0 +1,148 @@
+{
+  "przedmioty": [
+    {
+      "id": "przepustka_varo",
+      "nazwa": "Przepustka na Varo",
+      "opis": "Jednorazowe prawo dokowania w porcie Varo.",
+      "kategoria": "Dokument",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "czesci_pomp",
+      "nazwa": "Części do pomp",
+      "opis": "Uszczelki i wirniki pomp chłodzenia.",
+      "kategoria": "Ladunek",
+      "wartosc": 25,
+      "nielegalny": false
+    },
+    {
+      "id": "filtr_powietrza",
+      "nazwa": "Filtr powietrza",
+      "opis": "Na Kesh zawsze ich brakuje.",
+      "kategoria": "Ladunek",
+      "wartosc": 15,
+      "nielegalny": false
+    },
+    {
+      "id": "probki_lab",
+      "nazwa": "Próbki z laboratorium",
+      "opis": "Zaplombowane próbki z Varo. Ktoś za nie dobrze zapłaci.",
+      "kategoria": "Ladunek",
+      "wartosc": 200,
+      "nielegalny": true
+    },
+    {
+      "id": "modul_uszkodzony",
+      "nazwa": "Moduł sterujący podnośnika",
+      "opis": "Zatarty moduł z podnośnika dokerki Mary. Do warsztatu Brena.",
+      "kategoria": "Ladunek",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "lek_przydzial",
+      "nazwa": "Lek z przydziału",
+      "opis": "Lek dla córki dokerki, ze stemplem ambulatorium.",
+      "kategoria": "Ladunek",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "lek_bez_zgody",
+      "nazwa": "Lek bez przydziału",
+      "opis": "Wyniesiony ze skrzynki dla Varo. Ochrona go zabierze.",
+      "kategoria": "Ladunek",
+      "wartosc": 0,
+      "nielegalny": true
+    },
+    {
+      "id": "rejestracja_statku",
+      "nazwa": "Rejestracja holownika Wróbel",
+      "opis": "Papiery statku. Bez nich nie wejdziesz do kokpitu.",
+      "kategoria": "Dokument",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "podmieniona_plomba",
+      "nazwa": "Podrobiona plomba",
+      "opis": "Plomba Zarządu z kontenera filtrów. Numer się nie zgadza.",
+      "kategoria": "Dokument",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "przepustka_orrin",
+      "nazwa": "Przepustka na Orrin",
+      "opis": "Podpisana przez kapitana portu Kesh. Port Orrin przyjmie twój statek.",
+      "kategoria": "Dokument",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "kod_archiwum",
+      "nazwa": "Kod do archiwum B-12",
+      "opis": "Cztery znaki zapisane na odwrocie formularza.",
+      "kategoria": "Dokument",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "wyciag_rejestru",
+      "nazwa": "Wyciąg z rejestru przydziałów",
+      "opis": "31 przydziałów na Varo podpisanych kluczem kwatermistrza Dorna.",
+      "kategoria": "Dokument",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "odpowiedzi_egzamin",
+      "nazwa": "Odpowiedzi na egzamin",
+      "opis": "Skopiowane z terminalu szkoły technicznej. Ochrona je zabierze.",
+      "kategoria": "Dokument",
+      "wartosc": 0,
+      "nielegalny": true
+    },
+    {
+      "id": "paczka_kesh",
+      "nazwa": "Paczka do baraków",
+      "opis": "Zaadresowana do baraku 7. Pachnie smarem i suszonymi algami.",
+      "kategoria": "Ladunek",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "wklady_filtrow",
+      "nazwa": "Wkłady filtrów",
+      "opis": "Wkłady do filtrów pompowni. Ciężkie i zawsze potrzebne.",
+      "kategoria": "Ladunek",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "skrzynia_dok_b",
+      "nazwa": "Skrzynia dla doku B",
+      "opis": "Części dla kapitanatu na doku B.",
+      "kategoria": "Ladunek",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "skrzynia_z_doku_b",
+      "nazwa": "Skrzynia z doku B",
+      "opis": "Zwrot z doku B do magazynu portowego.",
+      "kategoria": "Ladunek",
+      "wartosc": 0,
+      "nielegalny": false
+    },
+    {
+      "id": "towar_orrin",
+      "nazwa": "Towar z doku handlowego",
+      "opis": "Skrzynka kawy syntetycznej dla targu.",
+      "kategoria": "Ladunek",
+      "wartosc": 0,
+      "nielegalny": false
+    }
+  ]
+}
