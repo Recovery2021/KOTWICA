@@ -100,6 +100,13 @@ namespace Kotwica.EditorTools
             n += Item("czesci_pomp", "Części do pomp", ItemCategory.Ladunek, 25, true, "Uszczelki i wirniki pomp chłodzenia.");
             n += Item("filtr_powietrza", "Filtr powietrza", ItemCategory.Ladunek, 15, true, "Na Kesh zawsze ich brakuje.");
             n += Item("probki_lab", "Próbki z laboratorium", ItemCategory.Ladunek, 200, false, "Zaplombowane próbki z Varo. Ktoś za nie dobrze zapłaci.");
+            // Chapter 1 (Kesh) and ring permits
+            n += Item("modul_uszkodzony", "Moduł sterujący podnośnika", ItemCategory.Ladunek, 0, true, "Zatarty moduł z podnośnika dokerki Mary. Do warsztatu Brena.");
+            n += Item("lek_przydzial", "Lek z przydziału", ItemCategory.Ladunek, 0, true, "Lek dla córki dokerki, ze stemplem ambulatorium.");
+            n += Item("lek_bez_zgody", "Lek bez przydziału", ItemCategory.Ladunek, 0, false, "Wyniesiony ze skrzynki dla Varo. Ochrona go zabierze.");
+            n += Item("rejestracja_statku", "Rejestracja holownika Wróbel", ItemCategory.Dokument, 0, true, "Papiery statku. Bez nich nie wejdziesz do kokpitu.");
+            n += Item("podmieniona_plomba", "Podrobiona plomba", ItemCategory.Dokument, 0, true, "Plomba Zarządu z kontenera filtrów. Numer się nie zgadza.");
+            n += Item("przepustka_orrin", "Przepustka na Orrin", ItemCategory.Dokument, 0, true, "Podpisana przez kapitana portu Kesh. Port Orrin przyjmie twój statek.");
             n += Item("kod_archiwum", "Kod do archiwum B-12", ItemCategory.Dokument, 0, true, "Cztery znaki zapisane na odwrocie formularza.");
             n += Item("wyciag_rejestru", "Wyciąg z rejestru przydziałów", ItemCategory.Dokument, 0, true, "31 przydziałów na Varo podpisanych kluczem kwatermistrza Dorna.");
             n += Item("odpowiedzi_egzamin", "Odpowiedzi na egzamin", ItemCategory.Dokument, 0, false, "Skopiowane z terminalu szkoły technicznej. Ochrona je zabierze.");
@@ -129,22 +136,32 @@ namespace Kotwica.EditorTools
             int n = 0;
 
             // Chapter 1 = the existing "Kurs powrotny" mission; its code reports these target ids
-            n += Quest("main_01_kurs_powrotny", "Rozdział 1: Kurs powrotny", QuestKind.Glowny, "kesh",
-                "Dokerka z Kesh potrzebuje naprawionego modułu z Varo i leku dla córki. Przepustka obejmuje tylko jeden port, a czas ucieka.",
+            // Chapter 1 stays on Kesh (rebuilt every run): ends with the permit for Orrin. Conversations: DialogueDataBuilder
+            Refresh("main_01_kurs_powrotny");
+            n += Quest("main_01_kurs_powrotny", "Rozdział 1: Lek dla córki", QuestKind.Glowny, "kesh",
+                "Na Kesh nikt nic nie daje za darmo. Dokerka Mara ma zepsuty podnośnik i chorą córkę, a ty dopiero zaczynasz. " +
+                "Zanim polecisz wyżej, musisz zapracować na statek i na zaufanie portu.",
                 autoStart: true, repeatable: false, minLevel: 1, required: null,
-                reward: Reward(0, 200, (SocialClass.Robotnicy, 5)),
-                (ObjectiveType.Interakcja, "kesh_podnosnik", 1, "Napraw podnośnik dokerki na Kesh"),
-                (ObjectiveType.Dostarcz, "varo_serwis", 1, "Dostarcz moduł do serwisu na Varo"),
-                (ObjectiveType.Porozmawiaj, "varo_klinika", 1, "Zdecyduj w klinice Varo, co z lekiem"),
-                (ObjectiveType.Dostarcz, "kesh_dokerka", 1, "Wróć do dokerki na Kesh"));
+                reward: Reward(0, 250, (SocialClass.Robotnicy, 5)),
+                (ObjectiveType.Porozmawiaj, "kesh_dokerka_start", 1, "Porozmawiaj z dokerką Marą na pokładzie portu"),
+                (ObjectiveType.Interakcja, "kesh_podnosnik", 1, "Wymontuj zatarty moduł z podnośnika"),
+                (ObjectiveType.Dostarcz, "kesh_serwis", 1, "Zanieś moduł do warsztatu Brena na ulicy"),
+                (ObjectiveType.Porozmawiaj, "kesh_medyczka", 1, "Zapytaj w ambulatorium o lek dla córki Mary"),
+                (ObjectiveType.Porozmawiaj, "kesh_dokerka", 1, "Wróć do dokerki Mary"),
+                (ObjectiveType.Zdobadz, "rejestracja_statku", 1, "Kup holownik u handlarza Brodda na pokładzie portu"),
+                (ObjectiveType.Lec, "port_kesh_b", 1, "Przeleć statkiem na dok B Kesh"),
+                (ObjectiveType.Porozmawiaj, "kesh_kapitan", 1, "Zgłoś się do kapitana portu Hale"),
+                (ObjectiveType.Interakcja, "kesh_b_kontener", 1, "Znajdź kontener z podmienioną plombą"),
+                (ObjectiveType.Porozmawiaj, "kesh_kapitan", 1, "Oddaj plombę kapitanowi Hale"));
 
             // Chapter 2: rebuilt every run (it replaced the old skeleton); its conversations are in DialogueDataBuilder
             Refresh("main_02_urzad_przepustek");
             n += Quest("main_02_urzad_przepustek", "Rozdział 2: Urząd Przepustek", QuestKind.Glowny, "orrin",
-                "Kurs na Varo otworzył ci oczy: przepustki decydują, kto dostanie się bliżej Zarządu i kto przeżyje, " +
-                "gdy stacja zacznie się sypać. Na Orrin ktoś handluje nimi na lewo.",
+                "Przepustka od kapitana Hale otworzyła ci drogę na Orrin. Tu przepustki decydują, kto dostanie się bliżej Zarządu " +
+                "i kto przeżyje, gdy stacja zacznie się sypać. Ktoś handluje nimi na lewo.",
                 autoStart: true, repeatable: false, minLevel: 1, required: new[] { "main_01_kurs_powrotny" },
                 reward: Reward(150, 300, (SocialClass.KlasaSrednia, 10)),
+                (ObjectiveType.Lec, "port_orrin", 1, "Zawieź filtry kapitana Hale: zadokuj w porcie Orrin"),
                 (ObjectiveType.Idz, "orrin_urzad", 1, "Dotrzyj do Urzędu Przepustek na Orrin"),
                 (ObjectiveType.Porozmawiaj, "orrin_urzednik", 1, "Porozmawiaj z urzędniczką Sel"),
                 (ObjectiveType.Interakcja, "orrin_archiwum", 1, "Sprawdź rejestr w terminalu archiwum B-12"),

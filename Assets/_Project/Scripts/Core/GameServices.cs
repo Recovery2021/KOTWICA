@@ -54,6 +54,8 @@ namespace Kotwica.Core
 
             GameEvents.ItemAdded += (_, __) => Quests.CheckAllInventoryObjectives(Inventory.Count);
             GameEvents.QuestStarted += _ => Quests.CheckAllInventoryObjectives(Inventory.Count);
+            // A new step may ask for an item the player already carries (e.g. a ship bought early)
+            GameEvents.QuestUpdated += _ => Quests.CheckAllInventoryObjectives(Inventory.Count);
             NewGame();
         }
 

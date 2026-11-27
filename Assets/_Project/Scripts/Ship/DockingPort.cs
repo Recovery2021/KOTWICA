@@ -15,12 +15,19 @@ namespace Kotwica.Ship
         [Tooltip("Size of the approach zone above the pad where auto-docking can start (m).")]
         [SerializeField] private Vector3 approachZoneSize = new Vector3(40f, 30f, 40f);
 
-        [Tooltip("Elite ports need a permit item or a job that ends here.")]
+        [Tooltip("Ports of other rings: docking without this permit = port guards seize the ship.")]
         [SerializeField] private bool requiresPermit;
-        [Tooltip("Item that opens this port (e.g. przepustka_varo).")]
+        [Tooltip("Item that opens this port (e.g. przepustka_orrin, przepustka_varo).")]
         [SerializeField] private string permitItemId = "przepustka_varo";
 
+        [Tooltip("Optional id of a second dock on the same ring (e.g. kesh_b); quests use port_<id>. Empty = the ring's main port.")]
+        [SerializeField] private string portId;
+        [Tooltip("Optional name shown instead of the ring name (e.g. 'Kesh · dok B').")]
+        [SerializeField] private string displayName;
+
         public OrbitalRing Ring => ring;
+        public string PortId => portId;
+        public string DisplayName => !string.IsNullOrEmpty(displayName) ? displayName : ring != null ? ring.DisplayName : name;
         public bool RequiresPermit => requiresPermit;
         public string PermitItemId => permitItemId;
         public Transform DockPoint => dockPoint != null ? dockPoint : transform;

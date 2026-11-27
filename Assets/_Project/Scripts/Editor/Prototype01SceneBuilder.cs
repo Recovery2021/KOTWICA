@@ -69,7 +69,12 @@ namespace Kotwica.EditorTools
             SetString(ringA, "ringId", "kesh");
             SetString(ringB, "ringId", "varo");
             SetString(ringC, "ringId", "orrin");
-            SetBool(portB, "requiresPermit"); // elite port: job or permit needed
+            // Progression: Kesh is home; other rings' port guards seize ships without that ring's permit
+            Permit(portB, "przepustka_varo", "Varo · port");
+            Permit(portC, "przepustka_orrin", "Orrin · port");
+            SetString(portA, "displayName", "Kesh · port główny");
+            BuildExtraDock(ringA, "Dok B", StationLayout.KeshDockBPosition, StationLayout.KeshDockBRotation,
+                "kesh_b", "Kesh · dok B", palette);
 
             // Edit-mode preview of positions (at runtime StationFrame recalculates them every physics step)
             Vector3 anchorOrbital = ringA.GetOrbitalPosition(0d);
@@ -78,15 +83,7 @@ namespace Kotwica.EditorTools
             ringC.transform.SetPositionAndRotation(ringC.GetOrbitalPosition(0d) - anchorOrbital, ringC.Orientation(0d));
             planet.transform.position = -anchorOrbital;
 
-            // Gameplay objects on the decks: each board sends you to the other ring
-            DeliveryTerminal terminalA = CreateTerminal(ringA, portA, palette, new Vector3(9f, DeckTop, -9f));
-            DeliveryTerminal terminalB = CreateTerminal(ringB, portB, palette, new Vector3(9f, DeckTop, -9f));
-            var board = CreateJobBoard(ringA, terminalB, 120, palette, new Vector3(-9f, DeckTop, -9f));
-            Set(board, "home", terminalA);
-            var lift = Cube(ringA.transform, "Podnośnik dokerki", new Vector3(-5f, DeckTop + 0.65f, -9f), Quaternion.identity,
-                new Vector3(2.5f, 1.3f, 2f), palette.Pad).AddComponent<JobBoard>();
-            SetBool(lift, "lift");
-            CreateJobBoard(ringB, terminalA, 150, palette, new Vector3(-9f, DeckTop, -9f));
+            // Chapter 1 people and props (dockworker, lift, Brodd's shipyard, dock B captain) live in the Kesh district scene
 
             // Ship, player and camera
             ShipController ship = BuildShip(palette, portA, out Transform exitPoint);
@@ -99,7 +96,7 @@ namespace Kotwica.EditorTools
             Set(frame, "planet", planet.transform);
 
             Set(ship, "startDockedAt", portA);
-            SetBool(ship, "requiresPermit");
+            Set(ship, "homePort", portA);
             Set(ship, "cameraRig", rig);
             Set(ship, "player", player);
             Set(ship, "exitPoint", exitPoint);
@@ -219,6 +216,65 @@ namespace Kotwica.EditorTools
             SetFloat(ring, "inclinationDegrees", phase == 0f ? 0f : 18f);
 
             return ring;
+        }
+
+        private static void Permit(DockingPort port, string permitItemId, string displayName)
+        {
+            SetBool(port, "requiresPermit");
+            SetString(port, "permitItemId", permitItemId);
+            SetString(port, "displayName", displayName);
+        }
+
+        /// <summary>
+        /// A second deck with its own pad and port on the same ring hoop (reached by ship only).
+        /// Same layout as the main deck, so district scenes can place things with the same local numbers.
+        /// </summary>
+        private static DockingPort BuildExtraDock(OrbitalRing ring, string dockName, Vector3 position, Quaternion rotation,
+            string portId, string displayName, Palette palette)
+        {
+            Transform dock = new GameObject(dockName).transform;
+            dock.SetParent(ring.transform, false);
+            dock.localPosition = position;
+            dock.localRotation = rotation;
+
+            float half = DeckSize * 0.5f;
+            Cube(dock, "Pokład", new Vector3(0f, DeckTop - 0.5f, 0f), Quaternion.identity, new Vector3(DeckSize, 1f, DeckSize), palette.Deck);
+            Cube(dock, "Barierka_N", new Vector3(0f, DeckTop + 0.55f, half), Quaternion.identity, new Vector3(DeckSize, 1.1f, 0.3f), palette.Rail);
+            Cube(dock, "Barierka_S", new Vector3(0f, DeckTop + 0.55f, -half), Quaternion.identity, new Vector3(DeckSize, 1.1f, 0.3f), palette.Rail);
+            Cube(dock, "Barierka_E", new Vector3(half, DeckTop + 0.55f, 0f), Quaternion.identity, new Vector3(0.3f, 1.1f, DeckSize), palette.Rail);
+            Cube(dock, "Barierka_W", new Vector3(-half, DeckTop + 0.55f, 0f), Quaternion.identity, new Vector3(0.3f, 1.1f, DeckSize), palette.Rail);
+            Cube(dock, "Lądowisko", new Vector3(0f, DeckTop + 0.02f, 5f), Quaternion.identity, new Vector3(11f, 0.04f, 13f), palette.Pad, false);
+            // Pylon so the dock can be spotted from the main port
+            Cube(dock, "Maszt sygnałowy", new Vector3(-13f, DeckTop + 6f, -13f), Quaternion.identity, new Vector3(0.4f, 12f, 0.4f), palette.Rail);
+            Cube(dock, "Światło masztu", new Vector3(-13f, DeckTop + 12.2f, -13f), Quaternion.identity, new Vector3(0.8f, 0.4f, 0.8f), palette.WindowStrip, false);
+
+            var portObject = new GameObject("PortDokujący");
+            portObject.transform.SetParent(dock, false);
+            portObject.transform.localPosition = new Vector3(0f, DeckTop, 5f);
+            var trigger = portObject.AddComponent<BoxCollider>();
+            trigger.isTrigger = true;
+            trigger.center = new Vector3(0f, 5f, 0f);
+            trigger.size = new Vector3(16f, 10f, 18f);
+
+            var dockPoint = new GameObject("PunktDokowania").transform;
+            dockPoint.SetParent(portObject.transform, false);
+            dockPoint.localPosition = new Vector3(0f, 1.1f, 0f);
+
+            var port = portObject.AddComponent<DockingPort>();
+            Set(port, "ring", ring);
+            Set(port, "dockPoint", dockPoint);
+            SetString(port, "portId", portId);
+            SetString(port, "displayName", displayName);
+
+            var lamp = new GameObject("Lampa pokładu");
+            lamp.transform.SetParent(dock, false);
+            lamp.transform.localPosition = new Vector3(0f, DeckTop + 8f, -4f);
+            var lampLight = lamp.AddComponent<Light>();
+            lampLight.type = LightType.Point;
+            lampLight.color = new Color(1f, 0.7f, 0.4f);
+            lampLight.range = 30f;
+            lampLight.intensity = 3f;
+            return port;
         }
 
         private static DeliveryTerminal CreateTerminal(OrbitalRing ring, DockingPort port, Palette palette, Vector3 deckPosition)

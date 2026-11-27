@@ -21,6 +21,11 @@ namespace Kotwica.EditorTools
         public static int Build()
         {
             int n = 0;
+            n += Mara();
+            n += Medic();
+            n += Brodd();
+            n += Captain();
+            n += Container();
             n += Sel();
             n += Archive();
             n += Dorn();
@@ -28,6 +33,167 @@ namespace Kotwica.EditorTools
             n += Oren();
             n += Ida();
             return n;
+        }
+
+        // --- Chapter 1: Kesh -------------------------------------------------------------------------
+
+        private static int Mara()
+        {
+            var d = Begin("dlg_mara", "Dokerka Mara", out int created);
+            Entry(d, "mara_start", Objective(ObjectiveType.Porozmawiaj, "kesh_dokerka_start"));
+            Entry(d, "mara_podnosnik", Objective(ObjectiveType.Interakcja, "kesh_podnosnik"));
+            Entry(d, "mara_serwis", Objective(ObjectiveType.Dostarcz, "kesh_serwis"));
+            Entry(d, "mara_ambulatorium", Objective(ObjectiveType.Porozmawiaj, "kesh_medyczka"));
+            Entry(d, "mara_lek_legalny", Objective(ObjectiveType.Porozmawiaj, "kesh_dokerka"), Has("lek_przydzial"));
+            Entry(d, "mara_lek_nielegalny", Objective(ObjectiveType.Porozmawiaj, "kesh_dokerka"), Has("lek_bez_zgody"));
+            Entry(d, "mara_bez_leku", Objective(ObjectiveType.Porozmawiaj, "kesh_dokerka"));
+            Entry(d, "mara_po", Flag("ch1_lek"));
+            Entry(d, "mara_po_bez", Flag("ch1_bez_leku"));
+            Entry(d, "mara_idle");
+
+            DialogueEffect started = Report(ObjectiveType.Porozmawiaj, "kesh_dokerka_start");
+            DialogueEffect back = Report(ObjectiveType.Porozmawiaj, "kesh_dokerka");
+
+            Node(d, "mara_start",
+                "Ty jesteś ten nowy? Podnośnik znowu stanął, a zmiana zaraz się zaczyna. Jak nie ruszy, potrącą mi z dniówki. " +
+                "A córka... córka kaszle od tygodnia.",
+                C("Pokaż ten podnośnik.", "mara_ok", started),
+                C("Co z córką?", "mara_corka"));
+            Node(d, "mara_corka",
+                "Powietrze w barakach. Medyczka mówi, że lek jest, ale na przydział. A przydziały idą najpierw na górę, na Varo.",
+                C("Najpierw podnośnik. Potem zobaczymy.", "mara_ok", started));
+            Node(d, "mara_ok", "Stoi za mną. Moduł sterujący się zatarł. Wyjmij go, Bren z warsztatu na ulicy go postawi.");
+            Node(d, "mara_podnosnik", "Moduł siedzi pod osłoną z boku. Odkręcisz cztery śruby i wyjdzie.");
+            Node(d, "mara_serwis", "Warsztat Brena jest w połowie ulicy, między barakami. Nie zgub tego modułu, nie mam na nowy.");
+            Node(d, "mara_ambulatorium", "Ambulatorium jest przed pompownią. Powiedz medyczce, że to dla małej Mary.");
+
+            Node(d, "mara_lek_legalny", "Ze stemplem? Z przydziału? (ściska opakowanie) Nikt tu nie dostaje przydziału...",
+                C("Dla córki.", "mara_koniec", back, Take("lek_przydzial"), Credits(100), Reputation(SocialClass.Robotnicy, 5),
+                    SetFlag("ch1_lek"), SetFlag("ch1_lek_legalny")));
+            Node(d, "mara_lek_nielegalny", "Bez stempla? Jak ochrona to u mnie znajdzie... (chowa pod kurtkę) Nieważne. Dziękuję.",
+                C("Nikt się nie dowie.", "mara_koniec", back, Take("lek_bez_zgody"), Credits(100), Reputation(SocialClass.Robotnicy, 10),
+                    Reputation(SocialClass.Elita, -5), SetFlag("ch1_lek"), SetFlag("ch1_lek_nielegalny")));
+            Node(d, "mara_bez_leku", "Nie dali? ...Jasne. Na Kesh nikt nic nie daje.",
+                C("Wrócę z lekiem.", null),
+                C("Przepraszam. Nie dało się.", "mara_koniec_bez", back, Credits(100), Reputation(SocialClass.Robotnicy, -5), SetFlag("ch1_bez_leku")));
+
+            const string next = "Słuchaj: Brodd na pokładzie sprzedaje stary holownik. Ze statkiem zarobisz więcej niż na nogach. " +
+                                "A kapitan portu na doku B szuka ludzi, którym można ufać.";
+            Node(d, "mara_koniec", "Za podnośnik i za to... sto kredytów. Więcej nie mam. " + next);
+            Node(d, "mara_koniec_bez", "Sto kredytów za podnośnik. Tyle mogę. " + next);
+            Node(d, "mara_po", "Córka śpi spokojnie, pierwszy raz od tygodnia.");
+            Node(d, "mara_po_bez", "Córka dalej kaszle. Jakoś to będzie. Zawsze jakoś było.");
+            Node(d, "mara_idle", "Zmiana się zaczyna. Nie mam czasu.");
+            return Finish(d, created);
+        }
+
+        private static int Medic()
+        {
+            var d = Begin("dlg_medyczka", "Medyczka Nadia", out int created);
+            Entry(d, "med_start", Objective(ObjectiveType.Porozmawiaj, "kesh_medyczka"));
+            // Came back without medicine: the offer stands while Mara still waits
+            Entry(d, "med_start", Objective(ObjectiveType.Porozmawiaj, "kesh_dokerka"), HasNot("lek_przydzial"), HasNot("lek_bez_zgody"));
+            Entry(d, "med_idle");
+
+            DialogueEffect asked = Report(ObjectiveType.Porozmawiaj, "kesh_medyczka");
+
+            Node(d, "med_start",
+                "Lek dla córki dokerki? Jest. Na półce za mną, w skrzynce z plombą Zarządu. Przydział dla Kesh na ten cykl " +
+                "już wydany. Reszta leci na Varo.",
+                C("Złożę wniosek o przydział. (opłata 60 kr)", "med_przydzial", asked, Credits(-60), Give("lek_przydzial")).If(MinCredits(60)),
+                C("Dziecko kaszle od tygodnia. Pani wie, że to nie może czekać do następnego cyklu.", "med_perswazja",
+                    asked, Give("lek_przydzial")).Check(PlayerAttribute.Perswazja, 3),
+                C("A gdyby jedna skrzynka zginęła w drodze na Varo?", "med_bez_zgody", asked, Give("lek_bez_zgody")),
+                C("Nie stać mnie. Powiem Marze.", null, asked),
+                C("Wrócę później.", null));
+
+            Node(d, "med_przydzial", "(stempluje formularz) Przydział z rezerwy. Oficjalnie. Niech pan to trzyma przy sobie, ochrona sprawdza.");
+            Node(d, "med_perswazja", "(długo milczy) ...Wypiszę z rezerwy awaryjnej. Za darmo. I nie było tej rozmowy.");
+            Node(d, "med_bez_zgody",
+                "Nic nie słyszałam. Skrzynka stoi przy drzwiach, a ja idę na zaplecze.\n\n(Lek bez przydziału: jeśli ochrona go znajdzie, przepadnie.)");
+            Node(d, "med_idle", "Ambulatorium Kesh. Jeśli nie krwawisz, czekaj w kolejce.");
+            return Finish(d, created);
+        }
+
+        private static int Brodd()
+        {
+            const string papers = "rejestracja_statku";
+            var d = Begin("dlg_brodd", "Handlarz Brodd", out int created);
+            Entry(d, "brodd_dlug", Has(papers), Flag("dlug_stocznia"), NoFlag("dlug_splacony"));
+            Entry(d, "brodd_wlasciciel", Has(papers));
+            Entry(d, "brodd_depozyt", Flag("statek_skonfiskowany"));
+            Entry(d, "brodd_start");
+
+            Node(d, "brodd_start",
+                "Holownik Wróbel. Stary, ale silniki ma uczciwe. Trzysta kredytów i jest twój. Doki Kesh, ładownia na dwie skrzynie. " +
+                "Na inne pierścienie i tak cię nie wpuszczą bez przepustki: straż portowa zabiera statki od ręki.",
+                C("Biorę. (300 kr)", "brodd_kupiony", Credits(-300), Give(papers)).If(MinCredits(300)),
+                C("Za te silniki? Dwieście dwadzieścia i nie płaczesz.", "brodd_kupiony", Credits(-220), Give(papers))
+                    .Check(PlayerAttribute.Perswazja, 3).If(MinCredits(220)),
+                C("Osiemdziesiąt teraz, reszta z kursów.", "brodd_raty", Credits(-80), Give(papers), SetFlag("dlug_stocznia")).If(MinCredits(80)),
+                C("Jeszcze nie.", null));
+
+            Node(d, "brodd_kupiony",
+                "Rejestracja, kody startowe. Stoi na lądowisku obok. W kokpicie Spacja odcumowuje, a dok B jest kawałek dalej po obręczy, " +
+                "za końcem ulicy. Wypatruj masztu z pomarańczowym światłem.");
+            Node(d, "brodd_raty",
+                "Dobra. Ale jak nie spłacisz, znajdę cię nawet na Varo. Reszta: dwieście dwadzieścia. Kapitan portu płaci za uczciwe kursy, zacznij od niego.");
+            Node(d, "brodd_dlug", "Reszta za Wróbla: dwieście dwadzieścia. Pamiętam.",
+                C("Spłacam. (220 kr)", "brodd_splacone", Credits(-220), SetFlag("dlug_splacony")).If(MinCredits(220)),
+                C("Jeszcze nie mam.", null));
+            Node(d, "brodd_splacone", "Uczciwy kurier na Kesh. Kto by pomyślał.");
+            Node(d, "brodd_wlasciciel", "Lata? To dobrze. Wróbel ma więcej lat niż ty, szanuj go.");
+            Node(d, "brodd_depozyt", "Straż portowa przyholowała twojego Wróbla. Depozyt: sto pięćdziesiąt.",
+                C("Płacę. (150 kr)", "brodd_odebrany", Credits(-150), Give(papers)).If(MinCredits(150)),
+                C("Później.", null));
+            Node(d, "brodd_odebrany", "Tym razem miej przepustkę, zanim gdzieś zadokujesz.");
+            return Finish(d, created);
+        }
+
+        private static int Captain()
+        {
+            var d = Begin("dlg_kapitan", "Kapitan portu Hale", out int created);
+            Entry(d, "kap_raport", Objective(ObjectiveType.Porozmawiaj, "kesh_kapitan"), Has("podmieniona_plomba"));
+            Entry(d, "kap_start", Objective(ObjectiveType.Porozmawiaj, "kesh_kapitan"));
+            Entry(d, "kap_szukaj", Objective(ObjectiveType.Interakcja, "kesh_b_kontener"));
+            Entry(d, "kap_po", Has("przepustka_orrin"));
+            Entry(d, "kap_idle");
+
+            DialogueEffect report = Report(ObjectiveType.Porozmawiaj, "kesh_kapitan");
+
+            Node(d, "kap_start",
+                "Mara mówi, że można ci ufać. Sprawdzimy. Ktoś podmienia plomby na kontenerach z filtrami powietrza: dobre filtry " +
+                "lecą na Orrin, a do baraków trafia złom. Znajdź podmieniony kontener i przynieś mi plombę.",
+                C("Załatwione.", "kap_ok", report),
+                C("Co z tego będę miał?", "kap_nagroda"));
+            Node(d, "kap_nagroda",
+                "Przepustkę na Orrin. Prawdziwą, z moim podpisem. Bez niej straż portowa na Orrin zabierze ci statek, zanim wyłączysz silniki.",
+                C("Biorę to.", "kap_ok", report));
+            Node(d, "kap_ok", "Trzy kontenery przy rampie. Sprawdź plomby. Numery Zarządu mają kreskę pod ostatnią cyfrą.");
+            Node(d, "kap_szukaj", "Trzy kontenery przy rampie. Któraś plomba jest podrobiona.");
+
+            Node(d, "kap_raport",
+                "(ogląda plombę pod lampą) Podróbka. Dobra robota. Trzymaj: przepustka na Orrin i transport filtrów. " +
+                "Zawieź je do portu Orrin i patrz, komu tam zależy na przydziałach.",
+                C("Lecę.", "kap_koniec", Take("podmieniona_plomba"), Give("przepustka_orrin"), report),
+                C("Za taką robotę należy się coś więcej.", "kap_premia", Take("podmieniona_plomba"), Give("przepustka_orrin"), Credits(50), report)
+                    .Check(PlayerAttribute.Perswazja, 2));
+            Node(d, "kap_koniec", "Nie zawiedź mnie. Na Orrin wszyscy są uprzejmi. To najgorsze.");
+            Node(d, "kap_premia", "Masz tupet. Pięćdziesiąt ekstra. I nie zawiedź mnie.");
+            Node(d, "kap_po", "Orrin czeka. Na Orrin wszyscy są uprzejmi. To najgorsze.");
+            Node(d, "kap_idle", "Kapitanat Kesh, dok B. Bez sprawy nie zawracaj głowy.");
+            return Finish(d, created);
+        }
+
+        /// <summary>Decoy containers on dock B: honest seals.</summary>
+        private static int Container()
+        {
+            var d = Begin("dlg_kontener", "Kontener z filtrami", out int created);
+            Entry(d, "kont_ok", Objective(ObjectiveType.Interakcja, "kesh_b_kontener"));
+            Entry(d, "kont_idle");
+            Node(d, "kont_ok", "Plomba Zarządu, kreska pod ostatnią cyfrą, numer zgadza się z listem przewozowym. Ten jest czysty.");
+            Node(d, "kont_idle", "Filtry powietrza dla Orrin. Plomba Zarządu.");
+            return Finish(d, created);
         }
 
         // --- Chapter 2: Permit Office ---------------------------------------------------------------
@@ -349,6 +515,8 @@ namespace Kotwica.EditorTools
         private static DialogueCondition Done(string quest) => new DialogueCondition { type = ConditionType.ZadanieUkonczone, id = quest };
         private static DialogueCondition Has(string item) => new DialogueCondition { type = ConditionType.MaPrzedmiot, id = item, value = 1 };
         private static DialogueCondition Flag(string flag) => new DialogueCondition { type = ConditionType.FlagaUstawiona, id = flag };
+        private static DialogueCondition NoFlag(string flag) => new DialogueCondition { type = ConditionType.FlagaNieustawiona, id = flag };
+        private static DialogueCondition HasNot(string item) => new DialogueCondition { type = ConditionType.NieMaPrzedmiotu, id = item, value = 1 };
         private static DialogueCondition MinCredits(int amount) => new DialogueCondition { type = ConditionType.KredytyCoNajmniej, value = amount };
 
         // Effects

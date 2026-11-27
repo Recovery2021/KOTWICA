@@ -48,6 +48,8 @@ namespace Kotwica.Ship
         [SerializeField] private float autoDockDuration = 3f;
         [SerializeField] private float undockPushSpeed = 3f;
         [SerializeField] private DockingPort startDockedAt;
+        [Tooltip("The player's home ring port: impounded ships end up here (Brodd's shipyard on Kesh).")]
+        [SerializeField] private DockingPort homePort;
 
         [Header("References")]
         [SerializeField] private CameraRig cameraRig;
@@ -80,21 +82,32 @@ namespace Kotwica.Ship
         public DockingPort ReferencePort { get; private set; }
 
         /// <summary>
-        /// Open world rule: public ports (Kesh, Orrin) are free; guarded ports (Varo) need the job
-        /// that ends there or a permit in the inventory.
+        /// Docking is refused only during an alert lockdown (3+). A missing permit is not refused:
+        /// the port guards seize the ship after it docks (see Seize).
         /// </summary>
-        public bool PortAllowed
+        public bool PortAllowed => portInRange == null || !PortLockedDown(portInRange, 3);
+
+        /// <summary>Ship papers bought from Brodd on Kesh: without them the ship cannot be boarded.</summary>
+        public const string RegistrationItemId = "rejestracja_statku";
+        public bool Owned => GameServices.Instance != null && GameServices.Instance.Inventory.Has(RegistrationItemId);
+
+        /// <summary>Home-ring ports are always open; ports of other rings need that ring's permit.</summary>
+        public static bool HasPermitFor(DockingPort port) =>
+            port == null || !port.RequiresPermit ||
+            (GameServices.Instance != null && GameServices.Instance.Inventory.Has(port.PermitItemId));
+
+        /// <summary>Quest id of a port: port_kesh, port_kesh_b, port_orrin...</summary>
+        public static string PortQuestId(DockingPort port) =>
+            "port_" + (!string.IsNullOrEmpty(port.PortId) ? port.PortId : GameServices.RingIdFor(port.Ring));
+
+        /// <summary>The port a "fly to" objective points at (for the HUD marker), or null.</summary>
+        public DockingPort PortForObjective(string targetId)
         {
-            get
-            {
-                if (portInRange != null && PortLockedDown(portInRange, 3)) return false; // alert 3+: port refuses you
-                if (!requiresPermit || portInRange == null || !portInRange.RequiresPermit) return true;
-                if (GameState.ActiveJob?.Destination?.Port == portInRange) return true;
-                return GameServices.Instance != null && GameServices.Instance.Inventory.Has(portInRange.PermitItemId);
-            }
+            if (allPorts == null || string.IsNullOrEmpty(targetId)) return null;
+            foreach (DockingPort port in allPorts)
+                if (port != null && PortQuestId(port) == targetId) return port;
+            return null;
         }
-        [SerializeField] private bool requiresPermit;
-        public bool RequiresPermit => requiresPermit;
 
         /// <summary>True when the alert on the port's ring is at least the given level.</summary>
         public static bool PortLockedDown(DockingPort port, int fromLevel)
@@ -151,7 +164,7 @@ namespace Kotwica.Ship
             if (GameInput.InteractPressed() && !IsAutoDocking)
             {
                 if (IsDocked) ExitShip();
-                else if (portInRange != null && !PortAllowed) GameState.Notify(PortLockedDown(portInRange, 3) ? "Port zablokowany: na tym pierścieniu trwa alarm." : "Przepustka nie obejmuje tego portu.");
+                else if (portInRange != null && !PortAllowed) GameState.Notify("Port zablokowany: na tym pierścieniu trwa alarm.");
                 else if (CanAutoDock) BeginAutoDock(portInRange);
                 else if (portInRange != null) GameState.Notify($"Za szybko do dokowania! Zwolnij poniżej {autoDockMaxSpeed:0} m/s.");
             }
@@ -252,7 +265,7 @@ namespace Kotwica.Ship
 
         public void Board()
         {
-            if (!IsDocked || IsPiloted) return;
+            if (!IsDocked || IsPiloted || !Owned) return;
 
             IsPiloted = true;
             boardedFrame = Time.frameCount; // the same F press must not throw us out again
@@ -289,7 +302,7 @@ namespace Kotwica.Ship
             autoDockProgress = 0f;
             autoDockStartOffset = port.DockPoint.InverseTransformPoint(body.position);
             autoDockStartRotation = Quaternion.Inverse(port.DockPoint.rotation) * body.rotation;
-            GameState.Notify($"Komputer dokujący przejmuje stery: {port.Ring.DisplayName}");
+            GameState.Notify($"Komputer dokujący przejmuje stery: {port.DisplayName}");
         }
 
         private void StepAutoDock()
@@ -311,12 +324,41 @@ namespace Kotwica.Ship
 
         private void Dock(DockingPort port)
         {
+            if (!HasPermitFor(port))
+            {
+                Seize(port);
+                return;
+            }
+
             // The ring we dock at becomes the still point of the world
             if (StationFrame.Instance != null) StationFrame.Instance.SetAnchor(port.Ring);
             SnapToPort(port);
             GameServices.Practice(Kotwica.Progression.PlayerAttribute.Pilotaz, 15f);
-            GameState.Notify($"Zadokowano: {port.Ring.DisplayName}");
-            GameServices.Report(ObjectiveType.Lec, "port_" + GameServices.RingIdFor(port.Ring)); // "dock at Varo" objectives
+            GameState.Notify($"Zadokowano: {port.DisplayName}");
+            GameServices.Report(ObjectiveType.Lec, PortQuestId(port)); // "fly to dock B / Orrin / Varo" objectives
+        }
+
+        /// <summary>
+        /// Port guards of a ring the player has no permit for: the ship is impounded (papers taken,
+        /// ship towed to the home shipyard) and the pilot is sent back to the home ring on foot.
+        /// </summary>
+        private void Seize(DockingPort port)
+        {
+            DockingPort home = homePort != null ? homePort : startDockedAt;
+            GameServices services = GameServices.Instance;
+            if (services != null)
+            {
+                services.Inventory.Remove(RegistrationItemId);
+                services.Quests.SetFlag("statek_skonfiskowany");
+            }
+
+            if (home != null)
+            {
+                if (StationFrame.Instance != null) StationFrame.Instance.SetAnchor(home.Ring);
+                SnapToPort(home);
+            }
+            if (IsPiloted) ExitShip();
+            GameState.Notify($"Straż portowa ({port.DisplayName}): brak przepustki. Statek skonfiskowany, odesłano cię na Kesh. Depozyt u Brodda.");
         }
 
         private void SnapToPort(DockingPort port)
@@ -342,15 +384,6 @@ namespace Kotwica.Ship
             if (PortLockedDown(dockedAt, 4))
             {
                 GameState.Notify("Blokada portu: przy takim alarmie ochrona nie wypuści statku.");
-                return;
-            }
-            if (GameState.InspectionDue && requiresPermit) { GameState.Notify("Przed startem okaż ładunek w odprawie na Kesh."); return; }
-            if (GameState.AtClinic && GameState.ActiveJob?.Destination?.Port == dockedAt)
-                GameState.ReturnWithoutMedicine();
-            // Open world: free to leave; only an outbound delivery must be handed in first
-            if (requiresPermit && GameState.Mission == GameState.Stage.Outbound && GameState.ActiveJob?.Destination?.Port == dockedAt)
-            {
-                GameState.Notify("Najpierw oddaj moduł w serwisie tego portu.");
                 return;
             }
             dockedAt = null;

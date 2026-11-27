@@ -92,6 +92,11 @@ Przestępstwo przy świadkach podnosi alarm pierścienia (0–5). Z posterunków
 **Zadania poboczne:** *Egzamin Teo* (Orrin, nowe), *Zimne pompy* (Kesh) i *Próbki z chłodni* (Varo) z rozmowami i wyborami.
 **Pojazdy:** wózek towarowy (Kesh, wolny), skuter kurierski (Orrin, cudzy) i kabriolet lewitujący (Varo, cudzy). F wsiada (cudzy pojazd = kradzież przy świadkach), W/S gaz, A/D skręt, Spacja hamulec, F wysiada. Potrącenie to napaść. Aresztowanie lub śmierć wyrzuca z pojazdu.
 
+## Postęp po pierścieniach (krok 9)
+Gra zaczyna się na **Kesh** i rozdział 1 dzieje się w całości tutaj: dokerka Mara i podnośnik na pokładzie portu → warsztat Brena na ulicy → ambulatorium (lek z przydziału za 60 kr, za Perswazję 3 albo bez zgody) → powrót do Mary → zakup holownika u handlarza Brodda (300 kr, 220 kr za Perswazję 3 albo 80 kr na raty) → lot na **dok B Kesh** (maszt z pomarańczowym światłem za końcem ulicy) → kapitan portu Hale i kontener z podrobioną plombą → **przepustka na Orrin**. Rozdział 2 zaczyna się od lotu na Orrin.
+**Statek:** bez rejestracji (kupionej u Brodda) nie wejdziesz do kokpitu. Porty Kesh są otwarte. Port innego pierścienia bez przepustki = straż portowa konfiskuje statek i odsyła cię na Kesh (depozyt u Brodda: 150 kr). HUD ostrzega przed dokowaniem, a w locie pokazuje cel z dziennika.
+Stare zapisy (F9) z poprzednią wersją rozdziału 1 nie pasują: zacznij nową grę.
+
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.
 2. Sklonuj `Recovery2021/KOTWICA`.

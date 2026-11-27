@@ -1,5 +1,7 @@
+using Kotwica.Core;
 using Kotwica.Gameplay;
 using Kotwica.Player;
+using Kotwica.Quests;
 using Kotwica.Ship;
 using UnityEngine;
 
@@ -36,47 +38,19 @@ namespace Kotwica.UI
 
         private void DrawStatusPanel()
         {
+            // The tracked quest's current step is the "what now" line (journal under Tab has the rest)
             CourierJob job = GameState.ActiveJob;
-            string jobText = job != null ? $"{job.Cargo}\n→ {job.Destination.LocationName} ({job.Reward} kr)" : "brak (tablica zleceń na pokładzie)";
-
-            if (job?.Home != null && GameState.Mission != GameState.Stage.Complete)
+            string jobText;
+            if (job != null) jobText = $"{job.Cargo}\n→ {job.Destination.LocationName} ({job.Reward} kr)";
+            else
             {
-                var t = Kotwica.Orbits.OrbitalClock.Now;
-                jobText += $"\nDeklaracja: {job.DeclaredCargo} · powrót za {job.ReturnBy - t:0} s";
-                if (GameState.AtClinic)
-                {
-                    jobText += GameState.Mission == GameState.Stage.Waiting
-                        ? $"\nOdbiór przy bramce za {GameState.ApprovalRemaining:0} s"
-                        : "\nKlinika: interkom przy bramce lub przejście techniczne [C].";
-                    float homeFlight = Vector3.Distance(job.Home.Port.PositionAt(t), job.Destination.Port.PositionAt(t)) / ship.CruiseSpeed;
-                    jobText += $"\nLot na Kesh ~{homeFlight:0} s. Możesz wrócić bez leku.";
-                }
-                if (GameState.Mission == GameState.Stage.Return)
-                    jobText += GameState.Cleared ? "\nZanieś przesyłkę dokerce." :
-                        "\nRadio Kesh: po dokowaniu zgłoś ładunek do odprawy." +
-                        (GameState.Package == GameState.Medicine.Undeclared ? "\nZgłoszenie: −30 kr. Dokerka najpierw: kontrola następnego kursu." : "");
-                var origin = ship.DockedAt;
-                var target = job.Destination.Port;
-                if (origin != null && origin != target)
-                {
-                    float now = Vector3.Distance(origin.PositionAt(t), target.PositionAt(t)) / ship.CruiseSpeed;
-                    float later = Vector3.Distance(origin.PositionAt(t + 30), target.PositionAt(t + 30)) / ship.CruiseSpeed;
-                    jobText += $"\nLot teraz ~{now:0} s · po 30 s oczekiwania ~{later:0} s";
-                }
-            }
-            else if (GameState.Mission == GameState.Stage.Repair && ship != null && ship.RequiresPermit)
-                jobText = "Napraw podnośnik przy zielonej tablicy na Kesh.";
-            else if (job == null && GameState.Outcome != null)
-            {
-                // The mission summary stays on screen for a moment, then gives way (it lives on in the journal)
-                const float outcomeSeconds = 20f;
-                if (Time.time - GameState.OutcomeTime < outcomeSeconds) jobText = GameState.Outcome;
-                else if (GameState.NeedsMedicineRun) jobText = "brak · opcjonalnie: kurs po lek z tablicy na Kesh";
-                else jobText = "brak · kolejne zadania w dzienniku (Tab)";
+                var tracked = GameServices.Instance != null ? GameServices.Instance.Quests.Tracked : null;
+                var objective = tracked?.CurrentObjective;
+                jobText = objective != null ? $"{tracked.Definition.title}\n{objective.description}" : "brak · kolejne zadania w dzienniku (Tab)";
             }
 
             float width = Mathf.Min(500, HudLayout.Width * 0.51f - 20);
-            panelBottom = HudLayout.Panel(12, 12, width, $"Kredyty: {GameState.Credits} kr\nZlecenie: {jobText}", textStyle);
+            panelBottom = HudLayout.Panel(12, 12, width, $"Kredyty: {GameState.Credits} kr\nCel: {jobText}", textStyle);
 
         }
 
@@ -96,9 +70,10 @@ namespace Kotwica.UI
                 else if (ship.IsDocked) prompt = "[Spacja] Odcumuj     [F] Wyjdź ze statku";
                 else if (ship.PortInRange != null)
                 {
-                    prompt = !ship.PortAllowed ? (ShipController.PortLockedDown(ship.PortInRange, 3) ? "Port zablokowany: alarm na tym pierścieniu" : "Brak zgody na dokowanie w tym porcie") : ship.CanAutoDock
-                        ? $"[F] Automatyczne dokowanie: {ship.PortInRange.Ring.DisplayName}"
-                        : $"Zbyt szybko do dokowania (max {ship.AutoDockMaxSpeed:0} m/s), puść W lub przytrzymaj X";
+                    string warning = ShipController.HasPermitFor(ship.PortInRange) ? "" : "   UWAGA: brak przepustki, straż portowa skonfiskuje statek!";
+                    prompt = !ship.PortAllowed ? "Port zablokowany: alarm na tym pierścieniu" : (ship.CanAutoDock
+                        ? $"[F] Automatyczne dokowanie: {ship.PortInRange.DisplayName}"
+                        : $"Zbyt szybko do dokowania (max {ship.AutoDockMaxSpeed:0} m/s), puść W lub przytrzymaj X") + warning;
                 }
             }
             else if (interactor != null && interactor.isActiveAndEnabled && interactor.Current != null)
@@ -119,10 +94,9 @@ namespace Kotwica.UI
             string referenceName = reference != null ? reference.Ring.DisplayName : "-";
             float relativeSpeed = ship.VelocityRelativeTo(reference).magnitude;
 
-            CourierJob job = GameState.ActiveJob;
-            DockingPort target = job != null && job.Destination != null ? job.Destination.Port : null;
+            DockingPort target = NavigationTarget();
             string targetText = target != null
-                ? $"{target.Ring.DisplayName}, {Vector3.Distance(ship.transform.position, target.transform.position):0} m"
+                ? $"{target.DisplayName}, {Vector3.Distance(ship.transform.position, target.transform.position):0} m"
                 : "brak";
 
             float width = Mathf.Min(425, HudLayout.Width * 0.49f - 20);
@@ -131,15 +105,23 @@ namespace Kotwica.UI
 
         }
 
-        private void DrawTargetMarker()
+        /// <summary>Where to fly: a courier job's port, else the port of the tracked "fly to" objective.</summary>
+        private DockingPort NavigationTarget()
         {
             CourierJob job = GameState.ActiveJob;
-            DockingPort target = job != null && job.Destination != null ? job.Destination.Port : null;
-            if (target == null || viewCamera == null) return;
+            if (job != null && job.Destination != null) return job.Destination.Port;
+            var objective = GameServices.Instance != null ? GameServices.Instance.Quests.Tracked?.CurrentObjective : null;
+            return ship != null && objective != null && objective.type == ObjectiveType.Lec ? ship.PortForObjective(objective.targetId) : null;
+        }
+
+        private void DrawTargetMarker()
+        {
+            DockingPort target = NavigationTarget();
+            if (target == null || viewCamera == null || ship == null || !ship.IsPiloted) return;
 
             Vector3 screen = viewCamera.WorldToScreenPoint(target.transform.position);
             float distance = Vector3.Distance(viewCamera.transform.position, target.transform.position);
-            string text = $"[ {target.Ring.DisplayName}  {distance:0} m ]";
+            string text = $"[ {target.DisplayName}  {distance:0} m ]";
 
             if (screen.z > 0f)
             {

@@ -152,11 +152,74 @@ namespace Kotwica.EditorTools
                 ObjectiveType.Dostarcz, "kesh_paser", "Sprzedaj próbki paserowi", take: "probki_lab");
             Sign("PASER", new Vector3(84f, Floor + 2.4f, -5f));
 
+            BuildKeshChapterOne();
+
             // Free cargo cart at the start of the street
             Vehicle(VehicleStyle.Wozek, "Wózek towarowy", new Vector3(22f, Floor, -6f), owner: null, maxSpeed: 9f);
 
             StreetLights(new Color(1f, 0.6f, 0.25f), 2.5f, 14f);
             PopulateKesh();
+        }
+
+        /// <summary>
+        /// Chapter 1 stays on Kesh: Mara and her lift on the main deck, Brodd's shipyard by the pad,
+        /// Bren's workshop and the infirmary on the street, the port captain and the filter containers on dock B.
+        /// </summary>
+        private static void BuildKeshChapterOne()
+        {
+            // Main deck (ring root coordinates, same as the port deck)
+            Npc("Dokerka Mara", new Vector3(-7f, Floor, -12f), palette["M_Warning"], offers: null, talk: null,
+                idle: "Zmiana się zaczyna.", dialogue: "dlg_mara");
+            Target("Podnośnik dokerki", new Vector3(-4f, Floor + 0.65f, -10f), new Vector3(2.5f, 1.3f, 2f), palette["M_PaintedMetal"],
+                ObjectiveType.Interakcja, "kesh_podnosnik", "Wymontuj zatarty moduł sterujący", give: "modul_uszkodzony");
+            Sign("PODNOŚNIK", new Vector3(-4f, Floor + 2.2f, -10f));
+
+            Npc("Handlarz Brodd", new Vector3(9f, Floor, 1f), extra["Rdza"], offers: null, talk: null,
+                idle: "Wróbel na sprzedaż.", dialogue: "dlg_brodd");
+            Sign("STOCZNIA BRODDA · HOLOWNIK NA SPRZEDAŻ", new Vector3(9f, Floor + 2.8f, 1f));
+
+            // Street: Bren's workshop between the barracks, the infirmary before the pump station
+            Box("Warsztat Brena", new Vector3(62f, Floor + 2f, -13f), new Vector3(6f, 4f, 4f), extra["Rdza"]);
+            Sign("WARSZTAT BRENA", new Vector3(62f, Floor + 4.6f, -10.8f));
+            Target("Lada warsztatu", new Vector3(62f, Floor + 0.55f, -10.6f), new Vector3(2f, 1.1f, 0.6f), palette["M_DarkMetal"],
+                ObjectiveType.Dostarcz, "kesh_serwis", "Oddaj moduł mechanikowi Brenowi", take: "modul_uszkodzony");
+
+            Box("Ambulatorium", new Vector3(94f, Floor + 2f, 12.5f), new Vector3(8f, 4f, 4f), palette["M_PaintedMetal"]);
+            Box("Krzyż", new Vector3(94f, Floor + 3.2f, 10.48f), new Vector3(1.2f, 0.3f, 0.02f), palette["M_LightCold"], false);
+            Box("Krzyż", new Vector3(94f, Floor + 3.2f, 10.48f), new Vector3(0.3f, 1.2f, 0.02f), palette["M_LightCold"], false);
+            Sign("AMBULATORIUM", new Vector3(94f, Floor + 4.6f, 10.4f));
+            Npc("Medyczka Nadia", new Vector3(94f, Floor, 9.4f), palette["M_LightCold"], offers: null, talk: null,
+                idle: "Czekaj w kolejce.", dialogue: "dlg_medyczka");
+
+            // Dock B (reached only by ship): the port captain and three filter containers, one with a forged seal
+            BoxB("Kapitanat", new Vector3(-10f, Floor + 1.5f, -12f), new Vector3(4f, 3f, 3f), palette["M_DarkMetal"]);
+            Sign("KAPITANAT · DOK B", StationLayout.KeshDockB(new Vector3(-10f, Floor + 3.6f, -12f)));
+            Npc("Kapitan portu Hale", StationLayout.KeshDockB(new Vector3(-6f, Floor, -10f)), palette["M_BareMetal"], offers: null, talk: null,
+                idle: "Bez sprawy nie zawracaj głowy.", dialogue: "dlg_kapitan");
+            Target("Kontener z filtrami", StationLayout.KeshDockB(new Vector3(10f, Floor + 1.3f, -6.2f)), new Vector3(2.6f, 2.6f, 2.6f),
+                extra["KontenerA"], ObjectiveType.Interakcja, "kesh_b_kontener", "Sprawdź plombę", give: "podmieniona_plomba", singleUse: true);
+            Inspectable("Kontener z filtrami", StationLayout.KeshDockB(new Vector3(10f, Floor + 1.3f, -10f)), new Vector3(2.6f, 2.6f, 2.6f),
+                extra["KontenerB"], "dlg_kontener", "Sprawdź plombę");
+            Inspectable("Kontener z filtrami", StationLayout.KeshDockB(new Vector3(6f, Floor + 1.3f, -12.5f)), new Vector3(2.6f, 2.6f, 2.6f),
+                extra["KontenerC"], "dlg_kontener", "Sprawdź plombę");
+        }
+
+        /// <summary>A box on Kesh dock B, turned with the dock (its deck follows the curve of the hoop).</summary>
+        private static void BoxB(string name, Vector3 dockLocal, Vector3 size, Material material)
+        {
+            GameObject go = Box(name, StationLayout.KeshDockB(dockLocal), size, material);
+            go.transform.localRotation = StationLayout.KeshDockBRotation;
+        }
+
+        /// <summary>Any prop that answers F with a conversation asset (decoys, notices...).</summary>
+        private static void Inspectable(string name, Vector3 position, Vector3 size, Material material, string dialogueId, string prompt)
+        {
+            GameObject go = Box(name, position, size, material);
+            var inspect = go.AddComponent<DialogueObject>();
+            var so = new SerializedObject(inspect);
+            so.FindProperty("dialogueId").stringValue = dialogueId;
+            so.FindProperty("prompt").stringValue = prompt;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         // --- Orrin: middle class ----------------------------------------------------------------
