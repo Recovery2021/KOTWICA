@@ -86,6 +86,7 @@ namespace Kotwica.SaveLoad
                 GameState.Notify("Brak zapisu do wczytania.");
                 return false;
             }
+            Kotwica.Vehicles.RingVehicle.ForceExit(); // a loaded game starts on foot
 
             try
             {

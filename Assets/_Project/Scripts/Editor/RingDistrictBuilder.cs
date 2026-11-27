@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using Kotwica.Combat;
+using Kotwica.Dialogue;
 using Kotwica.Quests;
 using Kotwica.Security;
+using Kotwica.Vehicles;
 using Kotwica.World;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -136,8 +138,8 @@ namespace Kotwica.EditorTools
                 ObjectiveType.Dostarcz, "kesh_pompownia", "Oddaj części do pomp", take: "czesci_pomp", takeCount: 3);
 
             // Foreman gives "Zimne pompy"; three crates of parts lie around the barracks
-            Npc("Brygadzista Oren", new Vector3(40f, Floor, 6f), palette["M_Warning"], offers: "side_kesh_pompy", talk: "kesh_brygadzista",
-                idle: "Pompy dalej stoją. Zimno w barakach.");
+            Npc("Brygadzista Oren", new Vector3(40f, Floor, 6f), palette["M_Warning"], offers: null, talk: null,
+                idle: "Pompy dalej stoją. Zimno w barakach.", dialogue: "dlg_oren");
             Target("Skrzynka z częściami", new Vector3(55f, Floor + 0.4f, -12f), new Vector3(0.9f, 0.8f, 0.7f), palette["M_PaintedMetal"],
                 ObjectiveType.Zdobadz, "czesci_pomp", "Zabierz części", give: "czesci_pomp", singleUse: true);
             Target("Skrzynka z częściami", new Vector3(72f, Floor + 0.4f, 12f), new Vector3(0.9f, 0.8f, 0.7f), palette["M_PaintedMetal"],
@@ -149,6 +151,9 @@ namespace Kotwica.EditorTools
             Target("Paser", new Vector3(84f, Floor + 1f, -5f), new Vector3(0.7f, 2f, 0.7f), palette["M_DarkMetal"],
                 ObjectiveType.Dostarcz, "kesh_paser", "Sprzedaj próbki paserowi", take: "probki_lab");
             Sign("PASER", new Vector3(84f, Floor + 2.4f, -5f));
+
+            // Free cargo cart at the start of the street
+            Vehicle(VehicleStyle.Wozek, "Wózek towarowy", new Vector3(22f, Floor, -6f), owner: null, maxSpeed: 9f);
 
             StreetLights(new Color(1f, 0.6f, 0.25f), 2.5f, 14f);
             PopulateKesh();
@@ -186,8 +191,23 @@ namespace Kotwica.EditorTools
             Box("Urząd Przepustek", new Vector3(110f, Floor + 6f, 0f), new Vector3(14f, 12f, 20f), extra["Beton"]);
             Sign("URZĄD PRZEPUSTEK", new Vector3(102.5f, Floor + 8f, 0f));
             Area("Przed urzędem", new Vector3(96f, Floor + 1.5f, 0f), new Vector3(6f, 3f, 12f), "orrin_urzad");
-            Npc("Urzędniczka Sel", new Vector3(100f, Floor, 2f), palette["M_PaintedMetal"], offers: null, talk: "orrin_urzednik",
-                give: "przepustka_varo", idle: "Numerek i czekać. Jak wszyscy.");
+            Npc("Urzędniczka Sel", new Vector3(100f, Floor, 2f), palette["M_PaintedMetal"], offers: null, talk: null,
+                idle: "Numerek i czekać. Jak wszyscy.", dialogue: "dlg_sel");
+            Terminal("Terminal archiwum B-12", new Vector3(101.5f, Floor + 0.75f, -4f), "dlg_archiwum", "Terminal archiwum B-12");
+
+            // Chapter 2: the quartermaster selling permits behind the last market stall
+            Npc("Kwatermistrz Dorn", new Vector3(63.5f, Floor, -3.5f), extra["NeonRoz"], offers: null, talk: null,
+                idle: "Kupujesz albo nie zasłaniasz.", dialogue: "dlg_dorn");
+
+            // Side quest "Egzamin Teo": the student by the school and the exam terminal inside the entrance
+            Npc("Teo", new Vector3(80f, Floor, 8.5f), extra["Beton"], offers: null, talk: null,
+                idle: "Jutro egzamin.", dialogue: "dlg_teo");
+            Target("Terminal szkoły", new Vector3(89f, Floor + 0.75f, 10.6f), new Vector3(0.6f, 1.5f, 0.5f), palette["M_LightCold"],
+                ObjectiveType.Interakcja, "orrin_szkola_terminal", "Skopiuj odpowiedzi z terminalu", give: "odpowiedzi_egzamin",
+                crime: true, crimeType: CrimeType.Wtargniecie);
+
+            // A trader's courier scooter: taking it is theft
+            Vehicle(VehicleStyle.Skuter, "Skuter kurierski", new Vector3(22f, Floor, 3.5f), owner: "Marek", maxSpeed: 14f);
 
             StreetLights(new Color(0.7f, 0.85f, 1f), 3f, 12f);
             PopulateOrrin();
@@ -214,8 +234,9 @@ namespace Kotwica.EditorTools
             Box("Laboratorium", new Vector3(106f, Floor + 5f, 0f), new Vector3(20f, 10f, 24f), extra["Elita"]);
             Box("Pas okien", new Vector3(95.99f, Floor + 6f, 0f), new Vector3(0.02f, 1.5f, 20f), palette["M_LightCold"], false);
             Sign("LABORATORIA ZARZĄDU", new Vector3(95.5f, Floor + 8.5f, 0f));
-            Npc("Laborantka Ida", new Vector3(84f, Floor, -6f), extra["Elita"], offers: "side_varo_probki", talk: "varo_laborantka",
-                idle: "Proszę nie dotykać niczego w laboratorium.");
+            Npc("Laborantka Ida", new Vector3(84f, Floor, -6f), extra["Elita"], offers: null, talk: null,
+                idle: "Proszę nie dotykać niczego w laboratorium.", dialogue: "dlg_ida");
+            Area("Pod gmachem Zarządu", new Vector3(91f, Floor + 1.5f, 0f), new Vector3(6f, 3f, 14f), "varo_zarzad"); // chapter 3 start
             Target("Chłodnia", new Vector3(95f, Floor + 1f, 7f), new Vector3(1.2f, 2f, 1.2f), palette["M_LightCold"],
                 ObjectiveType.Interakcja, "varo_chlodnia", "Wynieś próbki z chłodni", give: "probki_lab", crime: true);
 
@@ -226,6 +247,9 @@ namespace Kotwica.EditorTools
                 Box("Kamera", new Vector3(x, Floor + 5f, 20.7f), new Vector3(0.3f, 0.25f, 0.5f), palette["M_DarkMetal"]);
                 Box("Dioda", new Vector3(x, Floor + 5.05f, 20.44f), new Vector3(0.05f, 0.05f, 0.02f), palette["M_LightRed"], false);
             }
+
+            // A resident's hover car: stealing it on Varo brings the strictest security on the station
+            Vehicle(VehicleStyle.Lewitujacy, "Kabriolet lewitujący", new Vector3(24f, Floor, 3f), owner: "Viktor", maxSpeed: 16f);
 
             StreetLights(new Color(0.9f, 0.95f, 1f), 3.5f, 10f);
             PopulateVaro();
@@ -297,7 +321,8 @@ namespace Kotwica.EditorTools
             go.AddComponent<FaceCamera>();
         }
 
-        private static void Npc(string name, Vector3 feet, Material material, string offers, string talk, string idle, string give = null)
+        private static GameObject Npc(string name, Vector3 feet, Material material, string offers, string talk, string idle, string give = null,
+            string dialogue = null)
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Capsule); // keeps its collider: F finds it
             go.name = name;
@@ -313,11 +338,26 @@ namespace Kotwica.EditorTools
             so.FindProperty("talkTargetId").stringValue = talk ?? "";
             so.FindProperty("giveItemId").stringValue = give ?? "";
             so.FindProperty("idleLine").stringValue = idle;
+            so.FindProperty("dialogueId").stringValue = dialogue ?? "";
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return go;
+        }
+
+        /// <summary>A terminal that runs a conversation asset (archive, panels...).</summary>
+        private static void Terminal(string name, Vector3 position, string dialogueId, string prompt)
+        {
+            GameObject go = Box(name, position, new Vector3(0.6f, 1.5f, 0.5f), palette["M_DarkMetal"]);
+            Box("Ekran", position + new Vector3(-0.31f, 0.3f, 0f), new Vector3(0.02f, 0.45f, 0.4f), palette["M_LightCold"], false);
+            var terminal = go.AddComponent<DialogueObject>();
+            var so = new SerializedObject(terminal);
+            so.FindProperty("dialogueId").stringValue = dialogueId;
+            so.FindProperty("prompt").stringValue = prompt;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void Target(string name, Vector3 position, Vector3 size, Material material, ObjectiveType type, string targetId,
-            string prompt, string give = null, string take = null, int takeCount = 1, bool singleUse = false, bool crime = false)
+            string prompt, string give = null, string take = null, int takeCount = 1, bool singleUse = false, bool crime = false,
+            CrimeType crimeType = CrimeType.Kradziez)
         {
             GameObject go = Box(name, position, size, material);
             var target = go.AddComponent<QuestTarget>();
@@ -330,7 +370,7 @@ namespace Kotwica.EditorTools
             so.FindProperty("takeCount").intValue = takeCount;
             so.FindProperty("singleUse").boolValue = singleUse;
             so.FindProperty("isCrime").boolValue = crime;
-            so.FindProperty("crime").enumValueIndex = (int)CrimeType.Kradziez;
+            so.FindProperty("crime").enumValueIndex = (int)crimeType;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
@@ -346,6 +386,97 @@ namespace Kotwica.EditorTools
             var so = new SerializedObject(area);
             so.FindProperty("targetId").stringValue = targetId;
             so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        // --- Vehicles ----------------------------------------------------------------------------------
+
+        private enum VehicleStyle { Wozek, Skuter, Lewitujacy }
+
+        /// <summary>A drivable graybox vehicle facing down the street (+x), one solid collider on the root.</summary>
+        private static void Vehicle(VehicleStyle style, string name, Vector3 position, string owner, float maxSpeed)
+        {
+            var go = new GameObject("Pojazd: " + name);
+            go.transform.SetParent(root, false);
+            go.transform.localPosition = position;
+            go.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+            Transform t = go.transform;
+
+            Vector2 half;
+            Vector3 seat;
+            switch (style)
+            {
+                case VehicleStyle.Wozek:
+                    half = new Vector2(0.8f, 1.5f);
+                    seat = new Vector3(0f, 0.55f, -0.6f);
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.4f, 0f), new Vector3(1.6f, 0.35f, 3f), extra["Rdza"]);
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.85f, 0.75f), new Vector3(1.5f, 0.6f, 1.3f), extra["KontenerB"]); // cargo box
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 1.3f, -0.6f), new Vector3(1.5f, 0.06f, 1.2f), palette["M_DarkMetal"]); // roof
+                    foreach (float x in new[] { -0.7f, 0.7f })
+                        Part(t, PrimitiveType.Cube, new Vector3(x, 0.95f, -1.15f), new Vector3(0.06f, 0.75f, 0.06f), palette["M_BareMetal"]);
+                    Wheels(t, 0.75f, 1.05f, 0.28f);
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.5f, 1.51f), new Vector3(1.2f, 0.12f, 0.02f), palette["M_LightAmber"]);
+                    break;
+                case VehicleStyle.Skuter:
+                    half = new Vector2(0.45f, 1.0f);
+                    seat = new Vector3(0f, 0.45f, -0.3f);
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.35f, 0f), new Vector3(0.6f, 0.25f, 1.9f), palette["M_PaintedMetal"]);
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.75f, 0.75f), new Vector3(0.5f, 0.6f, 0.15f), extra["NeonCyjan"]); // front shield
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 1.1f, 0.75f), new Vector3(0.7f, 0.05f, 0.05f), palette["M_BareMetal"]); // handlebar
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.6f, -0.65f), new Vector3(0.55f, 0.35f, 0.5f), palette["M_DarkMetal"]); // parcel box
+                    Wheels(t, 0f, 0.75f, 0.22f);
+                    break;
+                default: // hover car: no wheels, a cold glow underneath
+                    half = new Vector2(0.95f, 1.9f);
+                    seat = new Vector3(0f, 0.6f, -0.2f);
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.6f, 0f), new Vector3(1.9f, 0.45f, 3.8f), extra["Elita"]);
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.95f, 0.7f), new Vector3(1.6f, 0.3f, 0.05f), palette["M_Glass"]); // windscreen
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.32f, 0f), new Vector3(1.6f, 0.05f, 3.2f), palette["M_LightCold"]); // hover glow
+                    Part(t, PrimitiveType.Cube, new Vector3(0f, 0.6f, 1.91f), new Vector3(1.4f, 0.1f, 0.02f), palette["M_LightCold"]);
+                    break;
+            }
+
+            var box = go.AddComponent<BoxCollider>();
+            box.center = new Vector3(0f, 0.7f, 0f);
+            box.size = new Vector3(half.x * 2f, 1.2f, half.y * 2f);
+
+            var vehicle = go.AddComponent<RingVehicle>();
+            var so = new SerializedObject(vehicle);
+            so.FindProperty("vehicleName").stringValue = name;
+            so.FindProperty("ownerName").stringValue = owner ?? "";
+            so.FindProperty("maxSpeed").floatValue = maxSpeed;
+            so.FindProperty("seat").vector3Value = seat;
+            so.FindProperty("exitOffset").vector3Value = new Vector3(-(half.x + 0.8f), 0f, 0f);
+            so.FindProperty("halfSize").vector2Value = half;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void Wheels(Transform vehicle, float halfTrack, float halfBase, float radius)
+        {
+            foreach (float z in new[] { -halfBase, halfBase })
+            {
+                if (halfTrack <= 0f)
+                {
+                    Part(vehicle, PrimitiveType.Cylinder, new Vector3(0f, radius, z), new Vector3(radius * 2f, 0.06f, radius * 2f),
+                        palette["M_Rubber"], Quaternion.Euler(0f, 0f, 90f));
+                    continue;
+                }
+                foreach (float x in new[] { -halfTrack, halfTrack })
+                    Part(vehicle, PrimitiveType.Cylinder, new Vector3(x, radius, z), new Vector3(radius * 2f, 0.08f, radius * 2f),
+                        palette["M_Rubber"], Quaternion.Euler(0f, 0f, 90f));
+            }
+        }
+
+        /// <summary>A visual-only primitive under a vehicle (the root carries the single collider).</summary>
+        private static void Part(Transform parent, PrimitiveType type, Vector3 position, Vector3 scale, Material material, Quaternion? rotation = null)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            go.name = type.ToString();
+            Object.DestroyImmediate(go.GetComponent<Collider>());
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = position;
+            go.transform.localRotation = rotation ?? Quaternion.identity;
+            go.transform.localScale = scale;
+            go.GetComponent<Renderer>().sharedMaterial = material;
         }
 
         // --- Residents ---------------------------------------------------------------------------------
@@ -409,7 +540,7 @@ namespace Kotwica.EditorTools
             for (int i = 0; i < 4; i++) work.Add(Spot($"Praca: stragan {i}", new Vector3(32f + i * 9f, Floor, i % 2 == 0 ? 6.6f : -6.6f)));
             Transform[] leisure = { Spot("Targ", new Vector3(45f, Floor, 0f)), Spot("Ławki", new Vector3(55f, Floor, 2f)) };
 
-            string[] names = { "Pela", "Adri", "Konst", "Liwa", "Marek", "Nesa", "Teo", "Wanda", "Ivo", "Rena" };
+            string[] names = { "Pela", "Adri", "Konst", "Liwa", "Marek", "Nesa", "Ksawer", "Wanda", "Ivo", "Rena" };
             ResidentRole[] roles = { clerk, clerk, clerk, clerk, trader, trader, trader, student, student, student };
             for (int i = 0; i < names.Length; i++)
             {

@@ -2,6 +2,7 @@ using Kotwica.Core;
 using Kotwica.Gameplay;
 using Kotwica.Orbits;
 using Kotwica.Player;
+using Kotwica.Quests;
 using UnityEngine;
 
 namespace Kotwica.Ship
@@ -315,6 +316,7 @@ namespace Kotwica.Ship
             SnapToPort(port);
             GameServices.Practice(Kotwica.Progression.PlayerAttribute.Pilotaz, 15f);
             GameState.Notify($"Zadokowano: {port.Ring.DisplayName}");
+            GameServices.Report(ObjectiveType.Lec, "port_" + GameServices.RingIdFor(port.Ring)); // "dock at Varo" objectives
         }
 
         private void SnapToPort(DockingPort port)

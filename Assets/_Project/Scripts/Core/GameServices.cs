@@ -39,6 +39,7 @@ namespace Kotwica.Core
             var go = new GameObject("_GameServices");
             go.AddComponent<GameServices>();
             go.AddComponent<Kotwica.UI.RpgPanel>();
+            go.AddComponent<Kotwica.Dialogue.DialogueRunner>();
         }
 
         private void Awake()

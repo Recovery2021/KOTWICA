@@ -206,6 +206,7 @@ namespace Kotwica.Security
         /// <summary>A guard caught the player: fine (or bribe), contraband confiscated, alert cleared.</summary>
         public void Arrest(SecurityGuard by)
         {
+            Kotwica.Vehicles.RingVehicle.ForceExit(); // pulled out of the vehicle first
             GameServices services = GameServices.Instance;
             string ring = by.RingId;
             int level = Mathf.Max(1, services.Alert.Level(ring));
@@ -236,6 +237,7 @@ namespace Kotwica.Security
 
         private void OnPlayerDied(Health self)
         {
+            Kotwica.Vehicles.RingVehicle.ForceExit();
             if (!respawning) StartCoroutine(Infirmary());
         }
 

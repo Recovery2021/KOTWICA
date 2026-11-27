@@ -23,6 +23,7 @@ namespace Kotwica.EditorTools
             created += CreateRings();
             created += CreateItems();
             created += CreateQuests();
+            created += DialogueDataBuilder.Build(); // conversations of chapter 2 and side quests (rebuilt every run)
             AssetDatabase.SaveAssets();
             EditorUtility.DisplayDialog("Kotwica",
                 created > 0 ? $"Utworzono {created} nowych plików danych w {Root}." : "Wszystkie dane startowe już istnieją.",
@@ -99,6 +100,9 @@ namespace Kotwica.EditorTools
             n += Item("czesci_pomp", "Części do pomp", ItemCategory.Ladunek, 25, true, "Uszczelki i wirniki pomp chłodzenia.");
             n += Item("filtr_powietrza", "Filtr powietrza", ItemCategory.Ladunek, 15, true, "Na Kesh zawsze ich brakuje.");
             n += Item("probki_lab", "Próbki z laboratorium", ItemCategory.Ladunek, 200, false, "Zaplombowane próbki z Varo. Ktoś za nie dobrze zapłaci.");
+            n += Item("kod_archiwum", "Kod do archiwum B-12", ItemCategory.Dokument, 0, true, "Cztery znaki zapisane na odwrocie formularza.");
+            n += Item("wyciag_rejestru", "Wyciąg z rejestru przydziałów", ItemCategory.Dokument, 0, true, "31 przydziałów na Varo podpisanych kluczem kwatermistrza Dorna.");
+            n += Item("odpowiedzi_egzamin", "Odpowiedzi na egzamin", ItemCategory.Dokument, 0, false, "Skopiowane z terminalu szkoły technicznej. Ochrona je zabierze.");
             return n;
         }
 
@@ -134,14 +138,36 @@ namespace Kotwica.EditorTools
                 (ObjectiveType.Porozmawiaj, "varo_klinika", 1, "Zdecyduj w klinice Varo, co z lekiem"),
                 (ObjectiveType.Dostarcz, "kesh_dokerka", 1, "Wróć do dokerki na Kesh"));
 
-            // Chapter 2 skeleton: content in the scenes comes with the Orrin ring
-            n += Quest("main_02_urzad_przepustek", "Rozdział 2: Urząd Przepustek (w budowie)", QuestKind.Glowny, "orrin",
-                "Kurs na Varo otworzył ci oczy: przepustki decydują, kto przeżyje upadek stacji. Na Orrin ktoś handluje nimi na lewo.",
+            // Chapter 2: rebuilt every run (it replaced the old skeleton); its conversations are in DialogueDataBuilder
+            Refresh("main_02_urzad_przepustek");
+            n += Quest("main_02_urzad_przepustek", "Rozdział 2: Urząd Przepustek", QuestKind.Glowny, "orrin",
+                "Kurs na Varo otworzył ci oczy: przepustki decydują, kto dostanie się bliżej Zarządu i kto przeżyje, " +
+                "gdy stacja zacznie się sypać. Na Orrin ktoś handluje nimi na lewo.",
                 autoStart: true, repeatable: false, minLevel: 1, required: new[] { "main_01_kurs_powrotny" },
                 reward: Reward(150, 300, (SocialClass.KlasaSrednia, 10)),
                 (ObjectiveType.Idz, "orrin_urzad", 1, "Dotrzyj do Urzędu Przepustek na Orrin"),
-                (ObjectiveType.Porozmawiaj, "orrin_urzednik", 1, "Porozmawiaj z urzędnikiem od przepustek"),
-                (ObjectiveType.Zdobadz, "przepustka_varo", 1, "Zdobądź przepustkę na Varo"));
+                (ObjectiveType.Porozmawiaj, "orrin_urzednik", 1, "Porozmawiaj z urzędniczką Sel"),
+                (ObjectiveType.Interakcja, "orrin_archiwum", 1, "Sprawdź rejestr w terminalu archiwum B-12"),
+                (ObjectiveType.Porozmawiaj, "orrin_dorn", 1, "Rozmów się z kwatermistrzem Dornem na targu"),
+                (ObjectiveType.Zdobadz, "przepustka_varo", 1, "Zdobądź przepustkę na Varo"),
+                (ObjectiveType.Lec, "port_varo", 1, "Zadokuj w porcie Varo"));
+
+            // Chapter 3 skeleton: the hook from chapter 2, content comes later
+            n += Quest("main_03_zarzad", "Rozdział 3: Sekretarz Zarządu (w budowie)", QuestKind.Glowny, "varo",
+                "Przepustki podpisuje ktoś z Zarządu. Miejsca w kapsułach ratunkowych dostają ci, którzy zapłacą. " +
+                "Trzeba się dowiedzieć, ilu ich naprawdę jest.",
+                autoStart: true, repeatable: false, minLevel: 1, required: new[] { "main_02_urzad_przepustek" },
+                reward: Reward(200, 400, (SocialClass.Robotnicy, 10)),
+                (ObjectiveType.Idz, "varo_zarzad", 1, "Dotrzyj pod gmach Zarządu na Varo"),
+                (ObjectiveType.Porozmawiaj, "varo_halvard", 1, "Znajdź sekretarza Halvarda (w budowie)"));
+
+            n += Quest("side_orrin_egzamin", "Egzamin Teo", QuestKind.Poboczny, "orrin",
+                "Uczeń szkoły technicznej ma jutro egzamin, od którego zależy przydział na Varo. Terminal w szkole zna odpowiedzi.",
+                autoStart: false, repeatable: false, minLevel: 1, required: null,
+                reward: Reward(60, 100, (SocialClass.KlasaSrednia, 5)),
+                (ObjectiveType.Porozmawiaj, "orrin_teo", 1, "Porozmawiaj z Teo"),
+                (ObjectiveType.Interakcja, "orrin_szkola_terminal", 1, "Zdobądź odpowiedzi z terminalu szkoły"),
+                (ObjectiveType.Porozmawiaj, "orrin_teo", 1, "Wróć do Teo"));
 
             n += Quest("side_kesh_pompy", "Zimne pompy", QuestKind.Poboczny, "kesh",
                 "Brygadzista pompowni twierdzi, że części do pomp znikają z magazynu. Bez nich baraki zamarzną.",
@@ -166,6 +192,13 @@ namespace Kotwica.EditorTools
                 (ObjectiveType.Dostarcz, "terminal_dostaw", 1, "Dostarcz paczkę do terminalu w porcie docelowym"));
 
             return n;
+        }
+
+        /// <summary>Deletes a quest asset so the code version replaces it (for quests whose design changed).</summary>
+        private static void Refresh(string questId)
+        {
+            string path = $"{Root}/Quests/Quest_{questId}.asset";
+            if (AssetDatabase.LoadAssetAtPath<QuestDefinition>(path) != null) AssetDatabase.DeleteAsset(path);
         }
 
         private static QuestReward Reward(int credits, int xp, params (SocialClass socialClass, int amount)[] reputation)

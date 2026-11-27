@@ -86,6 +86,12 @@ Role (godziny, kwestie) to pliki w `Assets/_Project/Data/Roles`. Po zmianach: **
 ## Ochrona i alarm (krok 7)
 Przestępstwo przy świadkach podnosi alarm pierścienia (0–5). Z posterunków wychodzą strażnicy (Kesh 2, Orrin 3, Varo 5), od poziomu 3 (Kesh 4) strzelają. Złapanie = mandat (w Kesh łapówka przy Perswazji 3+) i konfiskata kontrabandy. Śmierć = ambulatorium za 25% kredytów. Alarm 3+ zamyka port dla dokowania, 4+ blokuje start. Strzały wywołują panikę mieszkańców. Kod: `Scripts/Security`.
 
+## Rozmowy, rozdział 2 i pojazdy (krok 8)
+**Rozmowy z wyborami:** rozmowa to dane (`Resources/Dialogues`, typ *Kotwica/Rozmowa*): wejścia zależne od stanu zadań, węzły z kwestiami i wybory, które mogą wymagać atrybutu (np. *Perswazja 3*: widoczny, ale zablokowany, gdy masz za mało), uruchamiać zadania, zgłaszać cele, dawać/zabierać przedmioty i kredyty, zmieniać reputację, ustawiać flagi fabularne (zapisywane) i zgłaszać przestępstwa. Klawisze 1–9 lub klik, Esc kończy. Treść rozmów jest w `Editor/DialogueDataBuilder.cs` i odświeża się przy każdym uruchomieniu **Otwarty świat: utwórz dane startowe**.
+**Rozdział 2 „Urząd Przepustek” (Orrin):** urzędniczka Sel → terminal archiwum B-12 (kod od Sel za Perswazję/łapówkę, włamanie za Technikę albo kradzież kodu z biurka) → kwatermistrz Dorn na targu (kupno 250 kr, Perswazja 4, zastraszenie Walka 3 albo donos do Sel) → przepustka → dokowanie na Varo. Potem startuje szkielet rozdziału 3.
+**Zadania poboczne:** *Egzamin Teo* (Orrin, nowe), *Zimne pompy* (Kesh) i *Próbki z chłodni* (Varo) z rozmowami i wyborami.
+**Pojazdy:** wózek towarowy (Kesh, wolny), skuter kurierski (Orrin, cudzy) i kabriolet lewitujący (Varo, cudzy). F wsiada (cudzy pojazd = kradzież przy świadkach), W/S gaz, A/D skręt, Spacja hamulec, F wysiada. Potrącenie to napaść. Aresztowanie lub śmierć wyrzuca z pojazdu.
+
 ## Pierwsze uruchomienie na nowym komputerze
 1. Zainstaluj [Git](https://git-scm.com/download/win) (z Git LFS) lub GitHub Desktop.
 2. Sklonuj `Recovery2021/KOTWICA`.

@@ -40,6 +40,8 @@ namespace Kotwica.Quests
     {
         [SerializeField] private List<QuestState> quests = new List<QuestState>();
         [SerializeField] private string trackedQuestId;
+        [Tooltip("Story flags set by conversations (choices remembered for later chapters).")]
+        [SerializeField] private List<string> flags = new List<string>();
 
         [NonSerialized] public Action<QuestReward> rewardHandler;
         [NonSerialized] public Func<int> playerLevel;
@@ -59,6 +61,15 @@ namespace Kotwica.Quests
         }
 
         public void Track(string questId) => trackedQuestId = questId;
+
+        public bool HasFlag(string flag) => flags != null && !string.IsNullOrEmpty(flag) && flags.Contains(flag);
+
+        public void SetFlag(string flag)
+        {
+            if (string.IsNullOrEmpty(flag)) return;
+            flags ??= new List<string>(); // saves from before flags existed
+            if (!flags.Contains(flag)) flags.Add(flag);
+        }
 
         public QuestState Get(string questId) => string.IsNullOrEmpty(questId) ? null : quests.Find(q => q.questId == questId);
 

@@ -65,6 +65,9 @@ namespace Kotwica.Player
 
         private void Update()
         {
+            // A conversation owns the cursor: clicking a choice must not lock it
+            if (GameInput.Blocked) return;
+
             // Esc frees the mouse (for the editor); a click in the game window locks it again
             if (GameInput.CursorTogglePressed())
             {

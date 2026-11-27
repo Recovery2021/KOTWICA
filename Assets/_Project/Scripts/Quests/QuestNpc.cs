@@ -1,4 +1,5 @@
 using Kotwica.Core;
+using Kotwica.Dialogue;
 using UnityEngine;
 
 namespace Kotwica.Quests
@@ -6,7 +7,8 @@ namespace Kotwica.Quests
     /// <summary>
     /// A resident you can talk to (F): offers a quest, and counts as the "talk to X" target
     /// of whatever quest currently needs them. Can hand over an item when talked to.
-    /// Shows a floating name above the head.
+    /// Shows a floating name above the head. With a dialogue id set, F opens that conversation instead
+    /// (the dialogue's choices then start quests, report objectives and hand over items).
     /// </summary>
     public class QuestNpc : MonoBehaviour, IInteractable
     {
@@ -18,6 +20,10 @@ namespace Kotwica.Quests
         [Tooltip("Item given when the talk objective is fulfilled (optional).")]
         [SerializeField] private string giveItemId;
         [TextArea, SerializeField] private string idleLine = "Nie mam teraz nic dla ciebie.";
+        [Tooltip("Conversation in Resources/Dialogues (optional). Replaces the simple offer/talk behaviour.")]
+        [SerializeField] private string dialogueId;
+
+        private bool HasDialogue => !string.IsNullOrEmpty(dialogueId) && DialogueDefinition.Find(dialogueId) != null;
 
         private GameServices Services => GameServices.Instance;
         private bool CanOffer => Services != null && !string.IsNullOrEmpty(offersQuestId) && Services.Quests.CanStart(offersQuestId);
@@ -30,14 +36,16 @@ namespace Kotwica.Quests
             {
                 if (IsTalkTarget) return $"Porozmawiaj: {npcName}";
                 if (CanOffer) return $"{npcName} ma zlecenie: {QuestDefinition.Find(offersQuestId)?.title}";
-                return $"{npcName}: {idleLine}";
+                return HasDialogue ? $"Porozmawiaj: {npcName}" : $"{npcName}: {idleLine}";
             }
         }
 
-        public bool CanInteract => IsTalkTarget || CanOffer;
+        public bool CanInteract => HasDialogue ? !DialogueRunner.IsOpen : IsTalkTarget || CanOffer;
 
         public void Interact()
         {
+            if (HasDialogue && DialogueRunner.Open(dialogueId, transform, DialogueObject.FindPlayer())) return;
+
             if (CanOffer && !IsTalkTarget)
             {
                 Services.Quests.Start(offersQuestId);

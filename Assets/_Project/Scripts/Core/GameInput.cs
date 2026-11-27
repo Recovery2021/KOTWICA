@@ -15,17 +15,64 @@ namespace Kotwica.Core
         // Scales raw mouse delta (pixels); lowered after playtest 1 (mouse felt too fast)
         private const float MouseDeltaScale = 0.06f;
 
+        /// <summary>Set while a conversation (or another modal screen) is open: gameplay keys read as released.</summary>
+        public static bool InDialogue { get; set; }
+        private static int unblockFrame = -1;
+
+        /// <summary>Gameplay input is ignored now (also for one frame after a conversation closes).</summary>
+        public static bool Blocked => InDialogue || Time.frameCount <= unblockFrame;
+
+        /// <summary>Keeps gameplay keys blocked until the end of the next frame (the closing key press must not reopen anything).</summary>
+        public static void BlockUntilNextFrame() => unblockFrame = Time.frameCount + 1;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            InDialogue = false;
+            unblockFrame = -1;
+        }
+
 #if ENABLE_INPUT_SYSTEM
         private static Keyboard Kb => Keyboard.current;
         private static Mouse Ms => Mouse.current;
 
-        private static bool Held(Key key) => Kb != null && Kb[key].isPressed;
-        private static bool Down(Key key) => Kb != null && Kb[key].wasPressedThisFrame;
+        private static bool Held(Key key) => !Blocked && Kb != null && Kb[key].isPressed;
+        private static bool Down(Key key) => !Blocked && Kb != null && Kb[key].wasPressedThisFrame;
+
+        /// <summary>Number key 1..9 pressed this frame (0 = none); works while gameplay input is blocked.</summary>
+        public static int NumberPressed()
+        {
+            if (Kb == null) return 0;
+            Key[] keys = { Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5, Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9 };
+            for (int i = 0; i < keys.Length; i++)
+                if (Kb[keys[i]].wasPressedThisFrame) return i + 1;
+            return 0;
+        }
+
+        /// <summary>F or Enter, readable while blocked (to continue a conversation).</summary>
+        public static bool ConfirmPressed() => Kb != null && (Kb[Key.F].wasPressedThisFrame || Kb[Key.Enter].wasPressedThisFrame);
+
+        /// <summary>Esc, readable while blocked (to leave a conversation).</summary>
+        public static bool CancelPressed() => Kb != null && Kb[Key.Escape].wasPressedThisFrame;
 
         private static Vector2 RawLook() => Ms != null ? Ms.delta.ReadValue() * MouseDeltaScale : Vector2.zero;
 #else
-        private static bool Held(KeyCode key) => Input.GetKey(key);
-        private static bool Down(KeyCode key) => Input.GetKeyDown(key);
+        private static bool Held(KeyCode key) => !Blocked && Input.GetKey(key);
+        private static bool Down(KeyCode key) => !Blocked && Input.GetKeyDown(key);
+
+        /// <summary>Number key 1..9 pressed this frame (0 = none); works while gameplay input is blocked.</summary>
+        public static int NumberPressed()
+        {
+            for (int i = 0; i < 9; i++)
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i)) return i + 1;
+            return 0;
+        }
+
+        /// <summary>F or Enter, readable while blocked (to continue a conversation).</summary>
+        public static bool ConfirmPressed() => Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Return);
+
+        /// <summary>Esc, readable while blocked (to leave a conversation).</summary>
+        public static bool CancelPressed() => Input.GetKeyDown(KeyCode.Escape);
 
         private static Vector2 RawLook() => new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y")) * 0.6f;
 #endif
@@ -62,10 +109,11 @@ namespace Kotwica.Core
         public static bool QuickLoadPressed() => Down(Key.F9);
         public static bool ReloadPressed() => Down(Key.R);
         /// <summary>Right mouse button: aim over the shoulder.</summary>
-        public static bool AimHeld() => Locked && Ms != null && Ms.rightButton.isPressed;
+        public static bool AimHeld() => !Blocked && Locked && Ms != null && Ms.rightButton.isPressed;
         /// <summary>Left mouse button: fire (ignored while the cursor is free).</summary>
-        public static bool FireHeld() => Locked && Ms != null && Ms.leftButton.isPressed;
+        public static bool FireHeld() => !Blocked && Locked && Ms != null && Ms.leftButton.isPressed;
         public static bool AnyClickPressed() => Ms != null && Ms.leftButton.wasPressedThisFrame;
+        public static bool LeftMouseHeld() => Ms != null && Ms.leftButton.isPressed;
         /// <summary>Ship vertical thrust: Space = up, Ctrl = down.</summary>
         public static float Vertical() => (Held(Key.Space) ? 1f : 0f) - (Held(Key.LeftCtrl) ? 1f : 0f);
         /// <summary>Ship roll: E = right, Q = left.</summary>
@@ -82,9 +130,10 @@ namespace Kotwica.Core
         public static bool QuickSavePressed() => Down(KeyCode.F5);
         public static bool QuickLoadPressed() => Down(KeyCode.F9);
         public static bool ReloadPressed() => Down(KeyCode.R);
-        public static bool AimHeld() => Locked && Input.GetMouseButton(1);
-        public static bool FireHeld() => Locked && Input.GetMouseButton(0);
+        public static bool AimHeld() => !Blocked && Locked && Input.GetMouseButton(1);
+        public static bool FireHeld() => !Blocked && Locked && Input.GetMouseButton(0);
         public static bool AnyClickPressed() => Input.GetMouseButtonDown(0);
+        public static bool LeftMouseHeld() => Input.GetMouseButton(0);
         public static float Vertical() => (Held(KeyCode.Space) ? 1f : 0f) - (Held(KeyCode.LeftControl) ? 1f : 0f);
         public static float Roll() => (Held(KeyCode.E) ? 1f : 0f) - (Held(KeyCode.Q) ? 1f : 0f);
 #endif
